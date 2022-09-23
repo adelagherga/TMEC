@@ -1,5 +1,5 @@
 /*
-reducedForms.m
+findForms.m
 
 This function determines all Thue--Mahler forms required to generate all elliptic
 curves of conductor N with no non-trivial rational 2-torsion.
@@ -668,6 +668,33 @@ seqEnumToString:=function(X : quotes:=false)
     return strX;
 end function;
 
+findForms:=procedure(N)
+    /*
+      Determines all Thue--Mahler forms required to generate all elliptic
+      curves of conductor N with no non-trivial rational 2-torsion.
+
+      Parameters
+          N: MonStgElt
+      Returns
+          OutFile: MonStgElt
+              A .csv file named NForms.csv containing the rows
+	      "alist,a,primelist" for each Thue--Mahler form to solve. If there
+	      are no forms to solve, no such file is created.
+   */
+    sN:=IntegerToString(N);
+    OutFile:="./Data/TMForms/" cat sN cat "Forms.csv";
+    OF:=Open(OutFile,"w");
+    validForms:=reducedForms(N);
+    print "Found ",#validForms,"forms for N = " cat sN;
+    for form in validForms do
+	alist,a,primelist:=Explode(form);
+	fprintf OF,"%o,%o,%o\n",seqEnumToString(alist),
+		IntegerToString(a),seqEnumToString(primelist);
+    end for;
+    print "Data for N = " cat sN cat " written to " cat OutFile;
+end procedure;
+
+/*
 OutFile:="../Data/TMForms/" cat N cat "Forms.csv";
 N:=StringToInteger(N);
 validForms:=reducedForms(N);
@@ -677,3 +704,4 @@ for form in validForms do
 	    IntegerToString(a),seqEnumToString(primelist);
 end for;
 exit;
+*/
