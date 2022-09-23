@@ -693,15 +693,3 @@ findForms:=procedure(N)
     end for;
     print "Data for N = " cat sN cat " written to " cat OutFile;
 end procedure;
-
-/*
-OutFile:="../Data/TMForms/" cat N cat "Forms.csv";
-N:=StringToInteger(N);
-validForms:=reducedForms(N);
-for form in validForms do
-    alist,a,primelist:=Explode(form);
-    fprintf OutFile, "%o,%o,%o\n",seqEnumToString(alist),
-	    IntegerToString(a),seqEnumToString(primelist);
-end for;
-exit;
-*/
