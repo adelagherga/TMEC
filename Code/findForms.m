@@ -668,7 +668,7 @@ seqEnumToString:=function(X : quotes:=false)
     return strX;
 end function;
 
-OutFile:="../Data/TMForms/" cat N cat "Forms.csv";
+OutFile:="/Data/TMForms/" cat N cat "Forms.csv";
 sN:=N;
 N:=StringToInteger(N);
 validForms:=findForms(N);
