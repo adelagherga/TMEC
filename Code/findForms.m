@@ -1,16 +1,16 @@
 /*
 findForms.m
 
-This function determines all Thue--Mahler forms required to generate all elliptic
-curves of conductor N with no non-trivial rational 2-torsion.
+This function determines all Thue--Mahler forms required to generate all
+elliptic curves of conductor N with no non-trivial rational 2-torsion.
 
 Parameters
     N: RngIntElt
 Returns
     OutFile: MonStgElt
-        A .csv file named NForms.csv containing the rows "alist,a,primelist" for
-	each Thue--Mahler form to solve. If there are no forms to solve, no such
-        file is created.
+        A .csv file named NForms.csv containing the rows "N,alist,a,primelist"
+	for each Thue--Mahler form to solve. If there are no forms to solve, no
+	such file is created.
 Authors
     Adela Gherga <adelagherga@gmail.com>
 Created
@@ -671,7 +671,7 @@ end function;
 OutFile:="../Data/TMForms/" cat N cat "Forms.csv";
 sN:=N;
 N:=StringToInteger(N);
-validForms:=reducedForms(N);
+validForms:=findForms(N);
 print "Found ",#validForms,"forms for N = " cat sN;
 for form in validForms do
     alist,a,primelist:=Explode(form);
