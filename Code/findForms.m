@@ -679,4 +679,4 @@ for form in validForms do
 	    IntegerToString(a),seqEnumToString(primelist);
 end for;
 print "Data for N = " cat sN cat " written to " cat OutFile;
-exit();
+exit;
