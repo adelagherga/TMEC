@@ -353,7 +353,7 @@ modpCheckDivRHS:=function(F,q)
 	Zmodq:=ResidueClassRing(q);
     end if;
     for u,v in [0..q-1] do
-	if [u,v] ne [0,0] then
+	if (GCD(q,GCD(u,v)) eq 1) then
 	    F_q:=Zmodq!(Evaluate(F,[u,v]));
 	    if F_q notin FmodqList then
 		Append(~FmodqList,F_q);
@@ -588,7 +588,7 @@ testForm:=function(N,prime2,prime3,form)
     return validForms;
 end function;
 
-reducedForms:=function(N)
+findForms:=function(N)
     /*
       Determines all Thue--Mahler forms to be solved in order to compute all
       elliptic curves E of conductor N, where E has non-zero j-invariant and no
@@ -668,28 +668,15 @@ seqEnumToString:=function(X : quotes:=false)
     return strX;
 end function;
 
-findForms:=procedure(N)
-    /*
-      Determines all Thue--Mahler forms required to generate all elliptic
-      curves of conductor N with no non-trivial rational 2-torsion.
-
-      Parameters
-          N: MonStgElt
-      Returns
-          OutFile: MonStgElt
-              A .csv file named NForms.csv containing the rows
-	      "alist,a,primelist" for each Thue--Mahler form to solve. If there
-	      are no forms to solve, no such file is created.
-   */
-    sN:=IntegerToString(N);
-    OutFile:="./Data/TMForms/" cat sN cat "Forms.csv";
-    OF:=Open(OutFile,"w");
-    validForms:=reducedForms(N);
-    print "Found ",#validForms,"forms for N = " cat sN;
-    for form in validForms do
-	alist,a,primelist:=Explode(form);
-	fprintf OF,"%o,%o,%o\n",seqEnumToString(alist),
-		IntegerToString(a),seqEnumToString(primelist);
-    end for;
-    print "Data for N = " cat sN cat " written to " cat OutFile;
-end procedure;
+OutFile:="../Data/TMForms/" cat N cat "Forms.csv";
+sN:=N;
+N:=StringToInteger(N);
+validForms:=reducedForms(N);
+print "Found ",#validForms,"forms for N = " cat sN;
+for form in validForms do
+    alist,a,primelist:=Explode(form);
+    fprintf OutFile,"%o,%o,%o,%o\n",sN,seqEnumToString(alist),
+	    IntegerToString(a),seqEnumToString(primelist);
+end for;
+print "Data for N = " cat sN cat " written to " cat OutFile;
+exit();

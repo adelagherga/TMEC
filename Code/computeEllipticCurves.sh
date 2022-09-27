@@ -9,13 +9,47 @@
 # Created
 #    24 August 2022
 
-# Run Thue code in parallel.
-# That is, for each line "set" of Data/Forms/ThueTestForms.csv, run
-# magma set:="set" Code/computeEllipticCurvesThue.m &.
-# The following code runs these jobs using GNU parallel, running no more than
-# 20 jobs at once (-j20), and storing GNU parallel's progress in the logfile
-# Data/ThueTest1Log (--joblog Data/ThueTest1Log).
-cat Data/Forms/ThueTestForms.csv | parallel -j20 --joblog Data/ThueTest1Log magma set:={} Code/computeEllipticCurvesThue.m 2>&1
+while getopts ":l:" opt; do
+    case $opt in
+	l)
+	    # List of conductors.
+	    list+=("$OPTARG")
+	    ;;
+	\?)
+	    echo "Invalid option: -$OPTARG." >&2
+	    exit 1 ;;
+	:)
+	    echo "Option -$OPTARG requires an argument." >&2
+	    exit 1 ;;
+    esac
+done
+if [ -z "${list}" ]; then
+    if [ $# -eq 0 ]; then
+	echo "Argument required." >&2
+	exit 1
+    fi
+    if [ $# -eq 1 ]; then
+	list=($1)
+    elif [ $# -eq '2' ]; then
+	list=($(seq $1 $2))
+    else
+	echo "Invalid argument."
+	exit 1
+    fi
+fi
+
+mkdir Data
+mkdir Data/EllipticCurves
+# Generate files for each conductor and populate each file with the
+# corresponding elliptic curves.
+for N in "${list[@]}"; do
+    touch "Data/EllipticCurves/${N}.csv"
+done
+
+echo "Generating cubic forms"
+(for N in "${list[@]}"; do echo "$N"; done) | parallel -j20 magma N:={} Code/findForms.m 2>&1
+(for N in "${list[@]}"; do echo "$N"; done) | magma N:=$N Code/findForms.m 2>&1
+
 
 # Run ThueMahler code in parallel.
 # That is, for each line "set" of Data/Forms/TMTestForms.csv, run

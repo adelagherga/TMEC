@@ -64,8 +64,8 @@ seqEnumToString:=function(X : quotes:=false)
     return strX;
 end function;
 
-CommaSplit:=Split(set,","); // Split bash input by ",".
-RBracketSplit:=Split(set,"()"); // Split bash input by "(" and ")".
+commaSplit:=Split(set,","); // Split bash input by ",".
+bracketSplit:=Split(set,"[]"); // Split bash input by "[" and "]".
 // Delimiter for form.
 assert CommaSplit[2][2] eq "(" and CommaSplit[5][#CommaSplit[5]-1] eq ")";
 // Delimiter for optimal form.
