@@ -668,15 +668,15 @@ seqEnumToString:=function(X : quotes:=false)
     return strX;
 end function;
 
-OutFile:="/Data/TMForms/" cat N cat "Forms.csv";
+OutFile:="./Data/TMForms/" cat N cat "Forms.csv";
 sN:=N;
 N:=StringToInteger(N);
 validForms:=findForms(N);
 print "Found ",#validForms,"forms for N = " cat sN;
 for form in validForms do
     alist,a,primelist:=Explode(form);
-    fprintf OutFile,"%o,%o,%o,%o\n",sN,seqEnumToString(alist),
-	    IntegerToString(a),seqEnumToString(primelist);
+    printf OutFile,"%o,%o,%o,%o\n",sN,seqEnumToString(alist),
+	   IntegerToString(a),seqEnumToString(primelist);
 end for;
 print "Data for N = " cat sN cat " written to " cat OutFile;
 exit;
