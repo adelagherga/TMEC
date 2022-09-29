@@ -1,7 +1,7 @@
 /*
 findForms.m
 
-This function determines all Thue--Mahler forms required to generate all
+These functions determine all Thue--Mahler forms required to generate all
 elliptic curves of conductor N with no non-trivial rational 2-torsion.
 
 Parameters

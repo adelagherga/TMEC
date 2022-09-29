@@ -14,6 +14,8 @@ while getopts ":l:" opt; do
 	l)
 	    # List of conductors.
 	    list+=("$OPTARG")
+	    name="${list[*]}"
+	    name="["${data_string//${IFS:0:1}/,}"]"
 	    ;;
 	\?)
 	    echo "Invalid option: -$OPTARG." >&2
@@ -30,25 +32,39 @@ if [ -z "${list}" ]; then
     fi
     if [ $# -eq 1 ]; then
 	list=($1)
+	name="[$1]"
     elif [ $# -eq '2' ]; then
 	list=($(seq $1 $2))
+	name="[$1..$2]"
     else
 	echo "Invalid argument."
 	exit 1
     fi
 fi
 
-mkdir Data
-mkdir Data/EllipticCurves
 # Generate files for each conductor and populate each file with the
 # corresponding elliptic curves.
 for N in "${list[@]}"; do
     touch "Data/EllipticCurves/${N}.csv"
 done
 
-echo "Generating cubic forms"
+# Generate all required Thue--Mahler forms in parallel, applying all necessary
+# local tests in the process.
+echo "Generating all required cubic forms for conductors in $name."
 (for N in "${list[@]}"; do echo "$N"; done) | parallel -j20 magma N:={} Code/findForms.m 2>&1
-(for N in "${list[@]}"; do echo "$N"; done) | magma N:=$N Code/findForms.m 2>&1
+
+# Amalgamate all Thue--Mahler forms into a single document.
+for N in "${list[@]}"; do
+    F="Data/TMForms/${N}Forms.csv"
+    cat "$F" >> "Data/TMForms/${name}Forms.csv"
+    rm -f "$F"
+done
+
+# Remove redundant Thue--Mahler equations.
+chmod +x ../Documents/Work/Postdoc/TMEC/Code/gatherFormRedundancy.py
+python Data/TMForms/${name}Forms.csv Data/TMForms/${name}SortedForms.csv
+mv Data/TMForms/${name}SortedForms.csv Data/TMForms/${name}Forms.csv
+
 
 
 # Run ThueMahler code in parallel.
