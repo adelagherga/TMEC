@@ -92,7 +92,6 @@ def gatherFormRedundancy(IF,OF):
             forms[alist].append([N,aprimelist])
         else:
             forms[alist]=[[N,aprimelist]]
-
     formsRHS={}
     for alist in sorted(forms):
         formsRHS[alist]={}
@@ -104,7 +103,6 @@ def gatherFormRedundancy(IF,OF):
                 formsRHS[alist][aprimelist].append(N)
             else:
                 formsRHS[alist][aprimelist]=[N]
-
     for alist in sorted(formsRHS):
         for aprimelist in sorted(formsRHS[alist]):
             # For a given form with 2 rhs possibilities, (Nlist1,a1,primelist1) and
@@ -121,7 +119,6 @@ def gatherFormRedundancy(IF,OF):
                         formsRHS[alist][aprimelist2].sort()
                         del formsRHS[alist][aprimelist]
                         break
-
     OutFile=open(OF,"w")
     # Output all data to the file OF in the format "Nlist,alist,a,primelist".
     for alist in sorted(formsRHS):
