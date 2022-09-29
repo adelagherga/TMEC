@@ -84,12 +84,9 @@ def gatherFormRedundancy(IF,OF):
               The string denoting the output file, wherein each line is in the
               "Nlist,alist,a,primelist".
     """
-    print(IF)
-    print(OF)
     forms={}
     for line in open(IF):
         # Sort data by alist.
-        print(line)
         N,alist,aprimelist=parseForm(line)
         if alist in forms:
             forms[alist].append([N,aprimelist])
