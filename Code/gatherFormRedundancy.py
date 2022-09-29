@@ -89,6 +89,7 @@ def gatherFormRedundancy(IF,OF):
     forms={}
     for line in open(IF):
         # Sort data by alist.
+        print(line)
         N,alist,aprimelist=parseForm(line)
         if alist in forms:
             forms[alist].append([N,aprimelist])
@@ -132,7 +133,5 @@ def gatherFormRedundancy(IF,OF):
 
 if __name__ == '__main__':
     # Map command line arguments to function arguments.
-    #gatherFormRedundancy(*sys.argv[1:])
-    args = sys.argv
-    print args
+    args=sys.argv
     gatherFormRedundancy(*args[-2:])

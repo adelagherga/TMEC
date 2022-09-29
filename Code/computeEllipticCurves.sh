@@ -62,7 +62,7 @@ done
 
 # Remove redundant Thue--Mahler equations.
 chmod +x Code/gatherFormRedundancy.py
-python Data/TMForms/${name}Forms.csv Data/TMForms/${name}SortedForms.csv
+python Code/gatherFormRedundancy.py "Data/TMForms/${name}Forms.csv""Data/TMForms/${name}SortedForms.csv"
 mv Data/TMForms/${name}SortedForms.csv Data/TMForms/${name}Forms.csv
 
 
