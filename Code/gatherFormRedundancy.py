@@ -24,7 +24,7 @@
 
 import sys
 
-def parceForm(line):
+def parseForm(line):
     """
       Extracts N,alist,a,primelist from the string line.
 
@@ -84,10 +84,12 @@ def gatherFormRedundancy(IF,OF):
               The string denoting the output file, wherein each line is in the
               "Nlist,alist,a,primelist".
     """
+    print(IF)
+    print(OF)
     forms={}
     for line in open(IF):
         # Sort data by alist.
-        N,alist,aprimelist=parceForm(line)
+        N,alist,aprimelist=parseForm(line)
         if alist in forms:
             forms[alist].append([N,aprimelist])
         else:
@@ -132,7 +134,5 @@ if __name__ == '__main__':
     # Map command line arguments to function arguments.
     #gatherFormRedundancy(*sys.argv[1:])
     args = sys.argv
-    # args[0] = current file
-    # args[1] = function name
-    # args[2:] = function args : (*unpacked)
-    globals()[args[1]](*args[2:])
+    print args
+    gatherFormRedundancy(*args[-2:])
