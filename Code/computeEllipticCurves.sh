@@ -56,12 +56,12 @@ echo "Generating all required cubic forms for conductors in $name."
 # Amalgamate all Thue--Mahler forms into a single document.
 for N in "${list[@]}"; do
     F="Data/TMForms/${N}Forms.csv"
-    cat "$F" >> "Data/TMForms/${name}Forms.csv"
+    [ -f "$F" ] && cat "$F" >> "Data/TMForms/${name}Forms.csv"
     rm -f "$F"
 done
 
 # Remove redundant Thue--Mahler equations.
-chmod +x ../Documents/Work/Postdoc/TMEC/Code/gatherFormRedundancy.py
+chmod +x Code/gatherFormRedundancy.py
 python Data/TMForms/${name}Forms.csv Data/TMForms/${name}SortedForms.csv
 mv Data/TMForms/${name}SortedForms.csv Data/TMForms/${name}Forms.csv
 

@@ -133,4 +133,9 @@ def gatherFormRedundancy(IF,OF):
 
 if __name__ == '__main__':
     # Map command line arguments to function arguments.
-    gatherFormRedundancy(*sys.argv[1:])
+    #gatherFormRedundancy(*sys.argv[1:])
+    args = sys.argv
+    # args[0] = current file
+    # args[1] = function name
+    # args[2:] = function args : (*unpacked)
+    globals()[args[1]](*args[2:])

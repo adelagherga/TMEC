@@ -103,11 +103,12 @@ equivForm:=function(alist)
     a0Other:=[newalist : newalist in GL2Zalists |
 	      newalist notin a0Eq1 and newalist notin a0IsPrime ];
     GL2Zalists:=Sort(a0Eq1) cat Sort(a0IsPrime) cat Sort(a0Other);
-    // Sort resulting GL2(Z)-equivalent forms // LEFT OFF HERE
+    // Sort resulting GL2(Z)-equivalent forms by number of prime factors of a0.
     if alist in GL2Zalists then
 	Exclude(~GL2Zalists,alist);
     end if;
     if #GL2Zalists lt 10 then
+	// Return at most 10 candidate GL2(Z)-equivalent forms.
 	return [alist] cat GL2Zalists;
     else
 	return [alist] cat GL2Zalists[1..10];
