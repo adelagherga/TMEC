@@ -17,6 +17,8 @@ Created
     16 September 2022
 */
 
+load "./Code/parseString.m";
+
 primes23:=function(alpha,beta)
     /*
       Given ord_2(N) and ord_3(N) of an elliptic curve conductor N, determines
@@ -633,39 +635,6 @@ findForms:=function(N)
 	validForms:=validForms join testForm(N,prime2,prime3,form);
     end for;
     return validForms;
-end function;
-
-seqEnumToString:=function(X : quotes:=false)
-    /*
-      Convert a SeqEnum into a string without whitespace, enclosed by "[ ]" for
-      .csv input
-
-      Parameters
-          X: SeqEnum
-          quotes: BoolElt
-              A true/false vale. If set to true, encloses the output in
-	      quotations.
-      Returns
-          stX: MonStgElt
-	      The set X as a string without whitespace.
-   */
-    strX:= "[";
-    for i in [1..#X] do
-	if X[i] in Integers() then
-	    strX:=strX cat IntegerToString(Integers()!X[i]);
-	elif X[i] in Rationals() then
-	    strX:=strX cat IntegerToString(Numerator(X[i])) cat "/" cat
-		  IntegerToString(Denominator(X[i]));
-	end if;
-	if (i ne #X) then
-	    strX:=strX cat ",";
-	end if;
-    end for;
-    strX:=strX cat "]";
-    if quotes then
-	strX:="\"" cat strX cat "\"";
-    end if;
-    return strX;
 end function;
 
 OutFile:="./Data/TMForms/" cat N cat "Forms.csv";

@@ -30,44 +30,12 @@ Created
 ChangeDirectory("./Code");
 load "./solveThueMahler.m";
 load "./convertTMToEllipticCurves.m";
-
-seqEnumToString:=function(X : quotes:=false)
-    /*
-      Convert a SeqEnum into a string without whitespace, enclosed by "[ ]" for
-      .csv input
-
-      Parameters
-          X: SeqEnum
-          quotes: BoolElt
-              A true/false vale. If set to true, encloses the output in
-	      quotations.
-      Returns
-          stX: MonStgElt
-	      The set X as a string without whitespace.
-   */
-    strX:= "[";
-    for i in [1..#X] do
-	if X[i] in Integers() then
-	    strX:=strX cat IntegerToString(Integers()!X[i]);
-	elif X[i] in Rationals() then
-	    strX:=strX cat IntegerToString(Numerator(X[i])) cat "/" cat
-		  IntegerToString(Denominator(X[i]));
-	end if;
-	if (i ne #X) then
-	    strX:=strX cat ",";
-	end if;
-    end for;
-    strX:=strX cat "]";
-    if quotes then
-	strX:="\"" cat strX cat "\"";
-    end if;
-    return strX;
-end function;
+load "./parseString.m";
 
 commaSplit:=Split(set,","); // Split bash input by ",".
 bracketSplit:=Split(set,"[]"); // Split bash input by "[" and "]".
 // Delimiter for form.
-assert CommaSplit[2][2] eq "(" and CommaSplit[5][#CommaSplit[5]-1] eq ")";
+assert commaSplit[1][1] eq "[" and commaSplit[4][#commaSplit[4]-1] eq "";
 // Delimiter for optimal form.
 assert CommaSplit[6][2] eq "(" and CommaSplit[9][#CommaSplit[9]-1] eq ")";
 // Delimiter for min poly.

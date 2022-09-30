@@ -1,6 +1,7 @@
 /*
 generateTM.m
 
+// ommitting those which have no S-unit equations
 <description>
 
 Authors
@@ -44,17 +45,18 @@ findGL2Zactions:=function(a,c)
 end function;
 
 equivForm:=function(alist)
-
     /*
-    // generate possible GL2(Z) actions under which c0 is small, avoiding Thue solver
+      Given alist, generates at most 11 GL2(Z)-equivalent forms, sorted by the
+      number of prime divisors of a0.
 
-     Description: generate all possible GL2(Z) actions under which c0 lies in [1..20]
-     Input: clist:= [c_0, \dots, c_n], the coefficients of F(X,Y)
-     Output: GL2Zclists:= all possible coefficients of F(X,Y) under GL2(Z) action under which
-                          c0 lies in the interval [1..20]
-     Example:
+      Parameters
+          alist: SeqEnum
+              A list of coefficients a_0, a_1,...,a_3 defining a cubic form.
+      Returns
+          GL2Zalists: SeqEnum
+	      A list of at most 11 elements (alist_i), where each alist_i
+	      defines a GL2(Z)-equivalent form to alist.
    */
-
     QUV<U,V>:=PolynomialRing(Rationals(),2);
     Qx<x>:= PolynomialRing(Integers());
     assert &and[a_i in Integers() : a_i in alist];
@@ -108,7 +110,7 @@ equivForm:=function(alist)
 	Exclude(~GL2Zalists,alist);
     end if;
     if #GL2Zalists lt 10 then
-	// Return at most 10 candidate GL2(Z)-equivalent forms.
+	// Return at most 11 candidate GL2(Z)-equivalent forms.
 	return [alist] cat GL2Zalists;
     else
 	return [alist] cat GL2Zalists[1..10];
@@ -117,20 +119,34 @@ end function;
 
 optimalForm:=function(alist,a,primelist)
     /*
-      <description>
+      Generates and tests 11 GL2(Z)-equivalent forms to alist and determines
+      the form yielding the least number of S-unit equations, along with the
+      number of potential monic Thue--Mahler equations associated to that
+      minimal form and their respective number of S-unit equations.
 
       Parameters
-          <param>: <param type>
-	      <param description>
+          alist: SeqEnum
+              A list of coefficients a_0, a_1,...,a_3.
+          a: RngIntElt
+          primelist: SeqEnum
+              A list of rational primes p_1, p_2,...,p_v.
       Returns
-          <param>: <param type>
-	      <param description>
+          alist_i: SeqEnum
+	      A list of coefficients a_0, a_1,...,a_3 defining an optimal
+	      GL2(Z)-equivalent form to alist. That is, alist_i generates the
+	      least number of S-unit equations, of the GL2(Z)-equivalent forms
+	      tested.
+          caseNo_i: SeqEnum
+              A list of elements [i,j] corresponding to alist_i, a, primelist,
+              where i denotes the index of the potential monic Thue--Mahler
+	      equation associated to alist_i, and j denotes the number of S-unit
+	      equations corresponding to that monic equation.
    */
     GL2Zalists:=equivForm(alist);
     if #GL2Zalists eq 1 then
 	return GL2Zalists[1];
     end if;
-    caseNo:=[0 : i in [1..#GL2Zalists]];
+    caseNo:=[];
     for i in [1..#GL2Zalists] do
 	alist:=GL2Zalists[i];
 	assert &and[IsPrime(p) : p in primelist];
@@ -151,60 +167,33 @@ optimalForm:=function(alist,a,primelist)
 	assert &and[a_i in Integers() : a_i in falist];
 	falist:=[Integers()!a_i : a_i in falist];
 	newablist:=makeMonic(alist,a,primelist);
+	count:=[];
 	no:=0;
 	for j in [1..#newablist] do
             new_a:=Integers()!newablist[j][1][1];
             blist:=newablist[j][2];
 	    assert &and[Valuation(new_a,p) eq 0 : p in primelist];
-	    no:=no+#equationsInK(falist,new_a,primelist);
+	    tauDeltaList:=equationsInK(falist,new_a,primelist);
+	    Append(~count,[j,#tauDeltaList]);
+	    no:=no+#tauDeltaList;
 	end for;
-	caseNo[i]:=no;
+	caseNo[i]:=<no,count>;
     end for;
-    min,ind:=Min(caseNo);
-    return GL2Zalists[ind];
+    min,ind:=Min([c[1] : c in caseNo]);
+    return GL2Zalists[ind],caseNo[ind][2];
 end function;
 
-// this should be it's own function in the same file as seqenumtostring
-// need also to sort the code folder and the directories (ie. where we should be, etc)
-
-commaSplit:=Split(set,","); // Split bash input by ",".
-bracketSplit:=Split(set,"[]"); // Split bash input by "[" and "]".
-assert (commaSplit[2][1] eq "[") and (commaSplit[5][#commaSplit[5]] eq "]");
-assert (#bracketSplit eq 4);
-N:=StringToInteger(commaSplit[1]);
-alist:=[StringToInteger(a_i) : a_i in Split(bracketSplit[2],",")];
-a:=StringToInteger(commaSplit[6]);
-primelist:=[StringToInteger(p) : p in Split(bracketSplit[4],",")];
-
-
-alist:=optimalForm(alist,a,primelist);
-
-assert &and[IsPrime(p) : p in primelist];
-assert &and[a_i in Integers() : a_i in alist];
-a0:=Integers()!alist[1];
-assert a0 ne 0;
-d:=#alist-1;
-assert d eq 3;
-QUV<U,V>:=PolynomialRing(Rationals(),2);
-Qx<x>:=PolynomialRing(Rationals());
-F:=&+[alist[i+1]*U^(d-i)*V^i : i in [0..d]];
-assert IsHomogeneous(F);
-f:=a0^(d-1)*Evaluate(F,[x/a0,1]);
-assert IsMonic(f);
-assert Degree(f) eq d;
-assert IsIrreducible(f);
-falist:=Reverse(Coefficients(f));
-assert &and[a_i in Integers() : a_i in falist];
-falist:=[Integers()!a_i : a_i in falist];
-newablist:=makeMonic(alist,a,primelist);
-
-for i in [1..#newablist] do
-    new_a:=Integers()!newablist[i][1][1];
-    assert &and[Valuation(new_a,p) eq 0 : p in primelist];
-    tauDeltaList:=equationsInK(falist,new_a,primelist);
-    for j in [1..#tauDeltaList] do
-	print N,alist,a,primelist,i,j;
+alist,a,primelist:=extractForm(set);
+if IsEmpty(primelist) then
+    print set;
+else
+    alist,caseNo:=optimalForm(alist,a,primelist);
+    for i in [1..#caseNo] do
+	assert i eq caseNo[i][1];
+	if (caseNo[i][2] ne 0) then
+	    for j in [1..caseNo[i][2]] do
+		print set cat "," cat seqEnumToString([i,j]);
+	    end for;
+	end if;
     end for;
-end for;
-print "-========================";
-end for;
+end if;

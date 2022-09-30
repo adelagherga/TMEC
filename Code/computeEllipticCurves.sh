@@ -65,6 +65,8 @@ chmod +x Code/gatherFormRedundancy.py
 python Code/gatherFormRedundancy.py "Data/TMForms/${name}Forms.csv" "Data/TMForms/${name}SortedForms.csv"
 mv Data/TMForms/${name}SortedForms.csv Data/TMForms/${name}Forms.csv
 
+cat Data/Forms/${name}Forms.csv | parallel -j20 magma set:={} Code/optimalForm.m 2>&1
+
 
 
 # Run ThueMahler code in parallel.
