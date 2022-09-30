@@ -1,9 +1,18 @@
 /*
-generateTM.m
+optimalTM.m
 
-// ommitting those which have no S-unit equations
-<description>
+This function generates GL2(Z)-equivalent forms to alist and determines the form
+yielding the least number of S-unit equations, printing the minimal form and
+the index of each S-unit equation to an outfile. This function omits those forms
+with no S-unit equations, and does not optimize forms which are Thue equations.
 
+Parameters
+    set: MonStgElt
+        A string in the format "Nlist,alist,a,primelist".
+Returns
+    OutFile: MonStgElt
+        A .csv file named "Nlist,alist,a,primelist,[i,j].csv" where alist is
+	GL2(Z)-optimal, and [i,j] is the index of a potential S-unit equation.
 Authors
     Adela Gherga <adelagherga@gmail.com>
 Created
@@ -189,7 +198,7 @@ end function;
 OutFile:="../Data/TMForms/" cat set cat ".csv";
 alist,a,primelist:=extractForm(set);
 if IsEmpty(primelist) then
-    print set;
+    fprintf OutFile, "%o\n",set;
 else
     alist,caseNo:=optimalForm(alist,a,primelist);
     for i in [1..#caseNo] do

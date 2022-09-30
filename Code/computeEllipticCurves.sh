@@ -65,8 +65,16 @@ chmod +x Code/gatherFormRedundancy.py
 python Code/gatherFormRedundancy.py "Data/TMForms/${name}Forms.csv" "Data/TMForms/${name}SortedForms.csv"
 mv Data/TMForms/${name}SortedForms.csv Data/TMForms/${name}Forms.csv
 
-cat Data/Forms/${name}Forms.csv | parallel -j20 magma set:={} Code/optimalForm.m 2>&1
+# Generate optimal Thue--Mahler forms and all S-unit equations.
+cat Data/TMForms/${name}Forms.csv | parallel -j20 magma set:={} Code/optimalForm.m 2>&1
 
+# Amalgamate all S-unit equations into a single document.
+while IFS= read -r line; do
+    F="Data/TMForms/$line.csv"
+    [ -f "$F" ] && cat "$F" >> "Data/TMForms/${name}SortedForms.csv"
+    rm -f "$F"
+done < "Data/TMForms/${name}Forms.csv"
+mv Data/TMForms/${name}SortedForms.csv Data/TMForms/${name}Forms.csv
 
 
 # Run ThueMahler code in parallel.
