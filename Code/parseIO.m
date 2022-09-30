@@ -1,7 +1,9 @@
 /*
-parseString.m
+parseIO.m
 
-These functions <description>
+These functions parse terminal input/output data. Data intended for output is
+converted into strings without whitespace for .csv files, and strings input from
+the terminal are converted into appropriate magma structures.
 
 Authors
     Adela Gherga <adelagherga@gmail.com>
@@ -11,7 +13,7 @@ Created
 
 seqEnumToString:=function(X : quotes:=false)
     /*
-      Convert a SeqEnum into a string without whitespace, enclosed by "[ ]" for
+      Converts a SeqEnum into a string without whitespace, enclosed by "[ ]" for
       .csv input
 
       Parameters
@@ -44,19 +46,23 @@ end function;
 
 extractForm:=function(set)
     /*
-      Extracts Nlist,alist,a,primelist from the string set.
+      Extracts Nlist,alist,a,primelist,[i,j] from the string set.
 
       Parameters
           set: MonStgElt
-              A string in the format "Nlist,alist,a,primelist".
+              A string in the format "Nlist,alist,a,primelist,[i,j]".
       Returns
+          Nlist: SeqEnum
+              A list of conductors.
           alist: SeqEnum
               A list of coefficients a_0, a_1,...,a_3.
           a: RngIntElt
           primelist: SeqEnum
               A list of rational primes p_1, p_2,...,p_v.
+          ij: SeqEnum
+              The index (i,j) of the corresponding S-unit equation.
    */
-    bracketSplit:=Split(set,"[]"); // Split bash input by "[" and "]".
+    bracketSplit:=Split(set,"[]");
     assert (#bracketSplit in [4,5,7]);
     Nlist:=[StringToInteger(N) : N in Split(bracketSplit[1],",")];
     alist:=[StringToInteger(a_i) : a_i in Split(bracketSplit[3],",")];

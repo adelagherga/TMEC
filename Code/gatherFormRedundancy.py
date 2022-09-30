@@ -82,7 +82,8 @@ def gatherFormRedundancy(IF,OF):
       Returns
           OF: <class 'str'>
               The string denoting the output file, wherein each line is in the
-              "Nlist,alist,a,primelist".
+              format "Nlist,alist,a,primelist", with Nlist now a list of
+              conductors.
     """
     forms={}
     for line in open(IF):
@@ -105,9 +106,9 @@ def gatherFormRedundancy(IF,OF):
                 formsRHS[alist][aprimelist]=[N]
     for alist in sorted(formsRHS):
         for aprimelist in sorted(formsRHS[alist]):
-            # For a given form with 2 rhs possibilities, (Nlist1,a1,primelist1) and
-            # (Nlist2,a2,primelist2), if a1 = a2 and primelist1 is contained in
-            # primelist2, collapse both rhs possibilities into
+            # For a given form with 2 rhs possibilities, (Nlist1,a1,primelist1)
+            # and (Nlist2,a2,primelist2), if a1 = a2 and primelist1 is contained
+            # in primelist2, collapse both rhs possibilities into
             # (Nlist1+Nlist2,a1,primelist2).
             Nlist=formsRHS[alist][aprimelist]
             a,primelist=extractPrimelist(aprimelist)
@@ -115,7 +116,8 @@ def gatherFormRedundancy(IF,OF):
                 if aprimelist != aprimelist2:
                     a2,primelist2=extractPrimelist(aprimelist2)
                     if (a == a2) and (set(primelist) <= set(primelist2)):
-                        formsRHS[alist][aprimelist2]=(formsRHS[alist][aprimelist2]+Nlist)
+                        formsRHS[alist][aprimelist2]=(
+                            formsRHS[alist][aprimelist2]+Nlist)
                         formsRHS[alist][aprimelist2].sort()
                         del formsRHS[alist][aprimelist]
                         break

@@ -1,18 +1,21 @@
 /*
-optimalTM.m
+optimalForm.m
 
-This function generates GL2(Z)-equivalent forms to alist and determines the form
-yielding the least number of S-unit equations, printing the minimal form and
-the index of each S-unit equation to an outfile. This function omits those forms
-with no S-unit equations, and does not optimize forms which are Thue equations.
+These functions generate cubic forms that are GL2(Z)-equivalent to
+F(X,Y) = a_0 X^3 + ... + a_3 Y^3 and determine the form yielding the least
+number of S-unit equations for F(X,Y) = a * p_1^{z_1} ... p_v^{z_v}.
 
 Parameters
     set: MonStgElt
         A string in the format "Nlist,alist,a,primelist".
 Returns
     OutFile: MonStgElt
-        A .csv file named "Nlist,alist,a,primelist,[i,j].csv" where alist is
-	GL2(Z)-optimal, and [i,j] is the index of a potential S-unit equation.
+        A .csv file named Nlist,alist,a,primelist.csv where alist defines a
+        GL2(Z)-optimal cubic form associated to a, primelist. Each row is
+	written as "Nlist,alist,a,primelist,[i,j]", with i,j iterating through
+	the indices of the associated S-unit equations to solve. This function
+	returns "Nlist,alist,a,primelist" in the case of a Thue equation, and
+	omits forms with no S-unit equations.
 Authors
     Adela Gherga <adelagherga@gmail.com>
 Created
@@ -24,7 +27,7 @@ load "./solveThueMahler.m";
 
 findGL2Zactions:=function(a,c)
     /*
-      Given a, c, determines integers b, d such that 2x2 matrix with entries
+      Given a, c, determines integers b, d such that the 2x2 matrix with entries
       [a b c d] defines an element of GL2(Z).
 
       Parameters
@@ -58,16 +61,16 @@ end function;
 
 equivForm:=function(alist)
     /*
-      Given alist, generates at most 11 GL2(Z)-equivalent forms, sorted by the
-      number of prime divisors of a0.
+      Generates at most 10 GL2(Z)-equivalent forms to a_0 X^3 + ... + a_3 Y^3,
+      sorted by the number of prime divisors of a0.
 
       Parameters
           alist: SeqEnum
-              A list of coefficients a_0, a_1,...,a_3 defining a cubic form.
+              A list of coefficients a_0, a_1,...,a_3.
       Returns
           GL2Zalists: SeqEnum
-	      A list of at most 11 elements (alist_i), where each alist_i
-	      defines a GL2(Z)-equivalent form to alist.
+	      A list of elements (alist_i), where each alist_i defines a cubic
+              form GL2(Z)-equivalent to alist.
    */
     QUV<U,V>:=PolynomialRing(Rationals(),2);
     Qx<x>:= PolynomialRing(Integers());
@@ -131,10 +134,10 @@ end function;
 
 optimalForm:=function(alist,a,primelist)
     /*
-      Generates and tests 11 GL2(Z)-equivalent forms to alist and determines
-      the form yielding the least number of S-unit equations, along with the
-      number of potential monic Thue--Mahler equations associated to that
-      minimal form and their respective number of S-unit equations.
+      Generates and tests cubic forms GL2(Z)-equivalent to
+      F(X,Y) = a_0 X^3 + ... + a_3 Y^3 and determines the form yielding the
+      least number of S-unit equations for F(X,Y) = a * p_1^{z_1} ... p_v^{z_v},
+      along with the indices to iterate over all associated S-unit equations.
 
       Parameters
           alist: SeqEnum
@@ -146,7 +149,7 @@ optimalForm:=function(alist,a,primelist)
           alist_i: SeqEnum
 	      A list of coefficients a_0, a_1,...,a_3 defining an optimal
 	      GL2(Z)-equivalent form to alist. That is, alist_i generates the
-	      least number of S-unit equations, of the GL2(Z)-equivalent forms
+	      least number of S-unit equations of the GL2(Z)-equivalent forms
 	      tested.
           caseNo_i: SeqEnum
               A list of elements [i,j] corresponding to alist_i, a, primelist,

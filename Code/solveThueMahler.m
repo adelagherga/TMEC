@@ -25,7 +25,7 @@ SetColumns(235);
 makeMonic:=function(alist,a,primelist)
     /*
       Determine all possible values of b = gcd(Y,a_0) and apply the
-      corresponding linear change of variables to the the Thue--Mahler form
+      corresponding linear change of variables to the the Thue-Mahler form
       a_0 X^d + ... + a_d Y^d = a p_1^{z_1} ... p_v^{z_v}, ensuring a_0 = 1.
       This is necessary in order to compute all solutions subject to the
       assumptions that X, Y are coprime integers and Y, a_0 are not necessarily
@@ -243,6 +243,78 @@ coprimeThueMahler:=function(alist,a,primelist : verb:=false)
     return sols;
 end function;
 
+coprimeTMSUnit:=function(alist,a,primelist,j : verb:=false)
+    /*
+      Solves a_0 X^d + ... + a_d Y^d = a p_1^{z_1} ... p_v^{z_v}
+      at the jth S-unit equation, subject to the assumptions that X, Y are
+      integers and gcd(X,Y) = gcd(a_0,Y) = 1.
+
+      Parameters
+          alist: SeqEnum
+              A list of coefficients a_0, a_1,...,a_d.
+          a: RngIntElt
+          primelist: SeqEnum
+              A list of rational primes p_1, p_2,...,p_v.
+          j: RngIntElt
+              The index of the S-unit equation to solve.
+          verb: BoolElt
+              A true/false value. If set to true, this function returns status
+	      updates as it proceeds.
+      Returns
+          sols: SetEnum
+              A list of solutions [X,Y,z_1,...,z_v] to the Thue-Mahler equation
+	      arising from the jth S-unit equation.
+   */
+    printf "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
+    printf "alist:=%o; a:=%o; primelist:=%o; j:=%o;\n",alist,a,primelist,j;
+    printf "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
+    time tauDeltaList:=equationsInK(alist,a,primelist);
+    assert #(tauDeltaList ne 0);
+    if (j mod 10) eq 1 then
+	printf "Working on the %o-st S-unit equation of %o.\n",j,#tauDeltaList;
+    elif (j mod 10) eq 2 then
+	printf "Working on the %o-nd S-unit equation of %o.\n",j,#tauDeltaList;
+    elif (j mod 10) eq 3 then
+	printf "Working on the %o-rd S-unit equation of %o.\n",j,#tauDeltaList;
+    else
+	printf "Working on the %o-th S-unit equation of %o.\n",j,#tauDeltaList;
+    end if;
+    printf "The rank is %o.\n",#tauDeltaList[j];
+    a0:=alist[1];
+    K:=Universe([pr[1] : pr in tauDeltaList]
+		cat &cat[pr[2] : pr in tauDeltaList]);
+    K:=NumberField(K);
+    theta:=K.1;
+    sols:={};
+    printf "++++++++++++++++++++++++++++++++++\n";
+    pr:=tauDeltaList[j];
+    tau:=pr[1];
+    deltaList:=pr[2];
+    time vecs,vecB,S,range:=reducedBound(tau,deltaList : verb:=verb);
+    print "S is ",S;
+    printf "The range is %o.\n",range;
+    cBfsq:= &+[i^2 : i in vecB];
+    printf "The bound on the norm squared of (b1,..,br) is %o.\n",cBfsq;
+    printf "Applying the Dirichlet sieve to equation number %o ",j;
+    printf "out of %o.\n",#tauDeltaList;
+    if cBfsq gt 1000000 then
+	qBound:=2000;
+    elif cBfsq gt 500000 then
+	qBound:=500;
+    else
+	qBound:=200;
+    end if;
+    smallInfs:=smallSieveInfo(smallInfs,a0,theta,qBound);
+    Zr,bigInfs:=bigSieveInfo(tau,deltaList,smallInfs);
+    time vecs:=vecs cat
+	       sift(tau,deltaList,Zr,Zr,Zr!0,S,range,cBfsq,bigInfs,1);
+    printf "Finished applying the Dirichlet sieve to equation number %o.\n",j;
+    time sols:=sols join
+		    solutionVectors(alist,a,primelist,tau,deltaList,vecs);
+    printf "++++++++++++++++++++++++++++++++++\n";
+    return sols;
+end function;
+
 solveThueMahler:=function(alist,a,primelist : verb:=false,coprime:=true)
     /*
       Solves a_0 X^d + ... + a_d Y^d = a p_1^{z_1} ... p_v^{z_v}
@@ -260,7 +332,7 @@ solveThueMahler:=function(alist,a,primelist : verb:=false,coprime:=true)
 	      updates as it proceeds.
           coprime: BoolElt
               A true/false value. If set to true, this function returns all
-	      solutions of the Thue--Mahler form under the added assumption that
+	      solutions of the Thue-Mahler form under the added assumption that
 	      gcd(a_0,Y) = 1.
       Returns
           sols: SetEnum
@@ -310,10 +382,9 @@ end function;
 
 solveTMSUnit:=function(alist,a,primelist,ij : verb:=false)
     /*
-      Solves a_0 X^d + ... + a_d Y^d = a p_1^{z_1} ... p_v^{z_v}
-      subject to the assumptions that X, Y are integers and
-      gcd(X,Y) = 1, with a_0, Y optionally coprime.
-    // We are now under the assumption that a_0, Y are not necessarily coprime.
+      Solves a_0 X^d + ... + a_d Y^d = a p_1^{z_1} ... p_v^{z_v} at the (i,j)th
+      S-unit equation, subject to the assumptions that X, Y are integers and
+      gcd(X,Y) = gcd(a_0,Y) = 1.
 
       Parameters
           alist: SeqEnum
@@ -321,17 +392,15 @@ solveTMSUnit:=function(alist,a,primelist,ij : verb:=false)
           a: RngIntElt
           primelist: SeqEnum
               A list of rational primes p_1, p_2,...,p_v.
+	  ij: SeqEnum
+              The index (i,j) of the corresponding S-unit equation.
           verb: BoolElt
               A true/false value. If set to true, this function returns status
 	      updates as it proceeds.
-          coprime: BoolElt
-              A true/false value. If set to true, this function returns all
-	      solutions of the Thue--Mahler form under the added assumption that
-	      gcd(a_0,Y) = 1.
       Returns
           sols: SetEnum
               A list of solutions [X,Y,z_1,...,z_v] to the Thue-Mahler
-	      equation.
+	      equation arising from the (i,j)th S-unit equation.
    */
     assert &and[IsPrime(p) : p in primelist];
     assert &and[a_i in Integers() : a_i in alist];
@@ -357,13 +426,12 @@ solveTMSUnit:=function(alist,a,primelist,ij : verb:=false)
     new_a:=Integers()!newablist[i][1][1];
     blist:=newablist[i][2];
     assert &and[Valuation(new_a,p) eq 0 : p in primelist];
-    time sols:=coprimeThueMahler(falist,new_a,primelist,j : verb:=verb);
-        for b in blist do
-            for sol in sols do
-                x:=sol[1];
-		y:=sol[2];
-		allSols:=allSols join recoverXY(alist,a,primelist,x,y,b);
-	    end for;
+    time sols:=coprimeTMSUnit(falist,new_a,primelist,j : verb:=verb);
+    for b in blist do
+        for sol in sols do
+            x:=sol[1];
+	    y:=sol[2];
+	    allSols:=allSols join recoverXY(alist,a,primelist,x,y,b);
 	end for;
     end for;
     return allSols;
