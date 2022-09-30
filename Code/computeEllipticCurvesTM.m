@@ -36,13 +36,14 @@ OutFile:="../Data/TMOutfiles/" cat set cat ".csv";
 LogFile:="../Data/TMLogfiles/" cat set cat ".txt";
 SetLogFile(LogFile);
 printf "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
-printf "N:=%o; alist:=%o; a:=%o; primelist:=%o; \n",N,alist,a,primelist;
+printf "Nlist:=%o; alist:=%o; a:=%o; primelist:=%o; ij:=%o\n",
+       Nlist,alist,a,primelist,ij;
 printf "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
 sols:=solveTMSUnit(alist,a,primelist,ij);
 printf "sols:=%o\n",sols;
 for N in Nlist do
     ECs:=convertTMToEllipticCurves(N,alist,sols);
-    printf "%o\n"ECs;
+    printf "%o\n",ECs;
     for E in ECs do
 	assert E[1] eq N;
 	fprintf OutFile, "%o,%o,%o,%o,%o,%o\n",
