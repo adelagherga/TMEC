@@ -32,9 +32,6 @@ load "./solveThueMahler.m";
 load "./convertTMToEllipticCurves.m";
 
 Nlist,alist,a,primelist,ij:=extractForm(set);
-if IsEmpty(primelist) then
-
-
 OutFile:="../Data/TMOutfiles/" cat set cat ".csv";
 LogFile:="../Data/TMLogfiles/" cat set cat ".txt";
 SetLogFile(LogFile);
@@ -43,12 +40,12 @@ printf "N:=%o; alist:=%o; a:=%o; primelist:=%o; \n",N,alist,a,primelist;
 printf "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
 sols:=solveTMSUnit(alist,a,primelist,ij);
 printf "sols:=%o\n",sols;
-ECs:=convertTMToEllipticCurves(N,alist,sols);
-printf "%o\n",ECs;
-printf "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
+for N in Nlist do
+    ECs:=convertTMToEllipticCurves(N,alist,sols);
+    printf "%o\n"ECs;
     for E in ECs do
 	assert E[1] eq N;
-	fprintf OutFile, "%o, %o, %o, %o, %o, %o\n",
+	fprintf OutFile, "%o,%o,%o,%o,%o,%o\n",
 		N,seqEnumToString(E[2]),seqEnumToString(alist),a,
 		seqEnumToString(primelist),seqEnumToString(E[3]);
     end for;

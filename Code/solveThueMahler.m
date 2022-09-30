@@ -18,7 +18,7 @@ load "./reducedBound.m";
 load "./sieveInfo.m";
 load "./sift.m";
 load "./solutionVectors.m";
-load "./parseString.m";
+load "./parseIO.m";
 SetAutoColumns(false);
 SetColumns(235);
 
@@ -269,7 +269,7 @@ coprimeTMSUnit:=function(alist,a,primelist,j : verb:=false)
     printf "alist:=%o; a:=%o; primelist:=%o; j:=%o;\n",alist,a,primelist,j;
     printf "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
     time tauDeltaList:=equationsInK(alist,a,primelist);
-    assert #(tauDeltaList ne 0);
+    assert (#tauDeltaList ne 0);
     if (j mod 10) eq 1 then
 	printf "Working on the %o-st S-unit equation of %o.\n",j,#tauDeltaList;
     elif (j mod 10) eq 2 then
@@ -412,6 +412,13 @@ solveTMSUnit:=function(alist,a,primelist,ij : verb:=false)
     Qx<x>:=PolynomialRing(Rationals());
     F:=&+[alist[i+1]*U^(d-i)*V^i : i in [0..d]];
     assert IsHomogeneous(F);
+    allSols:={};
+    if IsEmpty(primelist) then
+	assert ij eq [0,0];
+	ThueF:=Thue(ChangeRing(Evaluate(F,[x,1]),Integers()));
+	time allSols:=Solutions(ThueF,a);
+	return allSols;
+    end if;
     f:=a0^(d-1)*Evaluate(F,[x/a0,1]);
     assert IsMonic(f);
     assert Degree(f) eq d;
@@ -421,8 +428,6 @@ solveTMSUnit:=function(alist,a,primelist,ij : verb:=false)
     falist:=[Integers()!a_i : a_i in falist];
     newablist:=makeMonic(alist,a,primelist);
     i,j:=Explode(ij);
-
-    allSols:={};
     new_a:=Integers()!newablist[i][1][1];
     blist:=newablist[i][2];
     assert &and[Valuation(new_a,p) eq 0 : p in primelist];

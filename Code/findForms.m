@@ -17,7 +17,7 @@ Created
     16 September 2022
 */
 
-load "./Code/parseString.m";
+load "./Code/parseIO.m";
 
 primes23:=function(alpha,beta)
     /*
