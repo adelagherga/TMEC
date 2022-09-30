@@ -603,7 +603,9 @@ findForms:=function(N)
 	      A list of elements (alist,a,primelist) defining a Thue--Mahler
 	      form.
    */
-    assert N gt 1;
+    if N le 1 then
+	return {};
+    end if;
     alpha:=Valuation(N,2);
     beta:=Valuation(N,3);
     N0:=Integers()!(N/((2^alpha)*(3^beta)));
