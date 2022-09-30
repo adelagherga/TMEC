@@ -59,7 +59,6 @@ fi
 
 # Generate necessary subdirectories
 mkdir Data/${name}/EllipticCurves
-mkdir Data/${name}/TMForms
 
 
 
@@ -77,18 +76,18 @@ echo "Generating all required cubic forms for conductors in $name."
 
 # Amalgamate all Thue--Mahler forms into a single document.
 for N in "${list[@]}"; do
-    F="Data/TMForms/${N}Forms.csv"
-    [ -f "$F" ] && cat "$F" >> "Data/TMForms/${name}Forms.csv"
+    F="Data/${name}/${N}Forms.csv"
+    [ -f "$F" ] && cat "$F" >> "Data/${name}/${name}TMForms.csv"
     rm -f "$F"
 done
 
 # Remove redundant Thue--Mahler equations.
 chmod +x Code/gatherFormRedundancy.py
-python Code/gatherFormRedundancy.py "Data/TMForms/${name}Forms.csv" "Data/TMForms/${name}SortedForms.csv"
-mv Data/TMForms/${name}SortedForms.csv Data/TMForms/${name}Forms.csv
+python Code/gatherFormRedundancy.py "Data/${name}/${name}TMForms.csv" "Data/${name}/${name}SortedTMForms.csv"
+mv Data/${name}/${name}SortedTMForms.csv Data/${name}/${name}TMForms.csv
 
 # Generate optimal Thue--Mahler forms and all S-unit equations.
-cat Data/TMForms/${name}Forms.csv | parallel -j20 magma set:={} Code/optimalForm.m 2>&1
+cat Data/${name}/${name}TMForms.csv | parallel -j20 magma set:={} name:=${name} Code/optimalForm.m 2>&1
 
 # Amalgamate all S-unit equations into a single document.
 while IFS= read -r line; do

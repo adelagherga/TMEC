@@ -198,7 +198,7 @@ optimalForm:=function(alist,a,primelist)
     return GL2Zalists[ind],caseNo[ind][2];
 end function;
 
-OutFile:="../Data/TMForms/" cat set cat ".csv";
+OutFile:="../Data/" cat name cat "/" cat set cat ".csv";
 _,alist,a,primelist,_:=extractForm(set);
 if IsEmpty(primelist) then
     fprintf OutFile, "%o\n",set;
