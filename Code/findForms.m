@@ -5,7 +5,10 @@ These functions determine all Thue--Mahler forms required to generate all
 elliptic curves of conductor N with no non-trivial rational 2-torsion.
 
 Parameters
-    N: RngIntElt
+    N: MonStgElt
+    name: MonStgElt
+        A string in the format "[N1,N2,...]" which serves as the name of the
+	directory to which all output files are printed.
 Returns
     OutFile: MonStgElt
         A .csv file named NForms.csv containing the rows "N,alist,a,primelist"

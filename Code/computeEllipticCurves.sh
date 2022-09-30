@@ -59,6 +59,8 @@ fi
 
 # Generate necessary subdirectories
 mkdir Data/${name}/EllipticCurves
+mkdir Data/${name}/TMOutfiles
+mkdir Data/${name}/TMLogfiles
 
 
 
@@ -91,10 +93,11 @@ cat Data/${name}/${name}TMForms.csv | parallel -j20 magma set:={} name:=${name} 
 
 # Amalgamate all S-unit equations into a single document.
 while IFS= read -r line; do
-    F0="Data/TMForms/$line.csv"
-    [ -f "$F" ] && cat "$F" >> "Data/TMForms/${name}SUnitForms.csv"
+    F="Data/${name}/$line.csv"
+    [ -f "$F" ] && cat "$F" >> "Data/${name}/${name}SUnitTMForms.csv"
     rm -f "$F"
-done < "Data/TMForms/${name}Forms.csv"
+done < "Data/${name}/${name}TMForms.csv"
+mv Data/${name}/${name}SUnitTMForms.csv Data/${name}/${name}TMForms.csv
 
 # Run Thue--Mahler code in parallel.
 # That is, for each line "set" of Data/TMForms/${name}Forms.csv, run
@@ -102,7 +105,7 @@ done < "Data/TMForms/${name}Forms.csv"
 # The following code runs these jobs using GNU parallel, running no more than
 # 20 (-j20) jobs at once, and storing GNU parallel's progress in the logfile
 # Data/${name}TMLog (--joblog Data/${name}TMLog).
-cat Data/TMForms/${name}SUnitForms.csv | parallel -j20 --joblog Data/${name}TMLog magma set:={} Code/computeEllipticCurvesTM.m 2>&1
+cat Data/${name}/${name}TMForms.csv | parallel -j20 --joblog Data/${name}/${name}TMLog magma set:={} name:=${name} Code/computeEllipticCurvesTM.m 2>&1
 
 ## LEFT OFF HERE
 
