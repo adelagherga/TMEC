@@ -639,7 +639,7 @@ findForms:=function(N)
     return validForms;
 end function;
 
-OutFile:="./Data/" cat name cat "/TMForms/" cat N cat "Forms.csv";
+OutFile:="./Data/" cat name cat "/" cat N cat "Forms.csv";
 sN:=N;
 N:=StringToInteger(N);
 validForms:=findForms(N);
