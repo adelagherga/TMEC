@@ -18,6 +18,7 @@ load "./reducedBound.m";
 load "./sieveInfo.m";
 load "./sift.m";
 load "./solutionVectors.m";
+load "./parseString.m";
 SetAutoColumns(false);
 SetColumns(235);
 

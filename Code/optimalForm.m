@@ -10,6 +10,10 @@ Created
     27 September 2022
 */
 
+ChangeDirectory("./Code");
+load "./solveThueMahler.m";
+load "./parseString.m";
+
 findGL2Zactions:=function(a,c)
     /*
       Given a, c, determines integers b, d such that 2x2 matrix with entries
