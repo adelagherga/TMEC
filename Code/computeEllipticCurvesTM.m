@@ -30,41 +30,22 @@ Created
 ChangeDirectory("./Code");
 load "./solveThueMahler.m";
 load "./convertTMToEllipticCurves.m";
-load "./parseString.m";
 
-commaSplit:=Split(set,","); // Split bash input by ",".
-bracketSplit:=Split(set,"[]"); // Split bash input by "[" and "]".
-// Delimiter for form.
-assert commaSplit[1][1] eq "[" and commaSplit[4][#commaSplit[4]-1] eq "";
-// Delimiter for optimal form.
-assert CommaSplit[6][2] eq "(" and CommaSplit[9][#CommaSplit[9]-1] eq ")";
-// Delimiter for min poly.
-assert CommaSplit[10][2] eq "(" and CommaSplit[13][#CommaSplit[13]-1] eq ")";
-assert (#RBracketSplit eq 11) or (#RBracketSplit eq 13);
-N:=StringToInteger(CommaSplit[1]);
-alist:=[StringToInteger(i) : i in Split(RBracketSplit[4],",")];
-if (#RBracketSplit eq 11) then
-    assert CommaSplit[14] eq "None";
-    aconsts:=[StringToInteger(i) : i in Split(RBracketSplit[8],",")];
-    primelist:=[StringToInteger(i) : i in Split(RBracketSplit[10],",")];
-else
-    aconsts:=[StringToInteger(i) : i in Split(RBracketSplit[10],",")];
-    primelist:=[StringToInteger(i) : i in Split(RBracketSplit[12],",")];
-end if;
-OutFile:="../Data/TMOutfiles/" cat
-	 CommaSplit[1] cat "\,\[" cat RBracketSplit[4] cat "\]Out.csv";
-LogFile:="../Data/TMLogfiles/" cat
-	 CommaSplit[1] cat "\,\[" cat RBracketSplit[4] cat "\]Log.txt";
+Nlist,alist,a,primelist,ij:=extractForm(set);
+
+// check not empty
+
+OutFile:="../Data/TMOutfiles/" cat set cat ".csv";
+LogFile:="../Data/TMLogfiles/" cat set cat ".txt";
 SetLogFile(LogFile);
-for a in aconsts do
-    printf "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
-    printf "N:=%o; alist:=%o; a:=%o; primelist:=%o; \n",N,alist,a,primelist;
-    printf "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
-    sols:=solveThueMahler(alist,a,primelist : coprime:=false);
-    printf "sols:=%o\n",sols;
-    ECs:=convertTMToEllipticCurves(N,alist,sols);
-    printf "%o\n",ECs;
-    printf "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
+printf "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
+printf "N:=%o; alist:=%o; a:=%o; primelist:=%o; \n",N,alist,a,primelist;
+printf "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
+sols:=solveThueMahler(alist,a,primelist,ij);
+printf "sols:=%o\n",sols;
+ECs:=convertTMToEllipticCurves(N,alist,sols);
+printf "%o\n",ECs;
+printf "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
     for E in ECs do
 	assert E[1] eq N;
 	fprintf OutFile, "%o, %o, %o, %o, %o, %o\n",

@@ -57,7 +57,8 @@ extractForm:=function(set)
               A list of rational primes p_1, p_2,...,p_v.
    */
     bracketSplit:=Split(set,"[]"); // Split bash input by "[" and "]".
-    assert (#bracketSplit eq 4) or (#bracketSplit eq 5);
+    assert (#bracketSplit in [4,5,7]);
+    Nlist:=[StringToInteger(N) : N in Split(bracketSplit[1],",")];
     alist:=[StringToInteger(a_i) : a_i in Split(bracketSplit[3],",")];
     a:=StringToInteger(Split(bracketSplit[4],",")[1]);
     if (#bracketSplit eq 4) then
@@ -65,5 +66,10 @@ extractForm:=function(set)
     else
 	primelist:=[StringToInteger(p) : p in Split(bracketSplit[5],",")];
     end if;
-    return alist,a,primelist;
+    if (#bracketSplit eq 7) then
+	ij:=[StringToInteger(i) : i in Split(bracketSplit[7],",")];
+    else
+	ij:=[0,0];
+    end if;
+    return Nlist,alist,a,primelist,ij;
 end function;

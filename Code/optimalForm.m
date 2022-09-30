@@ -196,7 +196,7 @@ optimalForm:=function(alist,a,primelist)
 end function;
 
 OutFile:="../Data/TMForms/" cat set cat ".csv";
-alist,a,primelist:=extractForm(set);
+_,alist,a,primelist,_:=extractForm(set);
 if IsEmpty(primelist) then
     fprintf OutFile, "%o\n",set;
 else

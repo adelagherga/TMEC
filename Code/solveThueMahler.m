@@ -307,3 +307,64 @@ solveThueMahler:=function(alist,a,primelist : verb:=false,coprime:=true)
     end for;
     return allSols;
 end function;
+
+solveTMSUnit:=function(alist,a,primelist,ij : verb:=false)
+    /*
+      Solves a_0 X^d + ... + a_d Y^d = a p_1^{z_1} ... p_v^{z_v}
+      subject to the assumptions that X, Y are integers and
+      gcd(X,Y) = 1, with a_0, Y optionally coprime.
+    // We are now under the assumption that a_0, Y are not necessarily coprime.
+
+      Parameters
+          alist: SeqEnum
+              A list of coefficients a_0, a_1,...,a_d.
+          a: RngIntElt
+          primelist: SeqEnum
+              A list of rational primes p_1, p_2,...,p_v.
+          verb: BoolElt
+              A true/false value. If set to true, this function returns status
+	      updates as it proceeds.
+          coprime: BoolElt
+              A true/false value. If set to true, this function returns all
+	      solutions of the Thue--Mahler form under the added assumption that
+	      gcd(a_0,Y) = 1.
+      Returns
+          sols: SetEnum
+              A list of solutions [X,Y,z_1,...,z_v] to the Thue-Mahler
+	      equation.
+   */
+    assert &and[IsPrime(p) : p in primelist];
+    assert &and[a_i in Integers() : a_i in alist];
+    a0:=Integers()!alist[1];
+    assert a0 ne 0;
+    d:=#alist-1;
+    assert d ge 3;
+    QUV<U,V>:=PolynomialRing(Rationals(),2);
+    Qx<x>:=PolynomialRing(Rationals());
+    F:=&+[alist[i+1]*U^(d-i)*V^i : i in [0..d]];
+    assert IsHomogeneous(F);
+    f:=a0^(d-1)*Evaluate(F,[x/a0,1]);
+    assert IsMonic(f);
+    assert Degree(f) eq d;
+    assert IsIrreducible(f);
+    falist:=Reverse(Coefficients(f));
+    assert &and[a_i in Integers() : a_i in falist];
+    falist:=[Integers()!a_i : a_i in falist];
+    newablist:=makeMonic(alist,a,primelist);
+    i,j:=Explode(ij);
+
+    allSols:={};
+    new_a:=Integers()!newablist[i][1][1];
+    blist:=newablist[i][2];
+    assert &and[Valuation(new_a,p) eq 0 : p in primelist];
+    time sols:=coprimeThueMahler(falist,new_a,primelist,j : verb:=verb);
+        for b in blist do
+            for sol in sols do
+                x:=sol[1];
+		y:=sol[2];
+		allSols:=allSols join recoverXY(alist,a,primelist,x,y,b);
+	    end for;
+	end for;
+    end for;
+    return allSols;
+end function;

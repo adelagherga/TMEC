@@ -76,9 +76,8 @@ while IFS= read -r line; do
 done < "Data/TMForms/${name}Forms.csv"
 mv Data/TMForms/${name}SortedForms.csv Data/TMForms/${name}Forms.csv
 
-
-# Run ThueMahler code in parallel.
-# That is, for each line "set" of Data/Forms/TMTestForms.csv, run
+# Run Thue--Mahler code in parallel.
+# That is, for each line "set" of Data/TMForms/${name}Forms.csv, run
 # magma set:="set" Code/computeEllipticCurvesTM.m &.
 # The following code runs these jobs using GNU parallel, running no more than
 # 20 (-j20) jobs at once, and storing GNU parallel's progress in the logfile
