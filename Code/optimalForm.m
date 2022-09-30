@@ -196,7 +196,7 @@ else
 	assert i eq caseNo[i][1];
 	if (caseNo[i][2] ne 0) then
 	    for j in [1..caseNo[i][2]] do
-		fprintf OutFile, set cat "," cat seqEnumToString([i,j]);
+		fprintf OutFile, "%o,%o\n",set,seqEnumToString([i,j]);
 	    end for;
 	end if;
     end for;
