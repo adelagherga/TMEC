@@ -12,7 +12,6 @@ Created
 
 ChangeDirectory("./Code");
 load "./solveThueMahler.m";
-load "./parseString.m";
 
 findGL2Zactions:=function(a,c)
     /*
@@ -187,6 +186,7 @@ optimalForm:=function(alist,a,primelist)
     return GL2Zalists[ind],caseNo[ind][2];
 end function;
 
+OutFile:="../Data/TMForms/" cat set cat ".csv";
 alist,a,primelist:=extractForm(set);
 if IsEmpty(primelist) then
     print set;
@@ -196,7 +196,7 @@ else
 	assert i eq caseNo[i][1];
 	if (caseNo[i][2] ne 0) then
 	    for j in [1..caseNo[i][2]] do
-		print set cat "," cat seqEnumToString([i,j]);
+		fprintf OutFile, set cat "," cat seqEnumToString([i,j]);
 	    end for;
 	end if;
     end for;
