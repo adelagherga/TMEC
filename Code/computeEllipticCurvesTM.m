@@ -41,7 +41,7 @@ printf "alist:=%o; a:=%o; primelist:=%o;\n",alist,a,primelist;
 printf "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
 sols:=solveTMSUnit(alist,a,primelist,ij);
 printf "sols:=%o\n",sols;
-ECs:={}
+ECs:={};
 for N in Nlist do
     ECs:=ECs join convertTMToEllipticCurves(N,alist,sols);
 end for;
