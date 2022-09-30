@@ -60,14 +60,12 @@ fi
 # Generate necessary subdirectories
 mkdir Data/${name}/EllipticCurves
 mkdir Data/${name}/TMForms
-mkdir Data/${name}/TMForms
 
 
 
 
 # Generate files for each conductor and populate each file with the
 # corresponding elliptic curves.
-mkdir Data/${name}/EllipticCurves
 for N in "${list[@]}"; do
     touch "Data/${name}/EllipticCurves/${N}.csv"
 done
@@ -75,7 +73,7 @@ done
 # Generate all required Thue--Mahler forms in parallel, applying all necessary
 # local tests in the process.
 echo "Generating all required cubic forms for conductors in $name."
-(for N in "${list[@]}"; do echo "$N"; done) | parallel -j20 magma N:={} name:="${name}" Code/findForms.m 2>&1
+(for N in "${list[@]}"; do echo "$N"; done) | parallel -j20 magma N:={} name:=${name} Code/findForms.m 2>&1
 
 # Amalgamate all Thue--Mahler forms into a single document.
 for N in "${list[@]}"; do
