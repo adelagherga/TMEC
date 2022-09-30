@@ -304,7 +304,7 @@ coprimeTMSUnit:=function(alist,a,primelist,j : verb:=false)
     else
 	qBound:=200;
     end if;
-    smallInfs:=smallSieveInfo(smallInfs,a0,theta,qBound);
+    smallInfs:=smallSieveInfo([* *],a0,theta,qBound);
     Zr,bigInfs:=bigSieveInfo(tau,deltaList,smallInfs);
     time vecs:=vecs cat
 	       sift(tau,deltaList,Zr,Zr,Zr!0,S,range,cBfsq,bigInfs,1);
