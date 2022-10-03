@@ -27,9 +27,9 @@ Created
     24 August 2022
 */
 
+ChangeDirectory("./Code");
 LogFile:="../Data/" cat name cat "/TMLogfiles/" cat set cat "Log.txt";
 SetOutputFile(LogFile);
-ChangeDirectory("./Code");
 load "./solveThueMahler.m";
 load "./convertTMToEllipticCurves.m";
 
