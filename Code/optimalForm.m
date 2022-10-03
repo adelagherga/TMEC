@@ -25,6 +25,7 @@ Created
     27 September 2022
 */
 
+SetOutputFile("./Data/" cat name cat "/" cat set cat "tmp.txt");
 ChangeDirectory("./Code");
 load "./solveThueMahler.m";
 
