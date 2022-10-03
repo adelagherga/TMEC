@@ -20,7 +20,7 @@ Created
     16 September 2022
 */
 
-SetOutputFile("./Data" cat name cat "/" cat N cat "tmp.txt");
+SetOutputFile("./Data/" cat name cat "/" cat N cat "tmp.txt");
 load "./Code/parseIO.m";
 
 primes23:=function(alpha,beta)
