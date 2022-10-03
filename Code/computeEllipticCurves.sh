@@ -72,7 +72,7 @@ done
 # Generate all required Thue--Mahler forms in parallel, applying all necessary
 # local tests in the process.
 printf "Generating all required cubic forms for conductors in"
-printf "$(echo ${name} | cut -d']' -f -1)]..."
+printf " $(echo ${name} | cut -d']' -f -1)]..."
 (for N in "${list[@]}"; do echo "$N"; done) | parallel -j20 magma -b N:={} name:=${name} Code/findForms.m 2>&1
 
 # Amalgamate all Thue--Mahler forms into a single document.
@@ -133,18 +133,15 @@ while IFS= read -r form_i; do
 done < "Data/${name}/${name}TMForms.csv"
 printf "Done.\n"
 
-#for F in "Data/${name}/TMOutfiles"/*; do
-#    filename="${F##*/}"
-#    filename="$(echo ${filename} | cut -d']' -f -3)""]"
-#    Ns="$(echo ${filename} | cut -d']' -f -1)"
-#    Ns="${Ns:1}"
-#    readarray -td '' Ns < <(awk '{ gsub(/,+/,"\0"); print; }' <<<"$Ns")
-#    cat "$F" >> "Data/${name}/TMOutfiles/${filename}Out.csv"
-
-#    for N in "${Ns[@]}"; do
-#	EC="${N}"
-#	cat "$F" >> "Data/${name}/TMOutfiles/${filename}Out.csv"
-
-#    done
-#    rm -f "$F"
+for F in "Data/${name}/TMOutfiles"/*; do
+    cat "$F" >> "Data/${name}/EllipticCurves/${name}AllCurves.csv"
 done
+sort -n "Data/${name}/EllipticCurves/${name}AllCurves.csv" > tmp
+awk -F, 'BEGIN {OFS=FS} {print $1,$2,$3,$4,$5,$6}' tmp > "Data/${name}/EllipticCurves/${name}AllCurves.csv"
+awk -i inplace '!seen[$0]++' "Data/${name}/EllipticCurves/${name}AllCurves.csv"
+rm tmp
+
+while IFS= read -r Ncurve; do
+    N="$(echo ${Ncurve} | cut -d',' -f -1)"
+    echo ${Ncurve} >> "Data/${name}/EllipticCurves/${N}.csv"
+done < "Data/${name}/EllipticCurves/${name}AllCurves.csv"
