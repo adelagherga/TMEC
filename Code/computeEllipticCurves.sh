@@ -70,7 +70,7 @@ mkdir "${TMLogDir}"
 # Generate files for each conductor and populate each file with the
 # corresponding elliptic curves.
 for N in "${list[@]}"; do
-    touch "{ECDir}/${N}.csv"
+    touch "${ECDir}/${N}.csv"
 done
 
 # Generate all required Thue--Mahler forms in parallel, applying all necessary
