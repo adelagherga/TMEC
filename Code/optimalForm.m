@@ -203,7 +203,7 @@ optimalForm:=function(alist,a,primelist)
 end function;
 
 OutFile:="../Data/" cat name cat "/" cat set cat ".csv";
-_,alist,a,primelist,_:=extractForm(set);
+Nlist,alist,a,primelist,_:=extractForm(set);
 if IsEmpty(primelist) then
     fprintf OutFile, "%o\n",set;
 else
@@ -212,7 +212,9 @@ else
 	assert i eq caseNo[i][1];
 	if (caseNo[i][2] ne 0) then
 	    for j in [1..caseNo[i][2]] do
-		fprintf OutFile, "%o,%o\n",set,seqEnumToString([i,j]);
+		fprintf OutFile, "%o,%o,%o,%o,%o\n",seqEnumToString(Nlist),
+			seqEnumToString(alist),IntegerToString(a),
+			seqEnumToString(primelist),seqEnumToString([i,j]);
 	    end for;
 	end if;
     end for;

@@ -145,3 +145,20 @@ while IFS= read -r Ncurve; do
     N="$(echo ${Ncurve} | cut -d',' -f -1)"
     echo ${Ncurve} >> "Data/${name}/EllipticCurves/${N}.csv"
 done < "Data/${name}/EllipticCurves/${name}AllCurves.csv"
+
+wget https://raw.githubusercontent.com/JohnCremona/ecdata/master/allcurves/allcurves.00000-09999 -P "Data/${name}/EllipticCurves"
+
+
+awk '$1 <= 100' allcurves.00000-09999
+# if not list
+printf "%s\n" "${list[@]}" > test
+awk -F, 'FNR==NR {a[$1]; next}; $1 in a' test tmp
+
+
+
+
+awk -F" " 'BEGIN {FS=" ";OFS=","} {print $1,$4}' allcurves.00000-09999 > tmp
+
+printf '%s\n' "${list[@]}" | awk 'NR==FNR{r=r s $0; s="|"; next} $2~r' - tmp
+
+sed -n '/something interesting/q;p' < file > newfile
