@@ -1,9 +1,12 @@
 #!/bin/bash
 # computeEllipticCurves.sh
 #
-# This function initiates the Thue and Thue--Mahler solver in Magma in parallel
-# and amalgamates the elliptic curves in seperate files, by conductor.
+# This function computes all elliptic curves of conductors N1,...,Nn and
+# sorts the curves into seperate files by conductor.
 #
+# Parameters
+#     [OPTIONAL] -l
+
 # Authors
 #    Adela Gherga <adelagherga@gmail.com>
 # Created
@@ -45,6 +48,9 @@ fi
 # Generate a directory Data/${name} for all output.
 # If such a directory already exists in Data/, generate a directory
 # Data/${name}i, where Data/${name}j exists for all j < i.
+if [ ! -d "Data/" ]; then
+    mkdir "Data/"
+fi
 if [ ! -d "Data/${name}" ]; then
     mkdir "Data/${name}"
 else
@@ -77,7 +83,8 @@ done
 # local tests in the process.
 printf "Generating all required cubic forms for conductors in"
 printf " $(echo ${name} | cut -d']' -f -1)]..."
-(for N in "${list[@]}"; do echo "$N"; done) | parallel -j20 magma -b N:={} name:=${name} Code/findForms.m 2>&1
+(for N in "${list[@]}"; do echo "$N"; done) | \
+    parallel -j20 magma -b N:={} \name:=${name} Code/findForms.m 2>&1
 
 # Amalgamate all Thue--Mahler forms into a single document.
 for N in "${list[@]}"; do
@@ -97,7 +104,8 @@ printf "Done.\n"
 
 # Generate optimal Thue--Mahler forms and all S-unit equations.
 printf "Generating optimal GL2(Z)-equivalent cubic forms..."
-cat ${Dir}/TMForms.csv | parallel -j20 magma -b set:={} name:=${name} Code/optimalForm.m 2>&1
+cat ${Dir}/TMForms.csv | \
+    parallel -j20 magma -b set:={} name:=${name} Code/optimalForm.m 2>&1
 
 # Amalgamate all S-unit equations into a single document.
 while IFS= read -r line; do
@@ -111,16 +119,18 @@ mv "${Dir}/tmpTMForms.csv" "${Dir}/TMForms.csv"
 printf "Done.\n"
 
 # Run Thue--Mahler code in parallel.
-# That is, for each line "set" of Data/TMForms/${name}Forms.csv, run
+# That is, for each line "set" of Data/${name}/TMForms.csv, run
 # magma set:="set" Code/computeEllipticCurvesTM.m &.
 # The following code runs these jobs using GNU parallel, running no more than
 # 20 (-j20) jobs at once, and storing GNU parallel's progress in the logfile
-# Data/${name}TMLog (--joblog Data/${name}TMLog).
+# Data/${name}/TMLog (--joblog Data/${name}/TMLog).
 printf "Solving the Thue--Mahler equations..."
-cat ${Dir}/TMForms.csv | parallel -j20 --joblog ${Dir}/TMLog magma -b set:={} name:=${name} Code/computeEllipticCurvesTM.m 2>&1
+cat ${Dir}/TMForms.csv | \
+    parallel -j20 --joblog ${Dir}/TMLog magma -b set:={} name:=${name} Code/computeEllipticCurvesTM.m 2>&1
 printf "Done.\n"
 
-# Amalgamate all logfiles pertaining to the same Thue--Mahler equation.
+# Amalgamate all logfiles and outfiles pertaining to the same Thue--Mahler
+# equation.
 printf "Gathering all files..."
 while IFS= read -r form_i; do
     form="$(echo ${form_i} | cut -d']' -f -3)""]"
@@ -135,21 +145,26 @@ while IFS= read -r form_i; do
 	rm -f "${IFLog}"
     fi
 done < "${Dir}/TMForms.csv"
-printf "Done.\n"
 
+# Amagamate all elliptic curves.
 for F in "${TMOutDir}"/*; do
     cat "$F" >> "${ECDir}/AllCurves.csv"
 done
-sort -t, -k1,1n -k2,2n -k3,3n -k4,4n -k5,5n -k6,6n "${ECDir}/AllCurves.csv" > "${ECDir}/tmpAllCurves.csv"
+sort -t, -k1,1n -k2,2n -k3,3n -k4,4n -k5,5n -k6,6n "${ECDir}/AllCurves.csv" \
+     > "${ECDir}/tmpAllCurves.csv"
 mv "${ECDir}/tmpAllCurves.csv" "${ECDir}/AllCurves.csv"
-awk -F, 'BEGIN {OFS=FS} {print $1,$2,$3,$4,$5,$6}' "${ECDir}/AllCurves.csv" > "${ECDir}/tmpAllCurves.csv"
+# Output only N,aInvariants for each elliptic curve.
+awk -F, 'BEGIN {OFS=FS} {print $1,$2,$3,$4,$5,$6}' "${ECDir}/AllCurves.csv" \
+    > "${ECDir}/tmpAllCurves.csv"
 mv "${ECDir}/tmpAllCurves.csv" "${ECDir}/AllCurves.csv"
+# Remove duplicate elliptic curves.
 awk -i inplace '!seen[$0]++' "${ECDir}/AllCurves.csv"
 
+# Sort elliptic curves by conductor into seperate files.
 while IFS= read -r Ncurve; do
     N="$(echo ${Ncurve} | cut -d',' -f -1)"
     echo ${Ncurve} >> "${ECDir}/${N}.csv"
 done < "${ECDir}/AllCurves.csv"
 printf "Done.\n"
 printf "Finished computing all elliptic curves of conductor"
-printf " $(echo ${name} | cut -d']' -f -1)]."
+printf " $(echo ${name} | cut -d']' -f -1)]\n."
