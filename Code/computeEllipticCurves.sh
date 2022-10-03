@@ -62,9 +62,6 @@ mkdir Data/${name}/EllipticCurves
 mkdir Data/${name}/TMOutfiles
 mkdir Data/${name}/TMLogfiles
 
-
-
-
 # Generate files for each conductor and populate each file with the
 # corresponding elliptic curves.
 for N in "${list[@]}"; do
@@ -107,24 +104,24 @@ mv Data/${name}/${name}SUnitTMForms.csv Data/${name}/${name}TMForms.csv
 # Data/${name}TMLog (--joblog Data/${name}TMLog).
 cat Data/${name}/${name}TMForms.csv | parallel -j20 --joblog Data/${name}/${name}TMLog magma set:={} name:=${name} Code/computeEllipticCurvesTM.m 2>&1
 
-## LEFT OFF HERE
-
-# Amalgamate all elliptic curves from Thue--Mahler output.
-while IFS= read -r line; do
-    F="Data/TMOutfiles/$line.csv"
-    [ -f "$F" ] && cat "$F" >> "Data/TMForms/${name}SortedForms.csv"
+# Amalgamate all logfiles pertaining to the same Thue--Mahler equation.
+for F in "Data/${name}/TMLogfiles"/*; do
+    filename="${F##*/}"
+    filename="$(echo ${filename} | cut -d']' -f -3)""]"
+    cat "$F" >> "Data/${name}/TMLogfiles/${filename}Log.csv"
     rm -f "$F"
-done < "Data/TMForms/${name}Forms.csv"
-mv Data/TMForms/${name}SortedForms.csv Data/TMForms/${name}Forms.csv
-
-
-
-for F in Data/TMOutfiles/*; do
-    N=$(echo $F | grep -o -E '[0-9]+' | head -1 | sed -e 's/^0\+//')
-    cat "$F" >> "Data/EllipticCurves/$N.csv"
 done
-# Amalgamate all elliptic curves from Thue output.
-for F in Data/ThueOutfiles/*; do
-    N=$(echo $F | grep -o -E '[0-9]+' | head -1 | sed -e 's/^0\+//')
-    cat "$F" >> "Data/EllipticCurves/$N.csv"
+for F in "Data/${name}/TMOutfiles"/*; do
+    filename="${F##*/}"
+    filename="$(echo ${filename} | cut -d']' -f -3)""]"
+    Ns="$(echo ${filename} | cut -d']' -f -1)"
+    Ns="${Ns:1}"
+    readarray -td '' Ns < <(awk '{ gsub(/,+/,"\0"); print; }' <<<"$Ns")
+    cat "$F" >> "Data/${name}/TMOutfiles/${filename}Out.csv"
+#    for N in "${Ns[@]}"; do
+#	EC="${N}"
+#	cat "$F" >> "Data/${name}/TMOutfiles/${filename}Out.csv"
+
+#    done
+#    rm -f "$F"
 done
