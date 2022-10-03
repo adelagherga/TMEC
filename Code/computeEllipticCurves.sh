@@ -49,11 +49,12 @@ if [ ! -d "Data/${name}" ]; then
     mkdir "Data/${name}"
 else
     iter=1
-    name="${name}${iter}"
-    while [ -d "Data/${name}" ]; do
+    tmpname="${name}${iter}"
+    while [ -d "Data/${tmpname}" ]; do
 	iter=$(( $iter + 1 ))
-	name="${name}${iter}"
+	tmpname="${name}${iter}"
     done
+    name=$tmpname
     mkdir "Data/${name}"
 fi
 

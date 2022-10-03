@@ -27,14 +27,14 @@ Created
     24 August 2022
 */
 
+LogFile:="../Data/" cat name cat "/TMLogfiles/" cat set cat "Log.txt";
+SetOutFile(LogFile);
 ChangeDirectory("./Code");
 load "./solveThueMahler.m";
 load "./convertTMToEllipticCurves.m";
 
 Nlist,alist,a,primelist,ij:=extractForm(set);
 OutFile:="../Data/" cat name cat "/TMOutfiles/" cat set cat "Out.csv";
-LogFile:="../Data/" cat name cat "/TMLogfiles/" cat set cat "Log.txt";
-SetLogFile(LogFile);
 printf "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
 printf "Nlist:=%o; ij:=%o;\n",Nlist,ij;
 printf "alist:=%o; a:=%o; primelist:=%o;\n",alist,a,primelist;
