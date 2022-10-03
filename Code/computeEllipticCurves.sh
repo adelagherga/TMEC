@@ -70,7 +70,7 @@ done
 
 # Generate all required Thue--Mahler forms in parallel, applying all necessary
 # local tests in the process.
-echo "Generating all required cubic forms for conductors in $name."
+echo "Generating all required cubic forms for conductors in $(echo ${name} | cut -d']' -f -1)]."
 (for N in "${list[@]}"; do echo "$N"; done) | parallel -j20 magma -b N:={} name:=${name} Code/findForms.m 2>&1
 
 # Amalgamate all Thue--Mahler forms into a single document.
@@ -108,6 +108,7 @@ mv Data/${name}/${name}SUnitTMForms.csv Data/${name}/${name}TMForms.csv
 # The following code runs these jobs using GNU parallel, running no more than
 # 20 (-j20) jobs at once, and storing GNU parallel's progress in the logfile
 # Data/${name}TMLog (--joblog Data/${name}TMLog).
+echo "Solving Thue--Mahler equations."
 cat Data/${name}/${name}TMForms.csv | parallel -j20 --joblog Data/${name}/${name}TMLog magma -b set:={} name:=${name} Code/computeEllipticCurvesTM.m 2>&1
 
 # Amalgamate all logfiles pertaining to the same Thue--Mahler equation.
