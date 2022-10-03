@@ -51,5 +51,3 @@ for E in ECs do
 	    E[1],seqEnumToString(E[2]),seqEnumToString(alist),a,
 	    seqEnumToString(primelist),seqEnumToString(E[3]);
 end for;
-
-UnsetLogFile();
