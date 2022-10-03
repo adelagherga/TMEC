@@ -84,6 +84,7 @@ done
 
 # Remove redundant Thue--Mahler equations.
 # chmod +x Code/gatherFormRedundancy.py # DO WE NEED THIS?
+echo "Removing redundant cubic forms."
 python Code/gatherFormRedundancy.py "Data/${name}/${name}TMForms.csv" "Data/${name}/${name}SortedTMForms.csv"
 
 # Generate optimal Thue--Mahler forms and all S-unit equations.
@@ -91,9 +92,11 @@ cat Data/${name}/${name}TMForms.csv | parallel -j20 magma -b set:={} name:=${nam
 
 # Amalgamate all S-unit equations into a single document.
 while IFS= read -r line; do
-    F="Data/${name}/$line.csv"
+    F="Data/${name}/${line}.csv"
+    F2="Data/${name}/${line}tmp.txt"
     [ -f "$F" ] && cat "$F" >> "Data/${name}/${name}SUnitTMForms.csv"
     rm -f "$F"
+    rm -f "$F2"
 done < "Data/${name}/${name}TMForms.csv"
 mv Data/${name}/${name}SUnitTMForms.csv Data/${name}/${name}TMForms.csv
 
@@ -106,27 +109,23 @@ mv Data/${name}/${name}SUnitTMForms.csv Data/${name}/${name}TMForms.csv
 cat Data/${name}/${name}TMForms.csv | parallel -j20 --joblog Data/${name}/${name}TMLog magma -b set:={} name:=${name} Code/computeEllipticCurvesTM.m 2>&1
 
 # Amalgamate all logfiles pertaining to the same Thue--Mahler equation.
-while IFS= read -r line; do
-    F="Data/${name}/${line}Log.txt"
-    [ -f "$F" ] && cat "$F" >> "Data/${name}/${name}SUnitTMForms.csv"
-    rm -f "$F"
-done < "Data/${name}/${name}TMForms.csv"
 
 
 
-for F in "Data/${name}/TMLogfiles"/*; do
-    filename="${F##*/}"
-    filename="$(echo ${filename} | cut -d']' -f -3)""]"
-    cat "$F" >> "Data/${name}/TMLogfiles/${filename}Log.csv"
-    rm -f "$F"
-done
-for F in "Data/${name}/TMOutfiles"/*; do
-    filename="${F##*/}"
-    filename="$(echo ${filename} | cut -d']' -f -3)""]"
-    Ns="$(echo ${filename} | cut -d']' -f -1)"
-    Ns="${Ns:1}"
-    readarray -td '' Ns < <(awk '{ gsub(/,+/,"\0"); print; }' <<<"$Ns")
-    cat "$F" >> "Data/${name}/TMOutfiles/${filename}Out.csv"
+#for F in "Data/${name}/TMLogfiles"/*; do
+ #   filename="${F##*/}"
+  #  filename="$(echo ${filename} | cut -d']' -f -3)""]"
+#    cat "$F" >> "Data/${name}/TMLogfiles/${filename}Log.csv"
+#    rm -f "$F"
+#done
+#for F in "Data/${name}/TMOutfiles"/*; do
+#    filename="${F##*/}"
+#    filename="$(echo ${filename} | cut -d']' -f -3)""]"
+#    Ns="$(echo ${filename} | cut -d']' -f -1)"
+#    Ns="${Ns:1}"
+#    readarray -td '' Ns < <(awk '{ gsub(/,+/,"\0"); print; }' <<<"$Ns")
+#    cat "$F" >> "Data/${name}/TMOutfiles/${filename}Out.csv"
+
 #    for N in "${Ns[@]}"; do
 #	EC="${N}"
 #	cat "$F" >> "Data/${name}/TMOutfiles/${filename}Out.csv"
