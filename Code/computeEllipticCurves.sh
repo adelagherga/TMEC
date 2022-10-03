@@ -71,7 +71,8 @@ done
 
 # Generate all required Thue--Mahler forms in parallel, applying all necessary
 # local tests in the process.
-echo "Generating all required cubic forms for conductors in $(echo ${name} | cut -d']' -f -1)]."
+printf "Generating all required cubic forms for conductors in"
+printf "$(echo ${name} | cut -d']' -f -1)]..."
 (for N in "${list[@]}"; do echo "$N"; done) | parallel -j20 magma -b N:={} name:=${name} Code/findForms.m 2>&1
 
 # Amalgamate all Thue--Mahler forms into a single document.
@@ -80,17 +81,18 @@ for N in "${list[@]}"; do
     F2="Data/${name}/${N}tmp.txt"
     [ -f "$F1" ] && cat "$F1" >> "Data/${name}/${name}TMForms.csv"
     rm -f "$F1"
-#    grep "error" "$F2" #?
     rm -f "$F2"
 done
+printf "Done.\n"
 
 # Remove redundant Thue--Mahler equations.
 # chmod +x Code/gatherFormRedundancy.py # DO WE NEED THIS?
-echo "Removing redundant cubic forms."
+printf "Removing redundant cubic forms..."
 python Code/gatherFormRedundancy.py "Data/${name}/${name}TMForms.csv" "Data/${name}/${name}SortedTMForms.csv"
+printf "Done.\n"
 
 # Generate optimal Thue--Mahler forms and all S-unit equations.
-echo "Generating optimal GL2(Z)-equivalent cubic forms."
+printf "Generating optimal GL2(Z)-equivalent cubic forms..."
 cat Data/${name}/${name}TMForms.csv | parallel -j20 magma -b set:={} name:=${name} Code/optimalForm.m 2>&1
 
 # Amalgamate all S-unit equations into a single document.
@@ -102,6 +104,7 @@ while IFS= read -r line; do
     rm -f "$F2"
 done < "Data/${name}/${name}TMForms.csv"
 mv Data/${name}/${name}SUnitTMForms.csv Data/${name}/${name}TMForms.csv
+printf "Done.\n"
 
 # Run Thue--Mahler code in parallel.
 # That is, for each line "set" of Data/TMForms/${name}Forms.csv, run
@@ -109,19 +112,27 @@ mv Data/${name}/${name}SUnitTMForms.csv Data/${name}/${name}TMForms.csv
 # The following code runs these jobs using GNU parallel, running no more than
 # 20 (-j20) jobs at once, and storing GNU parallel's progress in the logfile
 # Data/${name}TMLog (--joblog Data/${name}TMLog).
-echo "Solving Thue--Mahler equations."
+printf "Solving the Thue--Mahler equations..."
 cat Data/${name}/${name}TMForms.csv | parallel -j20 --joblog Data/${name}/${name}TMLog magma -b set:={} name:=${name} Code/computeEllipticCurvesTM.m 2>&1
+printf "Done.\n"
 
 # Amalgamate all logfiles pertaining to the same Thue--Mahler equation.
+printf "Gathering all files..."
+while IFS= read -r form_i; do
+    form="$(echo ${form_i} | cut -d']' -f -3)""]"
+    if [ "${form_i}" != "${form}" ]; then
+	IFOut="Data/${name}/TMOutfiles/${form_i}Out.csv"
+	OFOut="Data/${name}/TMOutfiles/${form}Out.csv"
+	IFLog="Data/${name}/TMLogfiles/${form_i}Log.txt"
+	OFLog="Data/${name}/TMLogfiles/${form}Log.txt"
+	[ -f "${IFOut}" ] && cat "${IFOut}" >> "${OFOut}"
+	cat "${IFLog}" >> "${OFLog}"
+	rm -f "${IFOut}"
+	rm -f "${IFLog}"
+    fi
+done < "Data/${name}/${name}TMForms.csv"
+printf "Done.\n"
 
-
-
-#for F in "Data/${name}/TMLogfiles"/*; do
- #   filename="${F##*/}"
-  #  filename="$(echo ${filename} | cut -d']' -f -3)""]"
-#    cat "$F" >> "Data/${name}/TMLogfiles/${filename}Log.csv"
-#    rm -f "$F"
-#done
 #for F in "Data/${name}/TMOutfiles"/*; do
 #    filename="${F##*/}"
 #    filename="$(echo ${filename} | cut -d']' -f -3)""]"
