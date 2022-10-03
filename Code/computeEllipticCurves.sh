@@ -59,14 +59,18 @@ else
 fi
 
 # Generate necessary subdirectories
-mkdir Data/${name}/EllipticCurves
-mkdir Data/${name}/TMOutfiles
-mkdir Data/${name}/TMLogfiles
+Dir="Data/${name}"
+ECDir="${Dir}/EllipticCurves"
+TMOutDir="${Dir}/TMOutfiles"
+TMLogDir="${Dir}/TMLogfiles"
+mkdir "${ECDir}"
+mkdir "${TMOutDir}"
+mkdir "${TMLogDir}"
 
 # Generate files for each conductor and populate each file with the
 # corresponding elliptic curves.
 for N in "${list[@]}"; do
-    touch "Data/${name}/EllipticCurves/${N}.csv"
+    touch "{ECDir}/${N}.csv"
 done
 
 # Generate all required Thue--Mahler forms in parallel, applying all necessary
@@ -77,33 +81,33 @@ printf " $(echo ${name} | cut -d']' -f -1)]..."
 
 # Amalgamate all Thue--Mahler forms into a single document.
 for N in "${list[@]}"; do
-    F1="Data/${name}/${N}Forms.csv"
-    F2="Data/${name}/${N}tmp.txt"
-    [ -f "$F1" ] && cat "$F1" >> "Data/${name}/${name}TMForms.csv"
+    F1="${Dir}/${N}Forms.csv"
+    F2="${Dir}/${N}tmp.txt"
+    [ -f "$F1" ] && cat "$F1" >> "${Dir}/TMForms.csv"
     rm -f "$F1"
     rm -f "$F2"
 done
 printf "Done.\n"
 
 # Remove redundant Thue--Mahler equations.
-# chmod +x Code/gatherFormRedundancy.py # DO WE NEED THIS?
+# chmod +x Code/gatherFormRedundancy.py
 printf "Removing redundant cubic forms..."
-python Code/gatherFormRedundancy.py "Data/${name}/${name}TMForms.csv" "Data/${name}/${name}SortedTMForms.csv"
+python Code/gatherFormRedundancy.py "${Dir}/TMForms.csv" "${Dir}/tmpTMForms.csv"
 printf "Done.\n"
 
 # Generate optimal Thue--Mahler forms and all S-unit equations.
 printf "Generating optimal GL2(Z)-equivalent cubic forms..."
-cat Data/${name}/${name}TMForms.csv | parallel -j20 magma -b set:={} name:=${name} Code/optimalForm.m 2>&1
+cat ${Dir}/TMForms.csv | parallel -j20 magma -b set:={} name:=${name} Code/optimalForm.m 2>&1
 
 # Amalgamate all S-unit equations into a single document.
 while IFS= read -r line; do
-    F="Data/${name}/${line}.csv"
-    F2="Data/${name}/${line}tmp.txt"
-    [ -f "$F" ] && cat "$F" >> "Data/${name}/${name}SUnitTMForms.csv"
+    F="${Dir}/${line}.csv"
+    F2="${Dir}/${line}tmp.txt"
+    [ -f "$F" ] && cat "$F" >> "${Dir}/tmpTMForms.csv"
     rm -f "$F"
     rm -f "$F2"
-done < "Data/${name}/${name}TMForms.csv"
-mv Data/${name}/${name}SUnitTMForms.csv Data/${name}/${name}TMForms.csv
+done < "${Dir}/TMForms.csv"
+mv "${Dir}/tmpTMForms.csv" "${Dir}/TMForms.csv"
 printf "Done.\n"
 
 # Run Thue--Mahler code in parallel.
@@ -113,7 +117,7 @@ printf "Done.\n"
 # 20 (-j20) jobs at once, and storing GNU parallel's progress in the logfile
 # Data/${name}TMLog (--joblog Data/${name}TMLog).
 printf "Solving the Thue--Mahler equations..."
-cat Data/${name}/${name}TMForms.csv | parallel -j20 --joblog Data/${name}/${name}TMLog magma -b set:={} name:=${name} Code/computeEllipticCurvesTM.m 2>&1
+cat ${Dir}/TMForms.csv | parallel -j20 --joblog ${Dir}/TMLog magma -b set:={} name:=${name} Code/computeEllipticCurvesTM.m 2>&1
 printf "Done.\n"
 
 # Amalgamate all logfiles pertaining to the same Thue--Mahler equation.
@@ -121,27 +125,31 @@ printf "Gathering all files..."
 while IFS= read -r form_i; do
     form="$(echo ${form_i} | cut -d']' -f -3)""]"
     if [ "${form_i}" != "${form}" ]; then
-	IFOut="Data/${name}/TMOutfiles/${form_i}Out.csv"
-	OFOut="Data/${name}/TMOutfiles/${form}Out.csv"
-	IFLog="Data/${name}/TMLogfiles/${form_i}Log.txt"
-	OFLog="Data/${name}/TMLogfiles/${form}Log.txt"
+	IFOut="${TMOutDir}/${form_i}Out.csv"
+	OFOut="${TMOutDir}/${form}Out.csv"
+	IFLog="${TMLogDir}/${form_i}Log.txt"
+	OFLog="${TMLogDir}/${form}Log.txt"
 	[ -f "${IFOut}" ] && cat "${IFOut}" >> "${OFOut}"
 	cat "${IFLog}" >> "${OFLog}"
 	rm -f "${IFOut}"
 	rm -f "${IFLog}"
     fi
-done < "Data/${name}/${name}TMForms.csv"
+done < "${Dir}/TMForms.csv"
 printf "Done.\n"
 
-for F in "Data/${name}/TMOutfiles"/*; do
-    cat "$F" >> "Data/${name}/EllipticCurves/${name}AllCurves.csv"
+for F in "${TMOutDir}"/*; do
+    cat "$F" >> "${ECDir}/AllCurves.csv"
 done
-sort -n "Data/${name}/EllipticCurves/${name}AllCurves.csv" > tmp
-awk -F, 'BEGIN {OFS=FS} {print $1,$2,$3,$4,$5,$6}' tmp > "Data/${name}/EllipticCurves/${name}AllCurves.csv"
-awk -i inplace '!seen[$0]++' "Data/${name}/EllipticCurves/${name}AllCurves.csv"
-rm tmp
+sort -t, -k1,1n -k2,2n -k3,3n -k4,4n -k5,5n -k6,6n "${ECDir}/AllCurves.csv" > "${ECDir}/tmpAllCurves.csv"
+mv "${ECDir}/tmpAllCurves.csv" "${ECDir}/AllCurves.csv"
+awk -F, 'BEGIN {OFS=FS} {print $1,$2,$3,$4,$5,$6}' "${ECDir}/AllCurves.csv" > "${ECDir}/tmpAllCurves.csv"
+mv "${ECDir}/tmpAllCurves.csv" "${ECDir}/AllCurves.csv"
+awk -i inplace '!seen[$0]++' "${ECDir}/AllCurves.csv"
 
 while IFS= read -r Ncurve; do
     N="$(echo ${Ncurve} | cut -d',' -f -1)"
-    echo ${Ncurve} >> "Data/${name}/EllipticCurves/${N}.csv"
-done < "Data/${name}/EllipticCurves/${name}AllCurves.csv"
+    echo ${Ncurve} >> "${ECDir}/${N}.csv"
+done < "${ECDir}/AllCurves.csv"
+printf "Done.\n"
+printf "Finished computing all elliptic curves of conductor"
+printf " $(echo ${name} | cut -d']' -f -1)]."
