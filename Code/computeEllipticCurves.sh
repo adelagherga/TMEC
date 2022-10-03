@@ -79,6 +79,7 @@ for N in "${list[@]}"; do
     F2="Data/${name}/${N}tmp.txt"
     [ -f "$F1" ] && cat "$F1" >> "Data/${name}/${name}TMForms.csv"
     rm -f "$F1"
+#    grep "error" "$F2" #?
     rm -f "$F2"
 done
 
@@ -88,6 +89,7 @@ echo "Removing redundant cubic forms."
 python Code/gatherFormRedundancy.py "Data/${name}/${name}TMForms.csv" "Data/${name}/${name}SortedTMForms.csv"
 
 # Generate optimal Thue--Mahler forms and all S-unit equations.
+echo "Generating optimal GL2(Z)-equivalent cubic forms."
 cat Data/${name}/${name}TMForms.csv | parallel -j20 magma -b set:={} name:=${name} Code/optimalForm.m 2>&1
 
 # Amalgamate all S-unit equations into a single document.
