@@ -23,6 +23,7 @@
 #     28 September 2022
 
 import sys
+import os
 
 def parseForm(line):
     """
@@ -129,6 +130,7 @@ def gatherFormRedundancy(IF,OF):
             out=Nlist+","+alist+","+aprimelist
             OutFile.write("%s\n" % out)
     OutFile.close()
+    os.rename(OF,IF)
 
 if __name__ == '__main__':
     # Map command line arguments to function arguments.

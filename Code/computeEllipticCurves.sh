@@ -83,7 +83,8 @@ done
 # Remove redundant Thue--Mahler equations.
 chmod +x Code/gatherFormRedundancy.py
 python Code/gatherFormRedundancy.py "Data/${name}/${name}TMForms.csv" "Data/${name}/${name}SortedTMForms.csv"
-mv Data/${name}/${name}SortedTMForms.csv Data/${name}/${name}TMForms.csv
+## COULD DELETE:
+#mv Data/${name}/${name}SortedTMForms.csv Data/${name}/${name}TMForms.csv
 
 # Generate optimal Thue--Mahler forms and all S-unit equations.
 cat Data/${name}/${name}TMForms.csv | parallel -j20 magma set:={} name:=${name} Code/optimalForm.m 2>&1
