@@ -28,7 +28,7 @@ Created
 */
 
 LogFile:="../Data/" cat name cat "/TMLogfiles/" cat set cat "Log.txt";
-SetOutFile(LogFile);
+SetOutputFile(LogFile);
 ChangeDirectory("./Code");
 load "./solveThueMahler.m";
 load "./convertTMToEllipticCurves.m";
