@@ -279,7 +279,7 @@ coprimeTMSUnit:=function(alist,a,primelist,j : verb:=false)
     else
 	printf "Working on the %o-th S-unit equation of %o.\n",j,#tauDeltaList;
     end if;
-    printf "The rank is %o.\n",#tauDeltaList[j];
+    printf "The rank is %o.\n",#tauDeltaList[j][2];
     a0:=alist[1];
     K:=Universe([pr[1] : pr in tauDeltaList]
 		cat &cat[pr[2] : pr in tauDeltaList]);
