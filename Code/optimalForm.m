@@ -162,9 +162,6 @@ optimalForm:=function(alist,a,primelist)
 	      equations corresponding to that monic equation.
    */
     GL2Zalists:=equivForm(alist);
-    if #GL2Zalists eq 1 then
-	return GL2Zalists[1];
-    end if;
     caseNo:=[];
     for i in [1..#GL2Zalists] do
 	alist:=GL2Zalists[i];

@@ -72,6 +72,7 @@ TMLogDir="${Dir}/TMLogfiles"
 mkdir "${ECDir}"
 mkdir "${TMOutDir}"
 mkdir "${TMLogDir}"
+touch "${Dir}/Errors.txt"
 
 # Generate files for each conductor and populate each file with the
 # corresponding elliptic curves.
@@ -92,6 +93,9 @@ for N in "${list[@]}"; do
     F2="${Dir}/${N}tmp.txt"
     [ -f "$F1" ] && cat "$F1" >> "${Dir}/TMForms.csv"
     rm -f "$F1"
+    if grep -q "error" "$F2"; then
+	echo "${N}:findForms.m" >> "${Dir}/Errors.txt"
+    fi
     rm -f "$F2"
 done
 printf "Done.\n"
@@ -113,6 +117,9 @@ while IFS= read -r line; do
     F2="${Dir}/${line}tmp.txt"
     [ -f "$F" ] && cat "$F" >> "${Dir}/tmpTMForms.csv"
     rm -f "$F"
+    if grep -q "error" "$F2"; then
+	echo "${line}:optimalForm.m" >> "${Dir}/Errors.txt"
+    fi
     rm -f "$F2"
 done < "${Dir}/TMForms.csv"
 mv "${Dir}/tmpTMForms.csv" "${Dir}/TMForms.csv"
@@ -127,6 +134,15 @@ printf "Done.\n"
 printf "Solving the Thue--Mahler equations..."
 cat ${Dir}/TMForms.csv | \
     parallel -j20 --joblog ${Dir}/TMLog magma -b set:={} name:=${name} Code/computeEllipticCurvesTM.m 2>&1
+
+# Search for errors.
+for F in "${TMLogDir}"/*; do
+    if grep -q "error" "$F"; then
+	form1=${F%Log.*}
+	form=${form1##*/}
+	echo "$form:computeEllipticCurvesTM.m" >> "${Dir}/Errors.txt"
+    fi
+done
 printf "Done.\n"
 
 # Amalgamate all logfiles and outfiles pertaining to the same Thue--Mahler
@@ -167,4 +183,11 @@ while IFS= read -r Ncurve; do
 done < "${ECDir}/AllCurves.csv"
 printf "Done.\n"
 printf "Finished computing all elliptic curves of conductor"
-printf " $(echo ${name} | cut -d']' -f -1)]\n."
+printf " $(echo ${name} | cut -d']' -f -1)].\n"
+
+# Raise warning if errors were detected.
+if [ -s "${Dir}/Errors.txt" ]; then
+    # The file is not-empty.
+    printf "Errors detected:\n"
+    cat "${Dir}/Errors.txt"
+fi
