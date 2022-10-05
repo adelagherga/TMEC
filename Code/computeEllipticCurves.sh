@@ -17,8 +17,8 @@ while getopts ":l:" opt; do
 	l)
 	    # List of conductors.
 	    list+=("$OPTARG")
-	    name="${list[*]}"
-	    name="["${data_string//${IFS:0:1}/,}"]"
+	    name+="$OPTARG"
+	    name="["${list//${IFS:0:1}/,}"]"
 	    ;;
 	\?)
 	    echo "Invalid option: -$OPTARG." >&2
@@ -43,6 +43,9 @@ if [ -z "${list}" ]; then
 	echo "Invalid argument."
 	exit 1
     fi
+else
+    printf -v Nlist '%s,' "${list[@]}"
+    name="[""${Nlist%,}""]"
 fi
 
 # Generate a directory Data/${name} for all output.
