@@ -20,7 +20,7 @@ Created
     16 September 2022
 */
 
-SetOutputFile("./Data/" cat name cat "/" cat N cat "tmp.txt");
+SetOutputFile(dir cat "/" cat N cat "tmp.txt");
 load "./Code/parseIO.m";
 
 primes23:=function(alpha,beta)
@@ -168,8 +168,7 @@ verifyPosReduced:=function(a,b,c,d,df)
     if (IsIrreducible(F/gcd) eq false) then
 	return false;
     end if;
-    if (beta0 ge 3) and (IsDivisibleBy(b,3) eq false) and
-       (IsDivisibleBy(b,3) eq false) then
+    if (beta0 ge 3) and not (IsDivisibleBy(b,3) and IsDivisibleBy(c,3)) then
 	return false;
     end if;
     return true;
@@ -278,8 +277,7 @@ verifyNegReduced:=function(a,b,c,d,df)
     if (IsIrreducible(F/gcd) eq false) then
 	return false;
     end if;
-    if (beta0 ge 3) and (IsDivisibleBy(b,3) eq false) and
-       (IsDivisibleBy(b,3) eq false) then
+    if (beta0 ge 3) and not (IsDivisibleBy(b,3) and IsDivisibleBy(c,3)) then
 	return false;
     end if;
     return true;
@@ -643,7 +641,7 @@ findForms:=function(N)
     return validForms;
 end function;
 
-OutFile:="./Data/" cat name cat "/" cat N cat "Forms.csv";
+OutFile:=dir cat "/" cat N cat "Forms.csv";
 sN:=N;
 N:=StringToInteger(N);
 validForms:=findForms(N);
