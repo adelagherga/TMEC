@@ -8,9 +8,9 @@ number of S-unit equations for F(X,Y) = a * p_1^{z_1} ... p_v^{z_v}.
 Parameters
     set: MonStgElt
         A string in the format "Nlist,alist,a,primelist".
-    name: MonStgElt
-        A string in the format "[N1,N2,...]" which serves as the name of the
-	directory to which all output files are printed.
+    dir: MonStgElt
+        A string in the format "Data/[N1,N2,...]i" which serves as the name of
+	the directory to which all output files are printed.
 Returns
     OutFile: MonStgElt
         A .csv file named Nlist,alist,a,primelist.csv where alist defines a
@@ -25,7 +25,7 @@ Created
     27 September 2022
 */
 
-SetOutputFile("./Data/" cat name cat "/" cat set cat "tmp.txt");
+SetOutputFile(dir cat "/" cat set cat "tmp.txt");
 ChangeDirectory("./Code");
 load "./solveThueMahler.m";
 
@@ -199,7 +199,7 @@ optimalForm:=function(alist,a,primelist)
     return GL2Zalists[ind],caseNo[ind][2];
 end function;
 
-OutFile:="../Data/" cat name cat "/" cat set cat ".csv";
+OutFile:=dir cat "/" cat set cat ".csv";
 Nlist,alist,a,primelist,_:=extractForm(set);
 if IsEmpty(primelist) then
     fprintf OutFile, "%o\n",set;
