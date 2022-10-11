@@ -9,9 +9,9 @@ Parameters
     set: MonStgElt
         A string in the format "Nlist,alist,a,primelist,[i,j]", with [i,j]
 	denoting the index of the associated S-unit equation.
-    name: MonStgElt
-        A string in the format "[N1,N2,...]" which serves as the name of the
-	directory to which all output files are printed.
+    dir: MonStgElt
+        A string in the format "Data/[N1,N2,...]i" which serves as the name of
+	the directory to which all output files are printed.
 Returns
     OutFile: MonStgElt
         A .csv file named "N,alist,a,primelist,[i,j]Out.csv" containing, for
@@ -28,13 +28,13 @@ Created
 */
 
 ChangeDirectory("./Code");
-LogFile:="../Data/" cat name cat "/TMLogfiles/" cat set cat "Log.txt";
+LogFile:="../" cat dir cat "/TMLogfiles/" cat set cat "Log.txt";
 SetOutputFile(LogFile);
 load "./solveThueMahler.m";
 load "./convertTMToEllipticCurves.m";
 
 Nlist,alist,a,primelist,ij:=extractForm(set);
-OutFile:="../Data/" cat name cat "/TMOutfiles/" cat set cat "Out.csv";
+OutFile:="../" cat dir cat "/TMOutfiles/" cat set cat "Out.csv";
 printf "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
 printf "Nlist:=%o; ij:=%o;\n",Nlist,ij;
 printf "alist:=%o; a:=%o; primelist:=%o;\n",alist,a,primelist;
@@ -51,3 +51,4 @@ for E in ECs do
 	    E[1],seqEnumToString(E[2]),seqEnumToString(alist),a,
 	    seqEnumToString(primelist),seqEnumToString(E[3]);
 end for;
+exit;
