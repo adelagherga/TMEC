@@ -1,1 +1,5 @@
 Data/
+Code/*.o
+Code/N2TME
+Code/TME_compare
+
