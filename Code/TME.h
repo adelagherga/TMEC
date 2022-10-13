@@ -86,8 +86,12 @@ public:
   // local test: return 0 if impossible, else 1 (and the RHS may have changed)
   int local_test();
 
-  // for output (puts either "N,D,[a,b,c,d],A,plist" or "[a,b,c,d],A,plist" into string)
-  string as_string(int ND=1) const;
+  // return an output string
+  // (ND=0) "[a,b,c,d],A,plist"
+  // (ND=1) "N,[a,b,c,d],A,plist"
+  // (ND=2) "D,[a,b,c,d],A,plist"
+  // (ND=3) "N,D,[a,b,c,d],A,plist"
+  string as_string(int ND=3) const;
 
   // for long output (converts to string containing "N,D,[a,b,c,d],A,plist")
   operator string() const

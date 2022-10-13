@@ -259,12 +259,18 @@ int TM_eqn::local_test()
   return 1;
 }
 
-// for output (puts either N,D,[a,b,c,d],A,plist or [a,b,c,d],A,plist into string)
+// return an output string
+// (ND=0) "[a,b,c,d],A,plist"
+// (ND=1) "N,[a,b,c,d],A,plist"
+// (ND=2) "D,[a,b,c,d],A,plist"
+// (ND=3) "N,D,[a,b,c,d],A,plist"
 string TM_eqn::as_string(int ND) const
 {
   ostringstream s;
-  if (ND)
-    s << DD.NN.N << "," << DD.D << ",";
+  if (ND&1) // i.e. ND is odd
+    s << DD.NN.N << ",";
+  if (ND&2) // i.e. ND =2 or 3
+    s << DD.D << ",";
   F.output(s);
   s << "," << (string)RHS;
   return s.str();
