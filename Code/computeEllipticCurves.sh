@@ -227,7 +227,7 @@ runParallel() {
 
 verifyNonEmpty() {
 
-    if ! [ -s "$1" ]; then
+    if [ ! -s "$1" ]; then
 	printf "Finished computing all elliptic curves of conductor ${name}.\n"
 	exit 0
     fi
