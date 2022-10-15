@@ -225,6 +225,15 @@ runParallel() {
 
 }
 
+verifyNonEmpty() {
+
+    if ! [ -s "$1" ]; then
+	printf "Finished computing all elliptic curves of conductor ${name}.\n"
+	exit 0
+    fi
+}
+
+
 gatherRedundancy() {
 
     local N
@@ -236,6 +245,7 @@ gatherRedundancy() {
 	rm -f "${F}"
     done
 
+    verifyNonEmpty "${Dir}/TMForms.csv"
     # Remove redundant Thue--Mahler equations.
     python Code/gatherFormRedundancy.py "${Dir}/TMForms.csv" \
 	   "${Dir}/tmpTMForms.csv"
