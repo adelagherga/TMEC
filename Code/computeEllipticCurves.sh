@@ -233,7 +233,6 @@ verifyNonEmpty() {
     fi
 }
 
-
 gatherRedundancy() {
 
     local N
@@ -246,9 +245,11 @@ gatherRedundancy() {
     done
 
     verifyNonEmpty "${Dir}/TMForms.csv"
-    # Remove redundant Thue--Mahler equations.
+
+    printf "Removing redundant cubic forms..."
     python Code/gatherFormRedundancy.py "${Dir}/TMForms.csv" \
 	   "${Dir}/tmpTMForms.csv"
+    printf "Done.\n"
 
 }
 
@@ -276,10 +277,7 @@ amalgamateFormFiles() {
     done < "${Dir}/TMForms.csv"
     mv "${Dir}/tmpTMForms.csv" "${Dir}/TMForms.csv"
 
-    if ! [ -s "${Dir}/TMForms.csv" ]; then
-	printf "Finished computing all elliptic curves of conductor ${name}.\n"
-	exit 0
-    fi
+    verifyNonEmpty "${Dir}/TMForms.csv"
 
 }
 
@@ -323,6 +321,7 @@ sortEllipticCurves() {
     for F in "${TMOutDir}"/*; do
 	cat "$F" >> "${ECDir}/AllCurves.csv"
     done
+    rm -r "${TMOutDir}"
     sort -t, -k1,1n -k2,2n -k3,3n -k4,4n -k5,5n -k6,6n "${ECDir}/AllCurves.csv" \
 	 > "${ECDir}/tmpAllCurves.csv"
     mv "${ECDir}/tmpAllCurves.csv" "${ECDir}/AllCurves.csv"
@@ -364,9 +363,8 @@ main () {
     runParallel "${list}" Log "Code/N2TME {} '${Dir}' > /dev/null"
     printf "Done.\n"
 
-    printf "Removing redundant cubic forms..."
+    # Remove redundant Thue--Mahler equations.
     gatherRedundancy
-    printf "Done.\n"
 
     # Generate optimal Thue--Mahler forms and all S-unit equations.
     printf "Generating optimal GL2(Z)-equivalent cubic forms..."
