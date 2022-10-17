@@ -247,16 +247,23 @@ runParallel() {
 
 verifyNonEmpty() {
 
-    # Verifies whether the file TMForms.csv is empty, terminating the program
-    # when this is true.
+    # Verifies whether the file TMForms.csv is empty. When true, this function
+    # populates and sorts all elliptic curve files before terminating the
+    # program. This function also generates a single file containing all
+    # resulting curves, to be used for final comparisons.
     #
     # Parameters
     #     Dir/TMForms.csv
     #         The file Data/${name}/TMForms.csv containing, in each line, the
     #         Thue--Mahler form to be solved.
+    # Returns
+    #     AllCurves.csv
+    #         The file containing all elliptic curves generated in the program,
+    #         sorted and free of duplicates, in the format N [a1,a2,a3,a4,a6].
 
     if [ ! -s "$1" ]; then
 	printf "Finished computing all elliptic curves of conductor ${name}.\n"
+	sortCurvesByN
 	exit 0
     fi
 }
