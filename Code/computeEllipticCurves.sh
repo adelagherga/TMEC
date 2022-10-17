@@ -1,12 +1,20 @@
 #!/bin/bash
 # computeEllipticCurves.sh
 #
-# This function computes all elliptic curves of conductors N1,...,Nn and
-# sorts the curves into seperate files by conductor.
+# These functions compute all elliptic curves of given conductor(s), taking as
+# input a single conductor N, a range of conductors [N1,...,N2], or, with the
+# flag -l, an arbitrary finite list of conductors, with various computations
+# executed in parallel.
 #
 # Parameters
-#     [OPTIONAL] -l
-
+#     N1 [N2]
+#         A single conductor, N1, or the range [N1,...,N2].
+#     [-l N1] [N2...]: [OPTIONAL]
+#         A finite, arbitrary list of conductors to generate [N1,N2,...].
+# Returns
+#     Dir
+#         A subdirectory or Data storing all output, logs, errors, and elliptic
+#         curves.
 # Authors
 #    Adela Gherga <adelagherga@gmail.com>
 # Created
@@ -424,7 +432,19 @@ sortCurves() {
 
 main () {
 
-    # Establishes run order.
+    # Generates all elliptic curves of given conductor(s), taking as input a
+    # single conductor N, a range of conductors [N1,...,N2], or, with the
+    # flag -l, an arbitrary finite list of conductors.
+    #
+    # Parameters
+    #     N1 [N2]
+    #         A single conductor, N1, or the range [N1,...,N2].
+    #     [-l N1] [N2...]: [OPTIONAL]
+    #         A finite, arbitrary list of conductors to generate [N1,N2,...].
+    # Returns
+    #     Dir
+    #         A subdirectory or Data storing all output, logs, errors, and
+    #         elliptic curves.
 
     local conductors
     local program
@@ -485,7 +505,9 @@ main () {
 
     # Clean up directory and amalgamate all Thue--Mahler logfiles and elliptic
     # curves.
+    printf "Sorting all elliptic curves..."
     sortCurves
+    printf "Done.\n"
     printf "Finished computing all elliptic curves of conductor ${name}.\n"
 }
 
