@@ -6,9 +6,9 @@ elliptic curves of conductor N with no non-trivial rational 2-torsion.
 
 Parameters
     N: MonStgElt
-    name: MonStgElt
-        A string in the format "[N1,N2,...]" which serves as the name of the
-	directory to which all output files are printed.
+    dir: MonStgElt
+        A string in the format "Data/[N1,N2,...]i" which serves as the name of
+	the directory to which all output files are printed.
 Returns
     OutFile: MonStgElt
         A .csv file named NForms.csv containing the rows "N,alist,a,primelist"
