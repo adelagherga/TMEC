@@ -341,7 +341,7 @@ moveTMCurves() {
     local line
 
     while IFS= read -r line; do
-	N=$(echo "${line}" | cut -d',' -f -1)
+	N=$(echo "${line}" | cut -d' ' -f -1)
 	echo "${line}" >> "${ECDir}/${N}.csv"
     done < "$1"
 }
