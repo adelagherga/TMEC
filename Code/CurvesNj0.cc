@@ -37,21 +37,19 @@ int main (int argc, char *argv[])
 
   initprimes("PRIMES");
 
-  for (long n=n1; n<=n2; n++)
+  // skip to next multiple of 3:
+  while (n1%3!=0)
+    n1++;
+  for (long n=n1; n<=n2; n+=3)
     {
-      if ((n%3!=0)) // curves with j=0 all have bad reduction at 3
-        {
-          continue;
-        }
-      if (!is_valid_conductor(n))
-        {
-          continue;
-        }
       bigint N(n);
-      //vector<CurveRed> Elist = get_egros_from_j_0(N);
-      vector<CurveRed> Elist = get_egros_from_j_0(pdivs(N));
-      for (auto Ei = Elist.begin(); Ei!=Elist.end(); ++Ei)
-        if (getconductor(*Ei) == N)
-          cout << N << " " << (Curve)(*Ei) <<endl;
+      vector<bigint> suppN = pdivs(N);
+      if (test_conductor_j_0(N, suppN))
+        {
+          vector<CurveRed> Elist = get_egros_from_j_0(suppN);
+          for (auto Ei = Elist.begin(); Ei!=Elist.end(); ++Ei)
+            if (getconductor(*Ei) == N)
+              cout << N << " " << (Curve)(*Ei) <<endl;
+        }
     }
 }
