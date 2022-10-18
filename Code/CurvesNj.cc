@@ -8,6 +8,8 @@
 
 #include "egros.h"
 
+#define VERBOSE 0
+
 int main (int argc, char *argv[])
 {
   if ( (argc < 3) || (argc > 4) )
@@ -20,7 +22,9 @@ int main (int argc, char *argv[])
   string js(argv[1]);
   istringstream jss(js);
   jss >> j;
+#if VERBOSE
   cout << "j-invariant "<<j<<endl;
+#endif
   long n1, n2;
   char* t;
   n1 = strtol(argv[2], &t, 10); // 10 is the base
@@ -37,12 +41,16 @@ int main (int argc, char *argv[])
           cerr << "Usage: CurvesNj0 N or CurvesNj0 N1 N2" << endl;
           return 0;
         }
+#if VERBOSE
       cout << "conductors from "<<n1<<" to "<<n2<<endl;
+#endif
     }
   else
     {
       n2 = n1;
+#if VERBOSE
       cout << "conductor "<<n1<<endl;
+#endif
     }
 
   initprimes("PRIMES");

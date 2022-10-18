@@ -184,6 +184,7 @@ vector<CurveRed> egros_from_j(const bigrational& j, const vector<bigint>& S)
 
   bigint a4 = -3*n*m;
   bigint a6 = -2*n*m*m;
+
   vector<bigint> Sx = S;
   vector<bigint> Sy = pdivs(n*m*(n-m));
   for (auto pi=Sy.begin(); pi!=Sy.end(); ++pi)
@@ -194,12 +195,39 @@ vector<CurveRed> egros_from_j(const bigrational& j, const vector<bigint>& S)
   vector<bigint> wlist = twist_factors(Sx, 2);
   // cout << wlist.size() << " twist factors"<<endl;
 
+
+  // We'll test twists of [0,0,0,a4,a6], whose discriminant is
+  // 1728n^2m^3(n-m). For primes p>3 not in S we already have
+  // ord_p(n)=0(3), ord_p(m)=0(2) and ord_p(n-m)=ord_p(denom(j))=0, so
+  // ord_p(disc)=0(6).  For there to be any good twists we want
+  // ord_p(disc)=0(12).  The twist by w is [0,0,0,w^2*a4,w^3*a6] which
+  // has disc w^6 times the that of the base curve.  So for primes p
+  // with ord_p(n)=3(6) we must have ord_p(w) odd, while for p with
+  // ord_p(m)=2(4) we must have ord_p(w) odd.
+
+  vector<bigint> a4a6primes;
+  for (auto pi=Sx.begin(); pi!=Sx.end(); ++pi)
+    {
+      bigint p = *pi;
+      if ((p==two) || (p==three))
+        continue;
+      if ((val(p,n)%6==3) || (val(p,m)%4==2))
+        a4a6primes.push_back(p);
+    }
+
   bigint zero(0);
   int no2 = std::find(S.begin(), S.end(), BIGINT(2)) == S.end();
 
   for (auto wi=wlist.begin(); wi!=wlist.end(); ++wi)
     {
       bigint w = *wi;
+      int ok=1;
+      for (auto pi=a4a6primes.begin(); pi!=a4a6primes.end() && ok; ++pi)
+        {
+          ok = (val(*pi,w)%2==1);
+        }
+      if (!ok)
+        continue;
       bigint w2 = w*w;
       bigint w3 = w*w2;
       if (no2)
@@ -262,6 +290,23 @@ vector<CurveRed> get_egros_from_j_0(const bigint& N)
 int test_conductor_j_0(const bigint& N, const vector<bigint>& support)
 {
   if (!div(three,N))
+    return 0;
+  int ok=1;
+  for (auto pi=support.begin(); pi!=support.end() && ok; ++pi)
+    {
+      bigint p = *pi;
+      int np = val(p,N);
+      int okp = (np>=2) && (np<= (p==two? 8 : (p==three? 5 : 2)));
+      ok = ok && okp;
+    }
+  return ok;
+}
+
+// Test whether N is a possible conductor for j=1728: 2|N, no p||N and
+// usual bounds on ord_p(N)
+int test_conductor_j_1728(const bigint& N, const vector<bigint>& support)
+{
+  if (!div(two,N))
     return 0;
   int ok=1;
   for (auto pi=support.begin(); pi!=support.end() && ok; ++pi)

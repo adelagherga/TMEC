@@ -37,17 +37,19 @@ int main (int argc, char *argv[])
 
   initprimes("PRIMES");
 
-  for (long n=n1; n<=n2; n++)
+  // skip to next multiple of 4:
+  while (n1%4!=0)
+    n1++;
+  for (long n=n1; n<=n2; n+=4)
     {
-      if (!is_valid_conductor(n))
-        {
-          continue;
-        }
       bigint N(n);
-      //vector<CurveRed> Elist = get_egros_from_j_1728(N);
-      vector<CurveRed> Elist = get_egros_from_j_1728(pdivs(N));
-      for (auto Ei = Elist.begin(); Ei!=Elist.end(); ++Ei)
-        if (getconductor(*Ei) == N)
-          cout << N << " " << (Curve)(*Ei) <<endl;
+      vector<bigint> suppN = pdivs(N);
+      if (test_conductor_j_1728(N, suppN))
+        {
+          vector<CurveRed> Elist = get_egros_from_j_1728(pdivs(N));
+          for (auto Ei = Elist.begin(); Ei!=Elist.end(); ++Ei)
+            if (getconductor(*Ei) == N)
+              cout << N << " " << (Curve)(*Ei) <<endl;
+        }
     }
 }
