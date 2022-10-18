@@ -47,8 +47,6 @@ for N in Nlist do
 end for;
 printf "%o\n",ECs;
 for E in ECs do
-    fprintf OutFile, "%o,%o,%o,%o,%o,%o\n",
-	    E[1],seqEnumToString(E[2]),seqEnumToString(alist),a,
-	    seqEnumToString(primelist),seqEnumToString(E[3]);
+    fprintf OutFile, "%o %o\n",E[1],seqEnumToString(E[2]);
 end for;
 exit;
