@@ -184,13 +184,17 @@ vector<CurveRed> egros_from_j(const bigrational& j, const vector<bigint>& S)
 
   bigint a4 = -3*n*m;
   bigint a6 = -2*n*m*m;
-
+  // cout<<"Base curve [0,0,0,"<<a4<<","<<a6<<"]\n";
   vector<bigint> Sx = S;
   vector<bigint> Sy = pdivs(n*m*(n-m));
+  vector<bigint> extra_primes;
   for (auto pi=Sy.begin(); pi!=Sy.end(); ++pi)
     {
       if (std::find(Sx.begin(), Sx.end(), *pi) == Sx.end())
-        Sx.push_back(*pi);
+        {
+          Sx.push_back(*pi);
+          extra_primes.push_back(*pi);
+        }
     }
   vector<bigint> wlist = twist_factors(Sx, 2);
   // cout << wlist.size() << " twist factors"<<endl;
@@ -201,12 +205,12 @@ vector<CurveRed> egros_from_j(const bigrational& j, const vector<bigint>& S)
   // ord_p(n)=0(3), ord_p(m)=0(2) and ord_p(n-m)=ord_p(denom(j))=0, so
   // ord_p(disc)=0(6).  For there to be any good twists we want
   // ord_p(disc)=0(12).  The twist by w is [0,0,0,w^2*a4,w^3*a6] which
-  // has disc w^6 times the that of the base curve.  So for primes p
-  // with ord_p(n)=3(6) we must have ord_p(w) odd, while for p with
-  // ord_p(m)=2(4) we must have ord_p(w) odd.
+  // has disc w^6 times the that of the base curve.  So for the
+  // 'extra' primes p (not in S) with ord_p(n)=3(6) we must have ord_p(w) odd,
+  // while for p with ord_p(m)=2(4) we must have ord_p(w) odd.
 
   vector<bigint> a4a6primes;
-  for (auto pi=Sx.begin(); pi!=Sx.end(); ++pi)
+  for (auto pi=extra_primes.begin(); pi!=extra_primes.end(); ++pi)
     {
       bigint p = *pi;
       if ((p==two) || (p==three))
@@ -214,7 +218,8 @@ vector<CurveRed> egros_from_j(const bigrational& j, const vector<bigint>& S)
       if ((val(p,n)%6==3) || (val(p,m)%4==2))
         a4a6primes.push_back(p);
     }
-
+  // cout << "extra_primes = "<<a4a6primes<<endl;
+  // cout << "a4a6primes =   "<<a4a6primes<<endl;
   bigint zero(0);
   int no2 = std::find(S.begin(), S.end(), BIGINT(2)) == S.end();
 
@@ -227,7 +232,11 @@ vector<CurveRed> egros_from_j(const bigrational& j, const vector<bigint>& S)
           ok = (val(*pi,w)%2==1);
         }
       if (!ok)
-        continue;
+        {
+          // cout << "Skipping w = " << w <<endl;
+          continue;
+        }
+      // cout << "Using w = " << w <<endl;
       bigint w2 = w*w;
       bigint w3 = w*w2;
       if (no2)
