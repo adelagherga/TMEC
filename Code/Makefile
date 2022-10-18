@@ -45,7 +45,7 @@ headers: cubic_utils.h TME.h egros.h
 %.o:   %.cc
 	$(CC) $(CFLAGS) $<
 
-TESTS = N2TME TME_compare CurvesNj0 CurvesNj1728 # S2TME
+TESTS = N2TME TME_compare CurvesNj CurvesNj0 CurvesNj1728 # S2TME
 tests: $(TESTS)
 
 clean:
@@ -61,6 +61,9 @@ S2TME: S2TME.o cubic_utils.o
 TME_compare: TME_compare.o cubic_utils.o TME.o
 	$(CC) -o TME_compare TME_compare.o cubic_utils.o TME.o $(LFLAGS)
 
+CurvesNj: CurvesNj.o egros.o
+	$(CC) -o CurvesNj CurvesNj.o egros.o $(LFLAGS)
+
 CurvesNj0: CurvesNj0.o egros.o
 	$(CC) -o CurvesNj0 CurvesNj0.o egros.o $(LFLAGS)
 
@@ -70,6 +73,7 @@ CurvesNj1728: CurvesNj1728.o egros.o
 
 CurvesNj1728.o: CurvesNj1728.cc egros.h
 CurvesNj0.o: CurvesNj0.cc egros.h
+CurvesNj.o: CurvesNj.cc egros.h
 N2TME.o: N2TME.cc cubic_utils.h TME.h
 S2TME.o: S2TME.cc cubic_utils.h
 TME_compare.o: TME_compare.cc cubic_utils.h TME.h

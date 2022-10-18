@@ -1,4 +1,4 @@
-// Program to list curves of given conductor with j-invariant 1728
+// Program to list curves of given conductor and j-invariant
 
 // Usage:
 // ./CurvesNj0 <N>  # for one conductor N
@@ -10,30 +10,40 @@
 
 int main (int argc, char *argv[])
 {
-  if ( (argc < 2) || (argc > 3) )
+  if ( (argc < 3) || (argc > 4) )
     {
-      cerr << "Usage: CurvesNj1728 N or CurvesNj1728 N1 N2" << endl;
+      cerr << "Usage: CurvesNj j N or CurvesNj j N1 N2" << endl;
       return 0;
     }
+  // parse the rational j
+  bigrational j;
+  string js(argv[1]);
+  istringstream jss(js);
+  jss >> j;
+  cout << "j-invariant "<<j<<endl;
   long n1, n2;
   char* t;
-  n1 = strtol(argv[1], &t, 10); // 10 is the base
+  n1 = strtol(argv[2], &t, 10); // 10 is the base
   if (*t)
     {
-      cerr << "Usage: CurvesNj1728 N or CurvesNj1728 N1 N2" << endl;
+      cerr << "Usage: CurvesNj0 N or CurvesNj0 N1 N2" << endl;
       return 0;
     }
-  if (argc==3)
+  if (argc==4)
     {
-      n2 = strtol(argv[2], &t, 10); // 10 is the base
+      n2 = strtol(argv[3], &t, 10); // 10 is the base
       if (*t)
         {
           cerr << "Usage: CurvesNj0 N or CurvesNj0 N1 N2" << endl;
           return 0;
         }
+      cout << "conductors from "<<n1<<" to "<<n2<<endl;
     }
   else
-    n2 = n1;
+    {
+      n2 = n1;
+      cout << "conductor "<<n1<<endl;
+    }
 
   initprimes("PRIMES");
 
@@ -44,8 +54,7 @@ int main (int argc, char *argv[])
           continue;
         }
       bigint N(n);
-      //vector<CurveRed> Elist = get_egros_from_j_1728(N);
-      vector<CurveRed> Elist = get_egros_from_j_1728(pdivs(N));
+      vector<CurveRed> Elist = egros_from_j(j, pdivs(N));
       for (auto Ei = Elist.begin(); Ei!=Elist.end(); ++Ei)
         if (getconductor(*Ei) == N)
           cout << N << " " << (Curve)(*Ei) <<endl;

@@ -171,7 +171,10 @@ vector<CurveRed> egros_from_j(const bigrational& j, const vector<bigint>& S)
 {
   vector<CurveRed> Elist;
   if (!is_j_possible(j, S))
-    return Elist;
+    {
+      // cout << "j="<<j<<" impossible for S="<<S<<endl;
+      return Elist;
+    }
   bigint n = num(j);
   if (is_zero(n))
     return egros_from_j_0(S);
@@ -179,10 +182,18 @@ vector<CurveRed> egros_from_j(const bigrational& j, const vector<bigint>& S)
   if (is_zero(m))
     return egros_from_j_1728(S);
 
-  vector<bigint> wlist = twist_factors(S, 2);
-
   bigint a4 = -3*n*m;
   bigint a6 = -2*n*m*m;
+  vector<bigint> Sx = S;
+  vector<bigint> Sy = pdivs(n*m*(n-m));
+  for (auto pi=Sy.begin(); pi!=Sy.end(); ++pi)
+    {
+      if (std::find(Sx.begin(), Sx.end(), *pi) == Sx.end())
+        Sx.push_back(*pi);
+    }
+  vector<bigint> wlist = twist_factors(Sx, 2);
+  // cout << wlist.size() << " twist factors"<<endl;
+
   bigint zero(0);
   int no2 = std::find(S.begin(), S.end(), BIGINT(2)) == S.end();
 
@@ -202,7 +213,7 @@ vector<CurveRed> egros_from_j(const bigrational& j, const vector<bigint>& S)
   return Elist;
 }
 
-// Map from S=support(N) to a list of curves with EGR outside S and j=0
+// Map from S to a list of curves with EGR outside S and j=0
 map<vector<bigint>, vector<CurveRed>> Elists_0_by_S;
 
 // Map from N to a list of curves with conductor N and j=0
@@ -246,7 +257,24 @@ vector<CurveRed> get_egros_from_j_0(const bigint& N)
     }
 }
 
-// Map from S=support(N) to a list of curves with EGR outside S and j=1728
+// Test whether N is a possible conductor for j=0: 3|N, no p||N and
+// usual bounds on ord_p(N)
+int test_conductor_j_0(const bigint& N, const vector<bigint>& support)
+{
+  if (!div(three,N))
+    return 0;
+  int ok=1;
+  for (auto pi=support.begin(); pi!=support.end() && ok; ++pi)
+    {
+      bigint p = *pi;
+      int np = val(p,N);
+      int okp = (np>=2) && (np<= (p==two? 8 : (p==three? 5 : 2)));
+      ok = ok && okp;
+    }
+  return ok;
+}
+
+// Map from S to a list of curves with EGR outside S and j=1728
 map<vector<bigint>, vector<CurveRed>> Elists_1728_by_S;
 
 // Map from N to a list of curves with conductor N and j=1728
@@ -283,6 +311,29 @@ vector<CurveRed> get_egros_from_j_1728(const bigint& N)
               Elists_1728_by_N[N1].push_back(*Ei);
         }
       return Elists_1728_by_N[N];
+    }
+  else
+    {
+      return Elist->second;
+    }
+}
+
+
+// Map from {j,S} to a list of curves with EGR outside S and j=j
+map<pair<bigrational,vector<bigint>>, vector<CurveRed>> Elists_j_by_S;
+
+// Map from {j,N} to a list of curves with conductor N and j=j
+map<pair<bigrational,bigint>, vector<CurveRed>> Elists_j_by_N;
+
+// cached version of egros_from_j(S)
+vector<CurveRed> get_egros_from_j(const bigrational& j, const vector<bigint>& S)
+{
+  auto Elist = Elists_j_by_S.find({j,S});
+  if (Elist == Elists_j_by_S.end())
+    {
+      vector<CurveRed> Es = egros_from_j(j, S);
+      Elists_j_by_S[{j,S}] = Es;
+      return Es;
     }
   else
     {

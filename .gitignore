@@ -3,6 +3,7 @@ Data/
 Code/*.o
 Code/N2TME
 Code/TME_compare
+Code/CurvesNj
 Code/CurvesNj0
 Code/CurvesNj1728
 
