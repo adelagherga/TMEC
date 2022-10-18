@@ -354,6 +354,7 @@ moveTMCurves() {
     #         S-unit equation in the filename.
 
     local line
+    local N
 
     while IFS= read -r line; do
 	N=$(echo "${line}" | cut -d' ' -f -1)
