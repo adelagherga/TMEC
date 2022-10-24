@@ -162,8 +162,8 @@ def gatherFormRedundancy(IF,OF):
                 for aprimelist2 in sorted(formsRHS[alist]):
                     if aprimelist != aprimelist2:
                         a2,primelist2=extractPrimelist(aprimelist2)
-                        if (a2 == 1) and (afacs <= set(primelist2)) and
-                            (set(primelist) <= set(primelist2)):
+                        if ((a2 == 1) and (afacs <= set(primelist2)) and
+                            (set(primelist) <= set(primelist2))):
                             if not (set(Nlist) <=
                                     set(formsRHS[alist][aprimelist2])):
                                 formsRHS[alist][aprimelist2]=(
