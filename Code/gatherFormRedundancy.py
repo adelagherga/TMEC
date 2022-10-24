@@ -66,6 +66,29 @@ def extractPrimelist(line):
         primelist=[int(i) for i in bracketSplit[1].split("]")[0].split(",")]
     return a,primelist
 
+def prime_divisors(n):
+    """
+      Returns all the prime divisors of the positive integer n.
+
+      Parameters
+          n: <class 'int'>
+      Returns
+          factors: <class 'set'>
+              The list of prime divisors of n.
+    """
+    factors=set()
+    d=2
+    while n>1:
+        while n%d == 0:
+            factors.add(d)
+            n/=d
+        d=d+1
+        if d*d > n:
+            if n > 1:
+                factors.add(int(n))
+            break
+    return sorted(factors)
+
 def gatherFormRedundancy(IF,OF):
     """
       Removes redundant Thue--Mahler equations across conductors. That is, for
@@ -94,6 +117,7 @@ def gatherFormRedundancy(IF,OF):
             forms[alist].append([N,aprimelist])
         else:
             forms[alist]=[[N,aprimelist]]
+
     formsRHS={}
     for alist in sorted(forms):
         formsRHS[alist]={}
@@ -105,6 +129,7 @@ def gatherFormRedundancy(IF,OF):
                 formsRHS[alist][aprimelist].append(N)
             else:
                 formsRHS[alist][aprimelist]=[N]
+
     for alist in sorted(formsRHS):
         for aprimelist in sorted(formsRHS[alist]):
             # For a given form with 2 rhs possibilities, (Nlist1,a1,primelist1)
@@ -122,6 +147,31 @@ def gatherFormRedundancy(IF,OF):
                         formsRHS[alist][aprimelist2].sort()
                         del formsRHS[alist][aprimelist]
                         break
+
+    for alist in sorted(formsRHS):
+        for aprimelist in sorted(formsRHS[alist]):
+            # For a given form with 2 rhs possibilities, (Nlist1,a1,primelist1)
+            # and (Nlist2,a2,primelist2), if a1 != 1 and a2 = 1, primelist1 is
+            # contained in primelist2, and the prime divisors of a1 are contained
+            # in primelist2, collapse both rhs possibilities into
+            # (Nlist1+Nlist2,a2,primelist2).
+            Nlist=formsRHS[alist][aprimelist]
+            a,primelist=extractPrimelist(aprimelist)
+            if (a != 1):
+                afacs=prime_divisors(a)
+                for aprimelist2 in sorted(formsRHS[alist]):
+                    if aprimelist != aprimelist2:
+                        a2,primelist2=extractPrimelist(aprimelist2)
+                        if (a2 == 1) and (afacs <= set(primelist2)) and
+                            (set(primelist) <= set(primelist2)):
+                            if not (set(Nlist) <=
+                                    set(formsRHS[alist][aprimelist2])):
+                                formsRHS[alist][aprimelist2]=(
+                                    formsRHS[alist][aprimelist2]+Nlist)
+                                formsRHS[alist][aprimelist2].sort()
+                            del formsRHS[alist][aprimelist]
+                            break
+
     OutFile=open(OF,"w")
     # Output all data to the file OF in the format "Nlist,alist,a,primelist".
     for alist in sorted(formsRHS):

@@ -182,7 +182,7 @@ generateDirectories() {
     #         The directory Data/${name}/TMLogfiles, storing all logs from the
     #         Thue--Mahler computation.
     #     Dir/Errors.txt
-    #         A file tracking all errors from magma. REDIRECT TO STDERR?!
+    #         A file tracking all errors from magma.
     #     ECDir/N.csv
     #         A file storing all elliptic curves of conductor N, generated for
     #         each N in list, in the format N [a1,a2,a3,a4,a6].

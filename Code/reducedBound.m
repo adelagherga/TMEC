@@ -749,7 +749,8 @@ distanceLBsq2:=function(LL,ww,cB5sq)
 	    u:=5*u;
 	    P:=ShortVectorsProcess(LL,l,u);
 	end while;
-	// Find at least 1 vector v in L such that cB5^2 <= Norm(v+w) <= mult*cB5^2.
+	// Find at least 1 vector v in L such that
+	// cB5^2 <= Norm(v+w) <= mult*cB5^2.
 	P:=ShortVectorsProcess(LL,u);
 	// Find all vectors v in L such that Norm(v+w) <= mult*cB5^2.
 	vecs:=[];
