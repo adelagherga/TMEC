@@ -158,7 +158,7 @@ def gatherFormRedundancy(IF,OF):
             Nlist=formsRHS[alist][aprimelist]
             a,primelist=extractPrimelist(aprimelist)
             if (a != 1):
-                afacs=prime_divisors(a)
+                afacs=set(prime_divisors(a))
                 for aprimelist2 in sorted(formsRHS[alist]):
                     if aprimelist != aprimelist2:
                         a2,primelist2=extractPrimelist(aprimelist2)
