@@ -24,8 +24,30 @@
 
 import sys
 import os
+from collections import OrderedDict
 
-def parseForm(line):
+def parseXYZ2Form(line):
+    """
+      Extracts N, primelist from the string line.
+
+      Parameters
+          line: <class 'str'>
+              A string in the format "N: primelist".
+      Returns
+          N: <class 'int'>
+          primelist: <class 'list'>
+          sprimelist: <class 'str'>
+    """
+    spaceSplit=line.split(" ")
+    assert (spaceSplit[0][-1] == ":")
+    spaceSplit.insert(1,'2')
+    N=int(spaceSplit[0][0:-1])
+    primelist0=list(OrderedDict.fromkeys(spaceSplit[1:]))
+    primelist=[int(p) for p in primelist0]
+    sprimelist="["+''.join([p+"," for p in primelist0[:-1]])+primelist0[-1]+"]"
+    return N,primelist,sprimelist
+
+def parseTMForm(line):
     """
       Extracts N,alist,a,primelist from the string line.
 
@@ -45,7 +67,7 @@ def parseForm(line):
     aprimelist=commaSplit[5]+",["+line.split("[")[2].split("]")[0]+"]"
     return N,alist,aprimelist
 
-def extractPrimelist(line):
+def extractTMPrimelist(line):
     """
       Extracts a,primelist from the string line.
 
@@ -89,13 +111,64 @@ def prime_divisors(n):
             break
     return sorted(factors)
 
-def gatherFormRedundancy(IF,OF):
+def gatherXYZ2Redundancy(IF,OF):
+    """
+      Removes redundant conductor factorizations and appends 2 to each list.
+      That is, for any 2 lines of the file IF, "N_1,primelist_1" and
+      "N_2,primelist_2", if primelist_1 is a subset of primelist_2, writes
+      "[N_1,N_2],primelist_2" in the file OF.
+
+      Parameters
+          IF: <class 'str'>
+              The string denoting the input file, wherein each line is in the
+              format "N: primelist".
+          OF: <class 'str'>
+              A string denoting an empty output file.
+      Returns
+          OF: <class 'str'>
+              The string denoting the output file, wherein each line is in the
+              format "primelist,Nlist", with Nlist now a list of
+              conductors.
+    """
+    primesN={}
+    for line in open(IF):
+        # Sort data by primelist.
+        N,primelist,sprimelist=parseXYZ2Form(line.rstrip())
+        if sprimelist in primesN:
+            primesN[sprimelist].append([N,primelist])
+        else:
+            primesN[sprimelist]=[[N,primelist]]
+
+    for sprimelist in sorted(primesN):
+        # Given 2 sets of conductor factorizations, (Nlist1,primelist1)
+        # and (Nlist2,primelist2), if primelist1 is contained in primelist2,
+        # collapse both conductor lists into
+        # (Nlist1+Nlist2,primelist2).
+        primelist=primesN[sprimelist][0][1]
+        for sprimelist2 in sorted(primesN):
+            if sprimelist != sprimelist2:
+                primelist2=primesN[sprimelist2][0][1]
+                if set(primelist) <= set(primelist2):
+                    primesN[sprimelist2]=primesN[sprimelist2]+primesN[sprimelist]
+                    del primesN[sprimelist]
+                    break
+
+    OutFile=open(OF,"w")
+    # Output all data to the file OF in the format "primelist,Nlist".
+    for sprimelist in sorted(primesN):
+        Nlist=str(sorted([S[0] for S in primesN[sprimelist]])).replace(" ","")
+        out=sprimelist+","+Nlist
+        OutFile.write("%s\n" % out)
+    OutFile.close()
+    os.rename(OF,IF)
+
+def gatherTMFormRedundancy(IF,OF):
     """
       Removes redundant Thue--Mahler equations across conductors. That is, for
       any 2 lines of the file IF, "N_1,alist_1,a_1,primelist_1" and
       "N_2,alist_2,a_2,primelist_2", where alist_1 = alist_2, a_1 = a_2,
       and primelist_1 is a subset of primelist_2, writes
-      "[N_1,N_2],alist_1,a_1,primelist_1" in the file OF.
+      "[N_1,N_2],alist_1,a_1,primelist_2" in the file OF.
 
       Parameters
           IF: <class 'str'>
@@ -112,7 +185,7 @@ def gatherFormRedundancy(IF,OF):
     forms={}
     for line in open(IF):
         # Sort data by alist.
-        N,alist,aprimelist=parseForm(line)
+        N,alist,aprimelist=parseTMForm(line)
         if alist in forms:
             forms[alist].append([N,aprimelist])
         else:
@@ -137,10 +210,10 @@ def gatherFormRedundancy(IF,OF):
             # in primelist2, collapse both rhs possibilities into
             # (Nlist1+Nlist2,a1,primelist2).
             Nlist=formsRHS[alist][aprimelist]
-            a,primelist=extractPrimelist(aprimelist)
+            a,primelist=extractTMPrimelist(aprimelist)
             for aprimelist2 in sorted(formsRHS[alist]):
                 if aprimelist != aprimelist2:
-                    a2,primelist2=extractPrimelist(aprimelist2)
+                    a2,primelist2=extractTMPrimelist(aprimelist2)
                     if (a == a2) and (set(primelist) <= set(primelist2)):
                         formsRHS[alist][aprimelist2]=(
                             formsRHS[alist][aprimelist2]+Nlist)
@@ -156,12 +229,12 @@ def gatherFormRedundancy(IF,OF):
             # in primelist2, collapse both rhs possibilities into
             # (Nlist1+Nlist2,a2,primelist2).
             Nlist=formsRHS[alist][aprimelist]
-            a,primelist=extractPrimelist(aprimelist)
+            a,primelist=extractTMPrimelist(aprimelist)
             if (a != 1):
                 afacs=set(prime_divisors(a))
                 for aprimelist2 in sorted(formsRHS[alist]):
                     if aprimelist != aprimelist2:
-                        a2,primelist2=extractPrimelist(aprimelist2)
+                        a2,primelist2=extractTMPrimelist(aprimelist2)
                         if ((a2 == 1) and (afacs <= set(primelist2)) and
                             (set(primelist) <= set(primelist2))):
                             if not (set(Nlist) <=
@@ -185,4 +258,7 @@ def gatherFormRedundancy(IF,OF):
 if __name__ == '__main__':
     # Map command line arguments to function arguments.
     args=sys.argv
-    gatherFormRedundancy(*args[-2:])
+    if args[3] == "TM":
+        gatherTMFormRedundancy(args[1],args[2])
+    elif args[3] == "XYZ2":
+        gatherXYZ2Redundancy(args[1],args[2])

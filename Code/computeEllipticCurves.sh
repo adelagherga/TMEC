@@ -298,7 +298,7 @@ gatherRedundantForms() {
 
     printf "Removing redundant cubic forms..."
     python Code/gatherFormRedundancy.py "${Dir}/TMForms.csv" \
-	   "${Dir}/tmpTMForms.csv"
+	   "${Dir}/tmpTMForms.csv" "TM"
     printf "Done.\n"
 }
 
