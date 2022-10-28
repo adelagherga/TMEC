@@ -297,7 +297,7 @@ gatherRedundantForms() {
     verifyNonEmpty "${Dir}/TMForms.csv"
 
     printf "Removing redundant cubic forms..."
-    python Code/gatherFormRedundancy.py "${Dir}/TMForms.csv" \
+    python Code/gatherRedundancy.py "${Dir}/TMForms.csv" \
 	   "${Dir}/tmpTMForms.csv" "TM"
     printf "Done.\n"
 }
