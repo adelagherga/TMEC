@@ -1,22 +1,27 @@
 #!/usr/bin/python
-# gatherFormRedundancy.py
+# gatherRedundancy.py
 
-# These functions remove redundant Thue--Mahler equations across conductors.
-# That is, for any 2 lines of the file IF, "N_1,alist_1,a_1,primelist_1" and
+# These functions remove redundant equations across conductors for the
+# Thue--Mahler solver and the XYZ2 solver. In the Thue--Mahler case, for any 2
+# lines of the file IF, "N_1,alist_1,a_1,primelist_1" and
 # "N_2,alist_2,a_2,primelist_2", where alist_1 = alist_2, a_1 = a_2, and
 # primelist_1 is a subset of primelist_2, writes
-# "[N_1,N_2],alist_1,a_1,primelist_1" in the file OF.
+# "[N_1,N_2],alist_1,a_1,primelist_2" in the file OF. In the XYZ2 case, for any 2
+# lines of the file IF, "N_1,primelist_1" and "N_2,primelist_2", if primelist_1
+# is a subset of primelist_2, writes "primelist_2,[N_1,N_2]" in the file OF.
 
 # Parameters
 #     IF: <class 'str'>
 #         The string denoting the input file, wherein each line is in the
-#         format "N,alist,a,primelist".
+#         format "N,alist,a,primelist" in the Thue--Mahler case and
+#         "N: primelist" in the XYZ2 case.
 #     OF: <class 'str'>
 #         A string denoting an empty output file.
 # Returns
 #     OF: <class 'str'>
 #         The string denoting the output file, wherein each line is in the
-#         "Nlist,alist,a,primelist".
+#         "Nlist,alist,a,primelist" in the Thue--Mahler case and
+#         "primelist,Nlist" in the XYZ2 case.
 # Authors
 #     Adela Gherga <adelagherga@gmail.com>
 # Created
@@ -116,7 +121,7 @@ def gatherXYZ2Redundancy(IF,OF):
       Removes redundant conductor factorizations and appends 2 to each list.
       That is, for any 2 lines of the file IF, "N_1,primelist_1" and
       "N_2,primelist_2", if primelist_1 is a subset of primelist_2, writes
-      "[N_1,N_2],primelist_2" in the file OF.
+      "primelist_2,[N_1,N_2]" in the file OF.
 
       Parameters
           IF: <class 'str'>
