@@ -70,6 +70,8 @@ vectorTests:=function(alist,a,primelist,a0xy)
     elif Fsol eq -1 then
 	if IsOdd(d) then
 	    return {[-sol[1],-sol[2]] cat zlist};
+	else
+	    return {};
 	end if;
     end if;
 end function;
