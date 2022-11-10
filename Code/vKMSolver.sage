@@ -2081,5 +2081,4 @@ if __name__ == '__main__':
     # Map command line arguments to function arguments.
     args=sys.argv
     Nlist,primelist=extractForm(set)
-    time sols=SUE_solve(primelist)
-    print(sols)
+    SUE_solve(primelist)
