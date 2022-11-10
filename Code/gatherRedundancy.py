@@ -162,7 +162,7 @@ def gatherXYZ2Redundancy(IF,OF):
     # Output all data to the file OF in the format "primelist,Nlist".
     for sprimelist in sorted(primesN):
         Nlist=str(sorted([S[0] for S in primesN[sprimelist]])).replace(" ","")
-        out=sprimelist+","+Nlist
+        out=Nlist+","sprimelist
         OutFile.write("%s\n" % out)
     OutFile.close()
     os.rename(OF,IF)
