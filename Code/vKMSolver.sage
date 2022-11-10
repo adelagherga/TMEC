@@ -9,7 +9,7 @@
 #
 # Writing x = a/c and y = b/c, this S-unit equation is equivalent to
 #
-#    a + b = c, where a,b,c are non-zero coprime integers with all its
+#    a + b = c, where a,b,c are non-zero coprime integers with all its 
 #               prime divisors in S, and we may assume 0 < a <= b < c.
 #
 # The corresponding main methods are:
@@ -30,7 +30,7 @@
 ### Global variables ###################################################
 ########################################################################
 
-#numCPUs = min(1,sage.parallel.ncpus.ncpus());
+numCPUs = min(1,sage.parallel.ncpus.ncpus());
 #numCPUs = 1;
 #solutions = Set([]);
 solutions = set([]);
@@ -46,7 +46,7 @@ LogMessages = [];
 
 def addLogMessage(message):
 	'''
-	Appends 'message' to the global list 'LogMessages' and prints it.
+	Appends 'message' to the global list 'LogMessages' and prints it.	
 	'''
 	global LogMessages;
 	print(message);
@@ -57,7 +57,7 @@ def quality(a,b,c):
 	Computes the quality of an abc-tripe.
 	'''
 	return N(log(max(a,b,c))/log(myRadical(a*b*c)));
-
+    
 def myFactor(n):
 	'''
 	Returns a string of factorization of n, which also works if n=0.
@@ -68,7 +68,7 @@ def myFactor(n):
 
 def myRadical(n):
 	'''
-	Returns the product of all prime factors of n if n is non-zero,
+	Returns the product of all prime factors of n if n is non-zero, 
 	and zero otherwise.
 	'''
 	if n==0:
@@ -119,7 +119,7 @@ def exponentOfXmodPtoTheN(x,p,n):
 	OUTPUT:
 		The smallest integer k = p^e*r greater than 1 such that x^k = 1 mod p^n.
 	'''
-
+	
 	# phi = p^(n-1)*(p-1) is the order of (ZZ/(p^n))^*
 	R = IntegerModRing(p^n);
 	X = R.coerce(x); # die Restklasse von x
@@ -152,25 +152,25 @@ def teskeMinimizeAtJ(S, B, j, R, primesPossiblyDividingGroupOrder):
 	def findX(k,S,B,j,R,x,c,gcdP0Bkk,p0,m):
 		if k==-1:
 			#check whether the x-vector is a relation:
-
+				
 			StoX = R.coerce(1);
 			for i in range(j+1):
 				StoX = StoX * R.coerce(S[i])^x[i];
 			return StoX == R.coerce(1);
-
+				
 		else:
 			if gcdP0Bkk[k]==0:
 				print("Some error occured. Parameters k,S,j,R,x,c,gcdP0Bkk:",k,S,j,R,x,c,gcdPoBkk);
-
+			
 			#try all possible values for x[k] and go deeper into the recursion:
-
+			
 			#m = range(j);
 			#for i in range(j-1,k,-1):     #i=j-1...k+1
 			#    m[i] = B[j][i] - p0*x[i];
 			#    for n in range(i+1,j):
 			#        m[i] = m[i] - m[n]*B[n][k];    # Important: I think here B[n][k] must be replaced by B[n][i]! (I think Teske's paper has a typo here.)
 			#    m[i] = ZZ(m[i] / B[i][i]);
-
+			
 			L = B[j][k];
 			for i in range(k+1,j):
 				L = L - m[i]*B[i][k];
@@ -182,7 +182,7 @@ def teskeMinimizeAtJ(S, B, j, R, primesPossiblyDividingGroupOrder):
 				return False;
 			L = ZZ(L / gcdP0Bkk[k]) % B[k][k];
 			Rt = ZZ(B[k][k]/gcdP0Bkk[k]);
-
+			
 			for rk in range(0,gcdP0Bkk[k]):
 				x[k] = (L*c[k] + Rt*rk) % B[k][k];
 				if not(x[k].is_integral()):
@@ -191,12 +191,12 @@ def teskeMinimizeAtJ(S, B, j, R, primesPossiblyDividingGroupOrder):
 				for n in range(k+1,j):
 					m[k] = m[k] - m[n]*B[n][k];
 				m[k] = ZZ(m[k] / B[k][k]);
-
+				
 				if findX(k-1,S,B,j,R,x,c,gcdP0Bkk,p0,m):
 					return True;
-
+			
 			return false;
-
+		
 	#The following takes way too long for large primes in S:
 	#P = [];        #primes that may reduce b_{jj}
 	#for i in prime_range(maxP+1):
@@ -207,10 +207,10 @@ def teskeMinimizeAtJ(S, B, j, R, primesPossiblyDividingGroupOrder):
 	P = []; #primes that may reduce b_{jj}
 	for p in primesPossiblyDividingGroupOrder:
 		if B[j][j]%p == 0:
-			P.append(p);
+			P.append(p);    
 
 	#print S,j,primesPossiblyDividingGroupOrder, P;
-
+		
 	while True:
 		#Reduce j'th relation by all previous ones:
 		for k in range(j-1,-1,-1):             #k=j-1,...,0
@@ -222,18 +222,18 @@ def teskeMinimizeAtJ(S, B, j, R, primesPossiblyDividingGroupOrder):
 		if len(P) == 0:        #no primes left for reduction
 			return B;
 		p0 = P[0];
-
+		
 		c = list(range(j));
 		for k in range(j):
 			c[k] = xgcd(p0,B[k][k])[1];    #a number ck such that gcd(p0,Bkk) = p*ck + Bkk*ak
-
+		
 		gcdP0Bkk = list(range(j));
 		for k in range(j):
-			gcdP0Bkk[k] = gcd(p0,B[k][k]);
-
+			gcdP0Bkk[k] = gcd(p0,B[k][k]);        
+		
 		x = list(range(j+1));
 		x[j] = ZZ(B[j][j]/p0);
-
+		
 		if findX(j-1,S,B,j,R,x,c,gcdP0Bkk,p0,list(range(j))):
 			#smaller relation x has been found:
 			for i in range(j+1):
@@ -243,9 +243,9 @@ def teskeMinimizeAtJ(S, B, j, R, primesPossiblyDividingGroupOrder):
 		else:
 			#reducing with respect to p0 is impossible:
 			P.remove(p0);
-
+			
 	return B;
-
+        
 def teskeMinimize(S, B, R, primesPossiblyDividingGroupOrder):
 	'''
 	INPUT:
@@ -259,7 +259,7 @@ def teskeMinimize(S, B, R, primesPossiblyDividingGroupOrder):
 		B', same as B, except that for each j, the j'th relation is
 			replaced by a j'th-minimal one.
 	'''
-
+	
 	for j in range(len(B)):
 		B = teskeMinimizeAtJ(S, B, j, R, primesPossiblyDividingGroupOrder);
 	return B;
@@ -271,13 +271,13 @@ def findMinimalRelations(S,p,n):
 		S - list of primes (or arbitrary integers)
 		p - a prime (if p in S, then we remove p from S)
 		n - an integer
-
+	
 	Output:
 		B - a list of minimal relations
 	'''
-
+	
 	#print "phi(p^n) =",p^(n-1)*(p-1);
-
+	
 	if S.count(p)>0:
 		S.remove(p);
 	l = len(S);
@@ -290,8 +290,8 @@ def findMinimalRelations(S,p,n):
 	#print R.coerce(1);
 
 	primesPossiblyDividingGroupOrder = primes_divide(R.unit_group_order());
-
-	return teskeMinimize(S,B,R,primesPossiblyDividingGroupOrder);
+		
+	return teskeMinimize(S,B,R,primesPossiblyDividingGroupOrder);    
 
 ########################################################################
 ### Lattice point algorithms ###########################################
@@ -324,10 +324,10 @@ def quadraticFormToFPForm(A):
 	x^t*A*x = \sum_{i=1}^n q_{ii} * (x_i + \sum_{j=i+1}^n q_{ij}*x_j)^2
 	Everything is done over QQ
 	'''
-
+	
 	(n,m) = A.dimensions();
 	Q = matrix(QQ,n,n);
-
+	
 	#Following Fincke-Pohst's paper:
 	#Q = copy(A);
 	#Q = Q.change_ring(QQ);
@@ -342,7 +342,7 @@ def quadraticFormToFPForm(A):
 	#for i in range(n):
 	#    for j in range(i):
 	#        Q[i,j] = 0; #the lower diagonal is redundant now
-
+	
 	for i in range(n):
 		for k in range(i+1):
 			s = 0;
@@ -352,9 +352,9 @@ def quadraticFormToFPForm(A):
 				Q[i,i] = A[i,i]-s;
 			else:
 				Q[k,i] = (A[k,i]-s)/Q[k,k];
-
+	
 	return Q;
-
+	
 def my_finckePohst_viaLattice(L,boundForNormSquared,solutionList=None,maxNumSolutions=None,callback=None,callbackArgs=None):
 	'''
 	Input:
@@ -367,21 +367,21 @@ def my_finckePohst_viaLattice(L,boundForNormSquared,solutionList=None,maxNumSolu
 			bufferWasBigEnough - true iff number of solutions is at most maxNumSolutions
 			solutions - a matrix whose columns are the non-zero integral vectors x with
 				||Lx||_2 = x^t*L^t*L*x <= boundForNormSquared
-
+	
 	We assume that all input is integral, such that there are no numerical issues at all.
 	This one uses the LLL-algorithm!!!
 	'''
-
+	
 	global aLotOutput;
 	#if aLotOutput:
-	#    print "L =",L;
-
+	#    print "L =",L;    
+	
 	L = L.change_ring(ZZ);
 	L1 = L.transpose().LLL().transpose(); #LLL reduction of columns
 	#L1 = L;
 	#print L1;
 	U = L.inverse()*L1;
-
+	
 	return my_finckePohst_viaGramMatrix(L1.transpose()*L1, boundForNormSquared, solutionList=solutionList, maxNumSolutions=maxNumSolutions, finalTransformation=U, callback=callback, callbackArgs=callbackArgs);
 
 def my_finckePohst_viaGramMatrix(A,boundForNormSquared,solutionList=None,maxNumSolutions=None,finalTransformation=None,callback=None,callbackArgs=None):
@@ -391,7 +391,7 @@ def my_finckePohst_viaGramMatrix(A,boundForNormSquared,solutionList=None,maxNumS
 		boundForNormSquared - a non-negative integer
 		maxNumSolutions - a non-negative integer, or None if this should not be bounded.
 		solutionList - either None or [], depending on whether it shall be filled with solutions or not
-
+			
 	Output:
 		If callback function appears as a parameter:
 		[notTooManySolutions,numSolutions], where
@@ -402,12 +402,12 @@ def my_finckePohst_viaGramMatrix(A,boundForNormSquared,solutionList=None,maxNumS
 			if solutionList != None, then the solution will be appended to solutionList, and
 			if callback != None, then callback(solution,callbackArgs) will be called.
 	'''
-
+	
 	def traverseShortVectors(Q,n,k,x,shortVectors,RemainingBoundForNormSquared,numSolutionsList,maxNumSolutions,xIsZeroSoFar,finalTransformation,callback,callbackArgs):
 		#Fills shortVectors or calls callback()
 		#Returns [bufferBigEnoughSoFar,newNumSolutionsSoFar]
 		if k==-1:
-			if not xIsZeroSoFar:
+			if not xIsZeroSoFar: 
 				if maxNumSolutions!=None and numSolutionsList[0]>=maxNumSolutions:
 					return False;
 				else:
@@ -430,35 +430,35 @@ def my_finckePohst_viaGramMatrix(A,boundForNormSquared,solutionList=None,maxNumS
 			#print k,x[k],t;
 			if not traverseShortVectors(Q,n,k-1,x,shortVectors,RemainingBoundForNormSquared-t,numSolutionsList,maxNumSolutions,xIsZeroSoFar and x[k]==0, finalTransformation,callback,callbackArgs):
 				return False; #too many solution found
-			x[k] = x[k] + 1;
+			x[k] = x[k] + 1;            
 			t = Q[k,k] * (x[k] + u)^2;
-
+	
 		if not xIsZeroSoFar: #break antipodal symmetry: if x was so far 0, then u is zero here, and we iterate only over x[k]>=0.
 			x[k] = xk0-1;
 			t = Q[k,k] * (x[k] + u)^2;
 			while t<=RemainingBoundForNormSquared:
 				if not traverseShortVectors(Q,n,k-1,x,shortVectors,RemainingBoundForNormSquared-t,numSolutionsList,maxNumSolutions,False, finalTransformation,callback,callbackArgs):
 					return False; #too many solutions found
-				x[k] = x[k] - 1;
+				x[k] = x[k] - 1;            
 				t = Q[k,k] * (x[k] + u)^2;
-
+			
 		return True; #prescribed bufferSize (maxNumSolutions) was enough
-
+		
 	global aLotOutput;
 	#if aLotOutput:
 	#    print "A =",A;
-
+	
 	(n,m) = A.dimensions();
 	Q = quadraticFormToFPForm(A);
 	#print "Q =", Q;
 	x = list(range(n));
 	numSolutionsList = [0];
 	bufferWasBigEnough = traverseShortVectors(Q,n,n-1,x,solutionList,boundForNormSquared,numSolutionsList,maxNumSolutions,True, finalTransformation,callback,callbackArgs);
-
+		
 	#return [bufferWasBigEnough,matrix(shortVectors).transpose()];
 	return [bufferWasBigEnough,numSolutionsList[0]];
-
-#The following was only a test. It works, but it's slow, since LLL is not used!
+	
+#The following was only a test. It works, but it's slow, since LLL is not used!    
 def my_finckePohst_viaUpperTriangularLattice(L,boundForNormSquared,maxNumSolutions):
 	'''
 	Input:
@@ -475,7 +475,7 @@ def my_finckePohst_viaUpperTriangularLattice(L,boundForNormSquared,maxNumSolutio
 	def traverseShortVectors(Q,n,k,x,shortVectors,RemainingBoundForNormSquared,maxNumSolutions,xIsZeroSoFar):
 		#Fills shortVectors, returns true/false depending on whether buffer was big enough.
 		if k==-1:
-			if not xIsZeroSoFar:
+			if not xIsZeroSoFar: 
 				if len(shortVectors)>=maxNumSolutions:
 					return False;
 				else:
@@ -491,22 +491,22 @@ def my_finckePohst_viaUpperTriangularLattice(L,boundForNormSquared,maxNumSolutio
 			#print k,x[k],t;
 			if not traverseShortVectors(Q,n,k-1,x,shortVectors,RemainingBoundForNormSquared-t,maxNumSolutions,xIsZeroSoFar and x[k]==0):
 				return False; #too many solution found
-			x[k] = x[k] + 1;
+			x[k] = x[k] + 1;            
 			t = Q[k,k] * (x[k] + u)^2;
-
+	
 		if not xIsZeroSoFar: #break antipodal symmetry
 			x[k] = xk0-1;
 			t = Q[k,k] * (x[k] + u)^2;
 			while t<=RemainingBoundForNormSquared:
 				if not traverseShortVectors(Q,n,k-1,x,shortVectors,RemainingBoundForNormSquared-t,maxNumSolutions,False):
 					return False; #too many solutions found
-				x[k] = x[k] - 1;
+				x[k] = x[k] - 1;            
 				t = Q[k,k] * (x[k] + u)^2;
-
+			
 		return True; #prescribed bufferSize (maxNumSolutions) was enough
-
+		
 	global aLotOutput;
-
+	
 	(n,m) = L.dimensions();
 	Q = matrix(QQ,n,n);
 	for i in range(n):
@@ -517,10 +517,10 @@ def my_finckePohst_viaUpperTriangularLattice(L,boundForNormSquared,maxNumSolutio
 	shortVectors = [];
 	x = list(range(n));
 	bufferWasBigEnough = traverseShortVectors(Q,n,n-1,x,shortVectors,boundForNormSquared,maxNumSolutions,True);
-
+		
 	return [bufferWasBigEnough,matrix(shortVectors).transpose()];
-
-#The following was only a test. It works, but it's slow, since LLL is not used!
+	
+#The following was only a test. It works, but it's slow, since LLL is not used!    
 def my_finckePohst_viaUpperTriangularLattice2(L,boundForNormSquared,maxNumSolutions):
 	'''
 	Input:
@@ -534,11 +534,11 @@ def my_finckePohst_viaUpperTriangularLattice2(L,boundForNormSquared,maxNumSoluti
 		solutions - a matrix whose columns are the non-zero integral vectors x with
 			||Lx||_2 = x^t*L^t*L*x <= boundForNormSquared
 	'''
-
+	
 	def traverseShortVectors(L,n,k,x,shortVectors,RemainingBoundForNormSquared,maxNumSolutions,xIsZeroSoFar):
 		#Fills shortVectors, returns true/false depending on whether buffer was big enough.
 		if k==-1:
-			if not xIsZeroSoFar:
+			if not xIsZeroSoFar: 
 				if len(shortVectors)>=maxNumSolutions:
 					return False;
 				else:
@@ -554,7 +554,7 @@ def my_finckePohst_viaUpperTriangularLattice2(L,boundForNormSquared,maxNumSoluti
 			#print k,x[k],t;
 			if not traverseShortVectors(L,n,k-1,x,shortVectors,RemainingBoundForNormSquared-t,maxNumSolutions,xIsZeroSoFar and x[k]==0):
 				return False; #too many solution found
-			x[k] = x[k] + 1;
+			x[k] = x[k] + 1;            
 			t = (L[k,k] * x[k] + u)^2;
 
 		if not xIsZeroSoFar: #break antipodal symmetry
@@ -563,17 +563,17 @@ def my_finckePohst_viaUpperTriangularLattice2(L,boundForNormSquared,maxNumSoluti
 			while t<=RemainingBoundForNormSquared:
 				if not traverseShortVectors(L,n,k-1,x,shortVectors,RemainingBoundForNormSquared-t,maxNumSolutions,False):
 					return False; #too many solutions found
-				x[k] = x[k] - 1;
+				x[k] = x[k] - 1;            
 				t = (L[k,k] * x[k] + u)^2;
-
+	
 		return True; #prescribed bufferSize (maxNumSolutions) was enough
-
+		
 	global aLotOutput;
 	(n,m) = L.dimensions();
 	shortVectors = [];
 	x = list(range(n));
 	bufferWasBigEnough = traverseShortVectors(L,n,n-1,x,shortVectors,boundForNormSquared,maxNumSolutions,True);
-
+		
 	return [bufferWasBigEnough,matrix(shortVectors).transpose()];
 
 def normSquared(v):
@@ -617,7 +617,7 @@ def my_ShortestVector_viaLattice(L,verbose=False):
 		[bufferWasBigEnough,numSolutions] = my_finckePohst_viaGramMatrix(A, boundForNormSquared, solutionList=solutionList, maxNumSolutions=None, finalTransformation=U, callback=None, callbackArgs=None);
 		#bufferWasBigEnough is always true here, as we don't bound the buffer (i.e. we put maxNumSolutions=None).
 
-	return min(solutionList,key=normSquared);
+	return min(solutionList,key=normSquared);	
 
 ########################################################################
 ### Parts of algorithm solving S-unit equations ########################
@@ -628,7 +628,7 @@ class SData:
 	This is a container for data associated to the finite set of primes S
 	that is needed again and again.
 	'''
-
+	
 	def __init__(self,S):
 		self.S = S; #A list of primes
 		self.primesDividingGroupOrderOfZmodPtoTheNstar = dict(zip(S,[set(prime_divisors(euler_phi(p^2))) for p in S]));
@@ -639,7 +639,7 @@ def SUE_addSolution(a,b,c,solutions):
 	natural 12-fold symmetry group (6 permutations, 2 signs), and adds it
 	to the set solutions.
 	'''
-
+	
 	a = abs(a);
 	b = abs(b);
 	c = abs(c);
@@ -654,7 +654,7 @@ def SUE_addSolution(a,b,c,solutions):
 	solutions.add(s); #we should maybe use a better data structure, e.g. a hash
 
 def SUE_checkSolution(solution,SwoPs,listOfPrimesWithMinExponent,solutions):
-	'''
+	'''	
     Input:
 		SwoPs - list of primes without the primes in the list listOfPrimesWithMinExponent
 		listOfPrimesWithMinExponent - a list with entries [p,minExponentOfP], where p is a prime not in SwoP and minExponentOfP a positive integer
@@ -662,11 +662,11 @@ def SUE_checkSolution(solution,SwoPs,listOfPrimesWithMinExponent,solutions):
 					prod_(q in SwoP) q^(2a_q) = 1 mod prod p^minExponentOfP.
 		solutions - list of solutions, to which this candidate is added in case it's a solution.
 
-	Determines the corresponding tuples (a,b,c) with a+b+c=0,
-	where a comes from the positive exponents in solution, b from the negative ones,
+	Determines the corresponding tuples (a,b,c) with a+b+c=0, 
+	where a comes from the positive exponents in solution, b from the negative ones, 
 	and c divides p^minExponentOfP.
 	'''
-
+	
 	#PtoE = p^minExponentOfP;
 	prodPtoE = 1;
 	PrimesInModulus = []
@@ -674,7 +674,7 @@ def SUE_checkSolution(solution,SwoPs,listOfPrimesWithMinExponent,solutions):
 		prodPtoE = prodPtoE * p^m;
 		PrimesInModulus.append(p);
 	R = IntegerModRing(prodPtoE);
-
+	
 	a = R.coerce(1);
 	b = R.coerce(1);
 	for i in range(len(SwoPs)):
@@ -683,14 +683,14 @@ def SUE_checkSolution(solution,SwoPs,listOfPrimesWithMinExponent,solutions):
 			a = a * R.coerce(SwoPs[i])^e;
 		elif e<0:
 			b = b * R.coerce(SwoPs[i])^(-e);
-
+	
 	sign = +1;
 	if a+b != R.coerce(0):
 		b = -b;
 		sign = -1;
 	if a+b != R.coerce(0):
 		#print "Candidtate gives no solution.";
-
+		
 		#Sanity check:
 		if a^2-b^2 != R.coerce(0):
 			raise Exception("Error in the program?");
@@ -715,10 +715,10 @@ def SUE_checkSolution(solution,SwoPs,listOfPrimesWithMinExponent,solutions):
 			else:
 				Sc.append(SwoPs[i]);
 		c = a + b;
-
+		
 		#Still have to check whether rad(rest)|NS.
 		#But maybe we should also output all (a,b,c) where rest is small, in the sense that the quality of this (a,b,c) is large?
-
+		
 		rest = c/prodPtoE;
 		for q in Sc:
 			e = 0;
@@ -731,38 +731,38 @@ def SUE_checkSolution(solution,SwoPs,listOfPrimesWithMinExponent,solutions):
 			if e>0:
 				radical = radical * q;
 				ExpC.append([q,e]);
-
+		
 		loga = N(log(a));
 		logb = N(log(abs(b)));
 		logc = N(log(abs(c)));
 		logRest = N(log(abs(rest)));
-
+		
 		height = max(loga,logb,logc);
-
+		
 		logEstimatedRadical = log(radical) + logRest;
-
+		
 		estimatedQuality = N(height/logEstimatedRadical);
-
+		
 		size = N(height/log(10));
-
+		
 		if estimatedQuality>1:
 			estimatedMerit = N((estimatedQuality-1)^2 * logEstimatedRadical * log(logEstimatedRadical));
 		else:
 			estimatedMerit = 0;
-
-		#print [a,b];
-
+		
+		#print [a,b];   
+		
 		if abs(rest) == 1:
 			if aLotOutput:
 				print("Solution found:");
-				print("Estimated quality =",estimatedQuality, "| Size =", size, "| Merit =", estimatedMerit);
+				print("Estimated quality =",estimatedQuality, "| Size =", size, "| Merit =", estimatedMerit);        
 			print(factorizationToString(ExpA),"|",sign,factorizationToString(ExpB),"|",factorizationToString(ExpC));
-			SUE_addSolution(a,b,c,solutions);
+			SUE_addSolution(a,b,c,solutions);        
 		#elif estimatedQuality > qualityBound:
 		#    print "High quality triple found:";
-		#    print "Estimated quality =",estimatedQuality, "| Size =", size, "| Merit =", estimatedMerit;
+		#    print "Estimated quality =",estimatedQuality, "| Size =", size, "| Merit =", estimatedMerit;        
 		#    print factorizationToString(ExpA),"|",sign,factorizationToString(ExpB),"|",factorizationToString(ExpC),rest;
-
+		
 	return;
 
 def SUE_enumerateTinySolutions(S,Bounds,solutions,parallelIterator='fork'):
@@ -772,13 +772,13 @@ def SUE_enumerateTinySolutions(S,Bounds,solutions,parallelIterator='fork'):
 		for p in A:
 			result = result * (1+weights[p]);
 		return result;
-
+	
 	def weight0(A,weights):
 		result = 1;
 		for p in A:
 			result = result * weights[p];
 		return result;
-
+		
 	def fillFactorsA1(factorsA1,A1,k,a1,factorsSoFar,vBounds,numBoundKGotExeeded):
 		if k==len(A1):
 			#factors1 = copy(factorsSoFar);
@@ -806,7 +806,7 @@ def SUE_enumerateTinySolutions(S,Bounds,solutions,parallelIterator='fork'):
 					else:
 						break;
 				if boundsNotExceededTooOften:
-					fillFactorsA1(factorsA1,A1,k+1,a1*p^alpha,factorsSoFar,vBounds,numBoundKGotExeeded);
+					fillFactorsA1(factorsA1,A1,k+1,a1*p^alpha,factorsSoFar,vBounds,numBoundKGotExeeded);                
 				for K in range(Kmin,len(numBoundKGotExeeded)):
 					numBoundKGotExeeded[K] = numBoundKGotExeeded[K] - 1;
 				#factorsSoFar.pop();
@@ -832,7 +832,7 @@ def SUE_enumerateTinySolutions(S,Bounds,solutions,parallelIterator='fork'):
 					traverseAllBs_thenCs_thenA2s(k+1,b*p^alpha,A1,A2,B,C,factorsA1,setA1,vBounds,numBoundKGotExeeded,solutions);
 				for K in range(Kmin,len(numBoundKGotExeeded)):
 					numBoundKGotExeeded[K] = numBoundKGotExeeded[K] - 1;
-
+		
 	def traverseAllCs_thenA2s(k,b,c,A1,A2,B,C,factorsA1,setA1,vBounds,numBoundKGotExeeded,solutions):
 		if k==len(C):
 			traverseAllA2s(0,1,b,c,b+c,A1,A2,B,C,factorsA1,setA1,vBounds,[0 for i in numBoundKGotExeeded],solutions);
@@ -860,7 +860,7 @@ def SUE_enumerateTinySolutions(S,Bounds,solutions,parallelIterator='fork'):
 		if k==len(A2):
 			#Test whether some a1 equals (b+c)/a2:
 			if b_plus_c_over_a2 in setA1:
-				#print "Solution:",A1,A2,B,C,":",b_plus_c_over_a2,"*",a2,"=",b,"+",c;
+				#print "Solution:",A1,A2,B,C,":",b_plus_c_over_a2,"*",a2,"=",b,"+",c;                            
 				SUE_addSolution(b_plus_c_over_a2*a2,b,c,solutions);
 		else:
 			p = A2[k];
@@ -882,21 +882,21 @@ def SUE_enumerateTinySolutions(S,Bounds,solutions,parallelIterator='fork'):
 				if boundsNotExceededTooOften:
 					traverseAllA2s(k+1,a2local,b,c,b_plus_c_over_a2,A1,A2,B,C,factorsA1,setA1,vBounds,numBoundKGotExeeded,solutions);
 				for K in range(Kmin,len(numBoundKGotExeeded)):
-					numBoundKGotExeeded[K] = numBoundKGotExeeded[K] - 1;
+					numBoundKGotExeeded[K] = numBoundKGotExeeded[K] - 1; 
 				if b_plus_c_over_a2 % p != 0:
 					return;
 				alpha = alpha+1;
 				a2local = a2local * p;
 				b_plus_c_over_a2 = b_plus_c_over_a2 / p;
 
-#	global numCPUs;
+	global numCPUs;
 
-#	@parallel(p_iter=parallelIterator,ncpus=numCPUs)
+	@parallel(p_iter=parallelIterator,ncpus=numCPUs)
 	def findSolutionsForFixedA0(A0,S0,S,vBounds,vBounds0):
 		#Output: Returns set of solutiuons for all A \subset S, for which A\cap S0 = A0.
-
+		
 		solutions = set([]);
-
+		
 		Srest = [];
 		for p in S:
 			if p not in S0:
@@ -913,40 +913,40 @@ def SUE_enumerateTinySolutions(S,Bounds,solutions,parallelIterator='fork'):
 
 			BC = copy(S);
 			for p in A:
-				BC.remove(p);
-
+				BC.remove(p);    
+			
 			#If weight of A is very large then we split A further up into A1 and A2:
 			A1 = copy(A);
 			A2 = [];
 			#while weight(A1,vBounds0)^2 > weight(S,vBounds0) * 2^(len(S)-len(A)-1): #this was the first heuristik
 			while A1!=[] and weight(A1,vBounds0) > weight0(BC,vBounds0) * 2^(len(BC)-1): #we ignore here A2 on the RHS, but that should be reasonable
 				A2.insert(0,A1.pop()); #Add last element of A1 at the first place of A2.
-
+			
 			#if aLotOutput:
 			#    print A, A1, A2;
-
-
+				
+				
 			factorsA1 = {}; #a dictionary: The keys are all possible integers that appear as a1, and their value is the corresponding factorization
 			fillFactorsA1(factorsA1,A1,0,1,[],vBounds,[0 for i in Bounds]);
 			setA1 = Set(factorsA1.keys());
 			#print factorsA1;
 			#print setA1;
-
+	
 			for setB in Subsets(BC):
 				B = setB.list();
 				weightOfB = weight(B,vBounds0);
 				if weightOfB > weightOfA:
 					continue;
 				if weightOfB == weightOfA:
-					if A!=[] and B!=[] and min(A)>min(B):
+					if A!=[] and B!=[] and min(A)>min(B): 
 						continue;
-				B.sort();
-
+				B.sort();       
+				
 				C = copy(BC);
 				for p in B:
 					C.remove(p);
 				weightOfC = weight(C,vBounds0);
-
+	
 				if weightOfC > weightOfB:
 					continue;
 				if weightOfC == weightOfB:
@@ -955,40 +955,40 @@ def SUE_enumerateTinySolutions(S,Bounds,solutions,parallelIterator='fork'):
 							continue;
 						if min(B)>min(C):
 							continue;
-
+						
 				#if aLotOutput:
 				#    print A, A1, A2, setA1, B, C;
 				traverseAllBs_thenCs_thenA2s(0,1,A1,A2,B,C,factorsA1,setA1,vBounds,[0 for i in Bounds],solutions);
-
-		return solutions;
+		
+		return solutions;                
 
 	#In case S is actually an instance of my SData class:
 	if S.__class__.__name__ != 'list':
-		S = S.S;
-
+		S = S.S; 
+			
 	vBounds = {};
 	vBounds0 = {};
 	for p in S:
 		for k in range(len(Bounds)):
 			vBounds[p,k] = N(Bounds[k]/log(p)).floor();
 		vBounds0[p] = vBounds[p,0];
-
+		
 	#print vBounds;
 	#print vBounds0;
-
+		
 	weightOfS = weight(S,vBounds0);
-
+	
 	#print len(Bounds);
-
+	
 	parameters = [];
-
+	
 	#First, we iterate over the set of primes that appear in a:
 	#In the following loop we only do this for primes in S0:
 	S0 = [];
 	for i in range(8): # This means that we will run at most 2^10=1024 parallel instances of findSolutionsForFixedA0 below.
 		if i<len(S):
 			S0.append(S[i]);
-
+	
 	for setA0 in Subsets(S0):
 		A0 = setA0.list();
 		#We only iterate over those A\dot\cup B\dot\cup C = S for which A has the biggest weight:
@@ -997,10 +997,10 @@ def SUE_enumerateTinySolutions(S,Bounds,solutions,parallelIterator='fork'):
 		#    continue;
 		A0.sort();
 		parameters.append((copy(A0),S0,S,vBounds,vBounds0));
-
+		
 	#Setup parallel computing:
 	gen = findSolutionsForFixedA0(parameters);
-
+	
 	for x in gen:
 		solutions.update(x[1]);
 
@@ -1017,7 +1017,7 @@ def SUE_tryDeWegersReduction(S,OldBound,NewBound,makeALog=True,keepOldLogMessage
 	with NewBound < m(a,b,c) <= OldBound.
 	'''
 
-#	global numCPUs;
+	global numCPUs;
 
 	def deWegerGamma(p,S,vNewBound,star=False):
 		#Compute lattice Gamma_m or Gamma_m^star, in de Weger's notation.
@@ -1052,13 +1052,13 @@ def SUE_tryDeWegersReduction(S,OldBound,NewBound,makeALog=True,keepOldLogMessage
 				smallPrec += 2;
 				continue;
 		#print q0, qordp;
-
+		
 		m = vNewBound-1-m0;
 		if m<=0:
 			return None;
 		prec = m+m0;
 		K = Qp(p,prec=prec);
-
+		
 		s = len(S);
 		L = identity_matrix(s-1);
 		L[-1,-1] = p^m;
@@ -1081,7 +1081,7 @@ def SUE_tryDeWegersReduction(S,OldBound,NewBound,makeALog=True,keepOldLogMessage
 		#Now we compute a sublattice Gamma_m^star, as in [de Weger, Sect. 5.B.]
 		#It's columns give a basis for the set of all vectors alpha in Z^{S\p}
 		# such that prod_{q in S\p} p^{alpha_q} = +-1 mod q^{vNewBound+1}
-
+		
 		if p in [2,3]:
 			return L;
 
@@ -1097,12 +1097,12 @@ def SUE_tryDeWegersReduction(S,OldBound,NewBound,makeALog=True,keepOldLogMessage
 
 		k = gcd([kOfX(x,SwoPwoQ0,q0,Fp,zeta) for x in L.columns()]);
 
-		#phi =
+		#phi = 
 		#... to do!
 
 		raise NotImplementedError();
-
-#	@parallel(p_iter=parallelIterator,ncpus=numCPUs)
+	
+	@parallel(p_iter=parallelIterator,ncpus=numCPUs)
 	def deWegerReduceBound(p,S,OldBound,NewBound):
 		#Returns whether we can prove here that all solutions for which
 		#p appears with exponent at most OldBound actually appears with
@@ -1125,21 +1125,21 @@ def SUE_tryDeWegersReduction(S,OldBound,NewBound,makeALog=True,keepOldLogMessage
 		if L == None:
 			#this means that vNewBound is too small
 			return False;
-
+		
 		v = my_ShortestVector_viaLattice(L);
 		vNormSq = sum([x^2 for x in v]);
 		if vNormSq > (len(S)-1)*vOldBound^2:
 			return True;
 		else:
-			return False;
+			return False;	
 
 	global LogMessages;
 
-	t00 = walltime();
+	t00 = walltime();    
 
 	#In case S is actually an instance of my SData class:
 	if S.__class__.__name__ != 'list':
-		S = S.S;
+		S = S.S; 
 
 	if makeALog and (not keepOldLogMessages):
 		LogMessages = [];
@@ -1153,7 +1153,7 @@ def SUE_tryDeWegersReduction(S,OldBound,NewBound,makeALog=True,keepOldLogMessage
 	#Setup parallel computing:
 	parameters = [];
 	for p in S:
-		parameters.append((p,S,OldBound,NewBound));
+		parameters.append((p,S,OldBound,NewBound));    
 	gen = deWegerReduceBound(parameters);
 	for x in gen:
 		if not x[1]: #reduction failed
@@ -1170,11 +1170,11 @@ def SUE_deWegerReducedBound(S,OldBound,makeALog=True,keepOldLogMessages=True,par
 
 	global LogMessages;
 
-	t00 = walltime();
+	t00 = walltime();    
 
 	#In case S is actually an instance of my SData class:
 	if S.__class__.__name__ != 'list':
-		S = S.S;
+		S = S.S; 
 
 	if makeALog and (not keepOldLogMessages):
 		LogMessages = [];
@@ -1194,9 +1194,9 @@ def SUE_deWegerReducedBound(S,OldBound,makeALog=True,keepOldLogMessages=True,par
 		else:
 			b0 = (1.3*b0).floor();
 			continue;
-
+		
 	if makeALog:
-		addLogMessage("Reduced bound: "+str(b0)+", time used: "+str(walltime(t0)));
+		addLogMessage("Reduced bound: "+str(b0)+", time used: "+str(walltime(t0)));    
 
 	return b0;
 
@@ -1213,11 +1213,11 @@ def SUE_decreaseBounds(S,BoundsOld,BoundsNew,maxFinckePohstSolutions=None,soluti
 
 	All solutoins (a,b,c) "between" these two bounds will be added via SUE_addSolutions(a,b,c,solutions),
 	except possibly for (1,1,2)!
-
+	
 	Output:
 		A boolean - depending on whether maxFinckePohstSolutions was chosen big enough.
 	'''
-
+	
 	def finckePohst_callback(vecSolution,args):
 		Ps = args[0];
 		SwoPs = args[1];
@@ -1226,12 +1226,12 @@ def SUE_decreaseBounds(S,BoundsOld,BoundsNew,maxFinckePohstSolutions=None,soluti
 		vBoundsNew = args[4];
 		L = args[5];
 		solutions = args[6];
-
+		
 		k = len(Ps)-1;
-
+		
 		FPsolution = (L * vecSolution).list();
-
-
+		
+		
 		#Check whether some exponent exceeds the old bound:
 		tooBig = false;
 		for i in range(len(FPsolution)):
@@ -1267,34 +1267,34 @@ def SUE_decreaseBounds(S,BoundsOld,BoundsNew,maxFinckePohstSolutions=None,soluti
 						 break;
 				if tooBig:
 					break;
-
-
+		
+				
 		#tooBig = False;
-
+		
 		if not tooBig:
 			primeExponentList = [];
 			for p in Ps:
 				primeExponentList.append([p,vBoundsNew[p,k]+1]);
 			SUE_checkSolution(FPsolution,SwoPs,primeExponentList,solutions);
-
-#	global numCPUs;
-
-#	@parallel(p_iter=parallelIterator,ncpus=numCPUs)
+		
+	global numCPUs;
+		
+	@parallel(p_iter=parallelIterator,ncpus=numCPUs)
 	def findSolutionsForFixedPs(Sdata,listOfPs,vBoundsOld,vBoundsNew,BoundsOld,BoundsNew,maxFinckePohstSolutions):
-		#Output: Refurns (FPmaxSolutionsNotExceeded,solutions), where
+		#Output: Refurns (FPmaxSolutionsNotExceeded,solutions), where 
 		#        FPmaxSolutionsNotExceeded - false iff some Fincke-Pohst call returns more than maxFinckePohstSolutions solutions
 		#        solutions - set of all solutions that have been found in this instance.
 
 		S = Sdata.S;
 
 		solutions = set([]);
-
+		
 		numBounds = len(BoundsOld);
 
 		for Ps in listOfPs:
 			k = len(Ps)-1;
-
-
+			
+			
 			BoundsCurrent = copy(BoundsOld);
 			#Assume that the new bounds have been already established for k' < k:
 			for l in range(k):
@@ -1305,7 +1305,7 @@ def SUE_decreaseBounds(S,BoundsOld,BoundsNew,maxFinckePohstSolutions=None,soluti
 			#print "Ps =",Ps;
 			#print vBoundsOld;
 			#print vBoundsNew;
-
+		
 			SwoPs = [];
 			for q in S:
 				if (q not in Ps) and vBoundsOld[q,0]>0:
@@ -1313,7 +1313,7 @@ def SUE_decreaseBounds(S,BoundsOld,BoundsNew,maxFinckePohstSolutions=None,soluti
 			SwoPsSquared = [];
 			for q in SwoPs:
 				SwoPsSquared.append(q^2);
-
+			
 			#Now we assume that each p in Ps appears with exponent at least vBoundsNew[p,k]+1 in c:
 
 			B = list(range(len(SwoPs)));
@@ -1334,44 +1334,44 @@ def SUE_decreaseBounds(S,BoundsOld,BoundsNew,maxFinckePohstSolutions=None,soluti
 			L = matrix(teskeMinimize(SwoPsSquared,B,R,primesPossiblyDividingGroupOrder)).transpose();
 			#print L
 			#print "... Teske done."
-
+		
 			scaleRows = [];
 			normSquaredBound = 0;
 			factor = 100;
 			for q in SwoPs:
 				scaleRows.append(N(factor*log(q)).floor());
 			normSquaredBound = 0;
-
+				
 			m = BoundsOld[0];
 			for i in range(len(SwoPs)):
 				normSquaredBound = normSquaredBound + (BoundsCurrent[min((i/2).floor(),len(BoundsCurrent)-1)])^2;
 			normSquaredBound = normSquaredBound * factor^2;
-
-
+				
+		   
 			L2 = matrix.diagonal(scaleRows) * L;
 			#print L;
 			#print scaleRows;
 			#print L2;
-
+			
 			FPargs = (Ps,SwoPs,numBounds,vBoundsOld,vBoundsNew,L,solutions);
-
+		
 			[notTooManySolutions,numSolutions] = my_finckePohst_viaLattice(L2,normSquaredBound, \
 												 solutionList=None,maxNumSolutions=maxFinckePohstSolutions,callback=finckePohst_callback,callbackArgs=FPargs);
-
+								
 			if not notTooManySolutions:
 				if aLotOutput:
 					print("Not all solutions got checked, numSolutions =", numSolutions);
 				return (false,solutions);
-
-
+					
+			
 			if aLotOutput:
 				print(numSolutions);
-
+				
 			#Fincke-Pohst omits the zero vector (on purpose).
 			#We omit it as well, since it gives only solutions with a and b in {1,-1} (i.e. only 1+1=2), and it has to be checked every single time.
 			#Thus the following is commented out:
-			#solutions.append(zero_vector(len(SwoP)));
-
+			#solutions.append(zero_vector(len(SwoP))); 
+			
 		return (true,solutions);
 
 	#In case S is not yet an instance of my SData class:
@@ -1379,7 +1379,7 @@ def SUE_decreaseBounds(S,BoundsOld,BoundsNew,maxFinckePohstSolutions=None,soluti
 		Sdata = SData(S);
 	else:
 		Sdata = S;
-		S = Sdata.S;
+		S = Sdata.S; 
 
 	numBounds = max(len(BoundsOld),len(BoundsNew));
 
@@ -1397,20 +1397,20 @@ def SUE_decreaseBounds(S,BoundsOld,BoundsNew,maxFinckePohstSolutions=None,soluti
 	vBoundsNew = {};
 
 	listOfPs = [];
-
+	   
 	for k in range(numBounds):
 		for p in S:
 			vBoundsOld[p,k] = N(BoundsOld[k]/log(p)).floor();
 			vBoundsNew[p,k] = N(BoundsNew[k]/log(p)).floor();
-
-	#print vBoundsOld;
-	#print vBoundsNew;
+			
+	#print vBoundsOld;        
+	#print vBoundsNew;        
 
 	for k in range(numBounds):
 
 		if BoundsOld[k]<=BoundsNew[k]: #nothing to do
 			continue;
-
+		
 		#Assume that for k' = k-1 the new bound is already established, and now check whether this already implies the bound for k:
 		if k>=1 and BoundsNew[k-1] == BoundsNew[k]:
 			continue;
@@ -1420,7 +1420,7 @@ def SUE_decreaseBounds(S,BoundsOld,BoundsNew,maxFinckePohstSolutions=None,soluti
 		for setPs in Subsets(S,k+1): #subsets of S of size k+1
 			Ps = setPs.list();
 			Ps.sort();
-
+			
 			#Check whether bounds are already implicit from the old bound, or the newly obtained one from smaller k:
 			boundsImplicitFromOldBounds = True;
 			for p in Ps:
@@ -1430,8 +1430,8 @@ def SUE_decreaseBounds(S,BoundsOld,BoundsNew,maxFinckePohstSolutions=None,soluti
 			if boundsImplicitFromOldBounds:
 				#print "Ps =",Ps,"-> bound already implicit from old bounds";
 				continue;
-
-			boundsImplicitFromSmallerK = False;
+				
+			boundsImplicitFromSmallerK = False;    
 			for Ps1 in Subsets(Ps):
 				k1 = len(Ps1)-1;
 				if k1>=0 and k1<k:
@@ -1446,9 +1446,9 @@ def SUE_decreaseBounds(S,BoundsOld,BoundsNew,maxFinckePohstSolutions=None,soluti
 						break;
 			if boundsImplicitFromSmallerK:
 				continue;
-
-			listOfPs.append(copy(Ps));
-			#parameters.append((S,Ps,vBoundsOld,vBoundsNew,BoundsOld,BoundsNew,maxFinckePohstSolutions));
+			
+			listOfPs.append(copy(Ps));    
+			#parameters.append((S,Ps,vBoundsOld,vBoundsNew,BoundsOld,BoundsNew,maxFinckePohstSolutions));    
 
 	if listOfPs == []:
 		return True;
@@ -1464,7 +1464,7 @@ def SUE_decreaseBounds(S,BoundsOld,BoundsNew,maxFinckePohstSolutions=None,soluti
 			if PsIndex < len(listOfPs):
 				PsForCurrentProcess.append(listOfPs[PsIndex]);
 				PsIndex = PsIndex + 1;
-		parameters.append((Sdata,PsForCurrentProcess,vBoundsOld,vBoundsNew,BoundsOld,BoundsNew,maxFinckePohstSolutions));
+		parameters.append((Sdata,PsForCurrentProcess,vBoundsOld,vBoundsNew,BoundsOld,BoundsNew,maxFinckePohstSolutions));    
 
 	#Setup parallel computing:
 	gen = findSolutionsForFixedPs(parameters);
@@ -1497,7 +1497,7 @@ def SUE_innitialHeightBound(S,precision=RR.prec()):
 	NS = prod(S);
 	Sand2 = copy(S);
 	if 2 not in S:
-		Sand2 += [2];
+		Sand2 += [2];	
 	N = 2^4 * NS; #Note that e from the paper is bounded by 4.
 	#Now we compute alphaBar(N):
 	s0N = R(N);
@@ -1532,7 +1532,7 @@ def SUE_innitialHeightBound(S,precision=RR.prec()):
 	#print "Simple bound used before:", (NS/5*(12*log(R(NS))+8*log(max(1,log(log(R(NS)))))+35)+46);
 	#print "Simple bound from Prop. 10.2.:", 12/5*NS*log(R(NS)) + 9/10*NS*log(max(1,log(log(16*R(NS))))) + R(8.26)*NS + 28;
 
-	return HeightBound.upper();
+	return HeightBound.upper();	
 
 ########################################################################
 ### Main methods #######################################################
@@ -1554,7 +1554,7 @@ def SUE_solve(S,saveToFile=False,solutions=None,keepOldLogMessages=False,makeALo
 		for i in range(numBounds):
 			result.append((b/(i+1)).floor());
 		return result;
-
+		
 	global LogMessages;
 
 	t00 = walltime();
@@ -1564,7 +1564,7 @@ def SUE_solve(S,saveToFile=False,solutions=None,keepOldLogMessages=False,makeALo
 		Sdata = SData(S);
 	else:
 		Sdata = S;
-		S = Sdata.S;
+		S = Sdata.S; 
 
 	if solutions == None:
 		solutions = set([]);
@@ -1572,7 +1572,7 @@ def SUE_solve(S,saveToFile=False,solutions=None,keepOldLogMessages=False,makeALo
 		LogMessages = [];
 	if makeALog:
 		addLogMessage("Number of available CPUs: "+str(sage.parallel.ncpus.ncpus()));
-#		addLogMessage("Number of CPUs we use: "+str(numCPUs));
+		addLogMessage("Number of CPUs we use: "+str(numCPUs));
 
 	#From our vKM-paper:
 	#In particular we have that each p^alpha appearing the prime factorization of a, b, and c satisfies:
@@ -1591,7 +1591,7 @@ def SUE_solve(S,saveToFile=False,solutions=None,keepOldLogMessages=False,makeALo
 	#de Weger reduction:
 	if makeALog:
 		addLogMessage("Use simplified version of de Weger reduction to reduce it to some reasonable bound (probably smaller than 1000):");
-	for i in range(1):
+	for i in range(1): 
 		bNew = SUE_deWegerReducedBound(S,b,makeALog=makeALog,keepOldLogMessages=True,parallelIterator=parallelIterator);
 		if bNew < b:
 			b = bNew;
@@ -1667,7 +1667,7 @@ def SUE_solve(S,saveToFile=False,solutions=None,keepOldLogMessages=False,makeALo
 			#Here the purpose is that in SUE_decreaseBounds we don't want FP to return the origin all the time. This misses only the solution (1,1,2), because only here a and b can be both invertible.
 			addLogMessage(logMessage);
 			SUE_addSolution(1,1,2,solutions);
-
+			
 
 	'''
 	#Now reduce b0 stepwise using Teske:
@@ -1713,7 +1713,7 @@ def SUE_solve(S,saveToFile=False,solutions=None,keepOldLogMessages=False,makeALo
 	#    SUE_addSolution(1,1,2);
 	#    return;
 	'''
-
+			
 	#Now reduce b slowly:
 	if makeALog:
 		addLogMessage("Now we reduce the bound slowly and simultaneously enumerate tiny solutions:");
@@ -1726,7 +1726,7 @@ def SUE_solve(S,saveToFile=False,solutions=None,keepOldLogMessages=False,makeALo
 	maxTimeToEnumerateTinySolutions = 0.001; #we want to start with decreasing Bound.
 
 	OldBounds = [b];
-
+			
 	while b>bEnumeratedSoFar:
 		#Either we decrease the bounds using Fincke-Pohst, or we enumerate more tiny solutions, depending on what took less time previously:
 		if b>=2 and maxTimeToDecreaseBounds <= maxTimeToEnumerateTinySolutions:
@@ -1735,7 +1735,7 @@ def SUE_solve(S,saveToFile=False,solutions=None,keepOldLogMessages=False,makeALo
 			bNew = b-1;
 			NewBounds = boundsForTinySolutions(bNew,numBounds);
 			oldNumSolutions = len(solutions);
-			if SUE_decreaseBounds(Sdata,OldBounds,NewBounds,maxFinckePohstSolutions=None,solutions=solutions,parallelIterator=parallelIterator):
+			if SUE_decreaseBounds(Sdata,OldBounds,NewBounds,maxFinckePohstSolutions=None,solutions=solutions,parallelIterator=parallelIterator): 
 				b = bNew;
 				#print "New bound:",NewBounds;
 			else:
@@ -1775,7 +1775,7 @@ def SUE_solve(S,saveToFile=False,solutions=None,keepOldLogMessages=False,makeALo
 	if saveToFile:
 		#First save the sage object 'solutions':
 		save(solutions,"solutions_"+myListToStr(S,'_'));
-
+		
 		#Furthermore save the solutions to a text file:
 		solutionsList = [(myRadical(a*b*c),a,b,c,quality(a,b,c)) for (a,b,c) in solutions];
 		solutionsList.sort();
@@ -1796,7 +1796,7 @@ def SUE_solve(S,saveToFile=False,solutions=None,keepOldLogMessages=False,makeALo
 			#out.write(str(r)+": "+str(a)+" + "+str(b)+" = "+str(c)+" ("+str(q)+")\n");
 			out.write("%d: %d + %d = %d (%.4f)\n" % (r,a,b,c,q));
 		out.close();
-
+		
 		#Furthermore save log:
 		if makeALog:
 			out = file("log_"+myListToStr(S,'_')+'.txt','w');
@@ -1821,9 +1821,9 @@ def SUE_findAllSolutionsUpToAGivenRadical(maxRadical,saveToFile=False):
 
 	global solutions;
 	global LogMessages;
-#	global numCPUs;
-
-#	@parallel(p_iter='fork',ncpus=numCPUs)
+	global numCPUs;
+		
+	@parallel(p_iter='fork',ncpus=numCPUs)
 	def solutionsForGivenS(S):
 		t0 = walltime();
 		result = set([]);
@@ -1832,7 +1832,7 @@ def SUE_findAllSolutionsUpToAGivenRadical(maxRadical,saveToFile=False):
 		t = walltime(t0);
 		return (result,t);
 
-
+		
 	solutions = set([]);
 
 	LogMessages = [];
@@ -1854,7 +1854,7 @@ def SUE_findAllSolutionsUpToAGivenRadical(maxRadical,saveToFile=False):
 	#        if alpha>=2:
 	#            squarefree = false;
 	#        S.append(p);
-	#    if squarefree:
+	#    if squarefree:    
 	#        Q = P.difference(set(S));
 	#        if len(Q)==0 or min(Q)*r>maxRadical:
 	#            #r is a maximal squarefree number <= maxRadical with respect to integer multiples.
@@ -1875,7 +1875,7 @@ def SUE_findAllSolutionsUpToAGivenRadical(maxRadical,saveToFile=False):
 			if alpha>=2:
 				squarefree = false;
 			S.append(p);
-		if squarefree:
+		if squarefree:    
 			minPrimeNotInS = 0;
 			for p in P:
 				if p not in S:
@@ -1888,7 +1888,7 @@ def SUE_findAllSolutionsUpToAGivenRadical(maxRadical,saveToFile=False):
 
 	#addLogMessage(str(parameters));
 	addLogMessage("Computed all %d relevant sets S, time used: %f." % (len(parameters),walltime(t0)));
-
+				
 	#Do parallel computing:
 	gen = solutionsForGivenS(parameters);
 	for x in gen:
@@ -1898,9 +1898,9 @@ def SUE_findAllSolutionsUpToAGivenRadical(maxRadical,saveToFile=False):
 		r = prod(S);
 		timeThisProcessTook = x[1][1];
 		addLogMessage("#sol. = %d, r = %d, S = %s, time = %.2f" % (len(solutions)-numSolutionsSoFar,r,str(S),timeThisProcessTook));
-
+		
 		#str(len(solutions)-numSolutionsSoFar)+" new solutions for r = "+str(r)+", S = "+str(S)+". Time used: "+timeThisProcessTook);
-
+	 
 	totalTime = walltime(t00);
 	addLogMessage("########################################################################");
 	addLogMessage("Finished. Total time: "+str(totalTime)+". Number of maximal radicals: "+str(numRadicals)+". Number of solutions: "+str(len(solutions)));
@@ -1909,7 +1909,7 @@ def SUE_findAllSolutionsUpToAGivenRadical(maxRadical,saveToFile=False):
 	if saveToFile:
 		#First save the sage object 'solutions':
 		save(solutions,"solutions_uptoRadical_"+str(maxRadical));
-
+		
 		#Furthermore save the solutions to a text file:
 		solutionsList = [(myRadical(a*b*c),a,b,c,quality(a,b,c)) for (a,b,c) in solutions];
 		solutionsList.sort();
@@ -1930,7 +1930,7 @@ def SUE_findAllSolutionsUpToAGivenRadical(maxRadical,saveToFile=False):
 			#out.write(str(r)+": "+str(a)+" + "+str(b)+" = "+str(c)+" ("+str(q)+")\n");
 			out.write("%d: %d + %d = %d (%.4f)\n" % (r,a,b,c,q));
 		out.close();
-
+		
 		#Furthermore save log:
 		out = file("log_uptoRadical_"+str(maxRadical)+'.txt','w');
 		for msg in LogMessages:
@@ -1952,23 +1952,23 @@ def SUE_searchForLargeSolutions(S,solutions=None):
 		saveToFile - if true the solutions will be saved to two files (one text-file and one sobj-file)
 		solutions - either none, or a set: If it's a set, then the solution set will be added to it.
     '''
-
+	
 	def boundsForTinySolutions(b,numBounds):
 		result = [];
 		for i in range(numBounds):
 			result.append((b/(i+1)).floor());
 		return result;
-
+		
 	global LogMessages;
-
-	t00 = walltime();
-
+	
+	t00 = walltime();    
+	
 	if solutions == None:
 		solutions = set([]);
 	LogMessages = [];
-
+	
 	addLogMessage("Number of available CPUs: "+str(sage.parallel.ncpus.ncpus()));
-#	addLogMessage("Number of CPUs we use: "+str(numCPUs));
+	addLogMessage("Number of CPUs we use: "+str(numCPUs));
 
 	print("S =", S);
 	NS = prod(S);
@@ -1979,15 +1979,15 @@ def SUE_searchForLargeSolutions(S,solutions=None):
 	#      alpha*log(p) <= HeightBound
 	HeightBound = SUE_innitialHeightBound(S);
 	print("Height bound from paper:",HeightBound);
-
-	b0 = 5*ceil(3/2*(len(S)-1)*log(len(S)));
-
+	
+	b0 = 5*ceil(3/2*(len(S)-1)*log(len(S)));   
+	
 	addLogMessage("We already start with a relatively small bound b0: "+str(b0));
-
+	
 	#Now reduce b0 quickly:
-
+		
 	b = b0;
-
+	
 	while b>=3 and len(solutions)==0:
 		t0 = walltime();
 		bNew = floor(b/1.3);
@@ -2005,20 +2005,20 @@ def SUE_searchForLargeSolutions(S,solutions=None):
 	#if b==1:
 	#    SUE_addSolution(1,1,2);
 	#    return;
-
+			
 	#Now reduce b slowly:
 	if len(solutions)==0:
 		addLogMessage("Now we reduce the bound slowly:");
-
+	
 	numBounds = min(3,max((len(S)/3).floor(),1)); #This is obtained from a heuristic, it makes sense to take numBounds between 1 and s/3.
-
+	
 	maxTimeToDecreaseBounds = 0.0;
 
 	bEnumeratedSoFar = 0;
 	maxTimeToEnumerateTinySolutions = 0.001; #we want to start with decreasing Bound.
 
 	OldBounds = [b];
-
+			
 	while b>bEnumeratedSoFar and len(solutions)==0:
 		#Either we decrease the bounds using Fincke-Pohst, or we enumerate more tiny solutions, depending on what took less time previously:
 		if b>=2 :
@@ -2027,7 +2027,7 @@ def SUE_searchForLargeSolutions(S,solutions=None):
 			bNew = b-1;
 			NewBounds = boundsForTinySolutions(bNew,numBounds);
 			oldNumSolutions = len(solutions);
-			if SUE_decreaseBounds(S,OldBounds,NewBounds,maxFinckePohstSolutions=None,solutions=solutions):
+			if SUE_decreaseBounds(S,OldBounds,NewBounds,maxFinckePohstSolutions=None,solutions=solutions): 
 				b = bNew;
 				#print "New bound:",NewBounds;
 			else:
@@ -2043,11 +2043,11 @@ def SUE_searchForLargeSolutions(S,solutions=None):
 			OldBounds = copy(NewBounds);
 		else:
 			break;
-
+	
 	totalTime = walltime(t00);
 	addLogMessage("Finished! Total time: "+str(totalTime));
 	addLogMessage("Number of large solutions: "+str(len(solutions)));
-
+	
 	#for s in solutions:
 	#	print s;
 
@@ -2055,10 +2055,10 @@ def SUE_searchForLargeSolutions(S,solutions=None):
 
 #time SUE_searchForLargeSolutions(prime_range(10));
 
-#SUE_findAllSolutionsUpToAGivenRadical(100); #0.55 sec
-#SUE_findAllSolutionsUpToAGivenRadical(1000); #4.4 sec
+#SUE_findAllSolutionsUpToAGivenRadical(100); #0.55 sec       
+#SUE_findAllSolutionsUpToAGivenRadical(1000); #4.4 sec       
 #SUE_findAllSolutionsUpToAGivenRadical(10000); #44 sec
-#SUE_findAllSolutionsUpToAGivenRadical(20000); #91 sec
+#SUE_findAllSolutionsUpToAGivenRadical(20000); #91 sec       
 #SUE_findAllSolutionsUpToAGivenRadical(100000); #7.5 min, de Weger red. made it 2.5 times faster
 #SUE_findAllSolutionsUpToAGivenRadical(1000000); #
 #SUE_findAllSolutionsUpToAGivenRadical(3000000); #4.58h, de Weger red. made it 7.1 times faster
@@ -2073,9 +2073,9 @@ time SUE_solve(primes_first_n(3)) #0 sec, 17 solutions
 #time SUE_solve(primes_first_n(6)) #11 sec, 545 solutions
 #time SUE_solve(primes_first_n(7)) #32 sec, 1433 solutions
 #time SUE_solve(primes_first_n(8)) #127 sec, 3649 solutions #parallel: 183 sec
-#time SUE_solve(primes_first_n(9)) #581 sec, 8828 solutions
+#time SUE_solve(primes_first_n(9)) #581 sec, 8828 solutions 
 #time SUE_solve(primes_first_n(10)) # sec, 20015 solutions #16 cpus: 180 sec
 #time SUE_solve(primes_first_n(11)) #14858 sec, 44641 solutions (4.127 hours)
 #time SUE_solve(primes_first_n(12)) #ca 65600 sec, 95358 solutions (18.22 hours)
-#time SUE_solve(primes_first_n(13)) #199081 solutions
+#time SUE_solve(primes_first_n(13)) #199081 solutions 
 #time SUE_solve(primes_first_n(14)) #412791 solutions #parallel: 331210 sec = 92 h (allerdings mit Unterbrechungen
