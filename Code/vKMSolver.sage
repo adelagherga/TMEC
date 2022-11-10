@@ -2053,7 +2053,7 @@ def SUE_searchForLargeSolutions(S,solutions=None):
 
 	return solutions;
 
-def extractForm(set):
+def extractForm(Nset):
     '''
       Extracts Nlist,alist,a,primelist,[i,j] from the string set.
 
@@ -2071,7 +2071,7 @@ def extractForm(set):
           ij: SeqEnum
               The index (i,j) of the corresponding S-unit equation.
    '''
-    bracketSplit=set.split("],[");
+    bracketSplit=Nset.split("],[");
     assert (len(bracketSplit) == 2);
     Nlist=[int(N) for N in bracketSplit[0][1:].split(",")];
     primelist=[int(p) for p in bracketSplit[1][:-1].split(",")]
@@ -2079,6 +2079,7 @@ def extractForm(set):
 
 if __name__ == '__main__':
     # Map command line arguments to function arguments.
-    args=sys.argv
-    Nlist,primelist=extractForm(set)
-    SUE_solve(primelist)
+    args=sys.argv;
+    Nlist,primelist=extractForm(args[1]);
+    time sols=SUE_solve(primelist);
+    print(sols);
