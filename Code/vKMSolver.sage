@@ -1779,7 +1779,7 @@ def SUE_solve(S,saveToFile=False,solutions=None,keepOldLogMessages=False,makeALo
 		#Furthermore save the solutions to a text file:
 		solutionsList = [(myRadical(a*b*c),a,b,c,quality(a,b,c)) for (a,b,c) in solutions];
 		solutionsList.sort();
-		out = file("solutions_"+myListToStr(S,'_')+'.txt','w')
+		out = open("solutions_"+myListToStr(S,'_')+'.txt','w')
 		#out.write("###\n");
 		out.write("# List of all triples (a,b,c) satisfying\n");
 		out.write("#  - a+b=c,\n");
@@ -1799,7 +1799,7 @@ def SUE_solve(S,saveToFile=False,solutions=None,keepOldLogMessages=False,makeALo
 
 		#Furthermore save log:
 		if makeALog:
-			out = file("log_"+myListToStr(S,'_')+'.txt','w');
+			out = open("log_"+myListToStr(S,'_')+'.txt','w');
 			for msg in LogMessages:
 				out.write(msg+"\n");
 			out.close();
