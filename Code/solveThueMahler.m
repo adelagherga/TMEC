@@ -169,7 +169,7 @@ end function;
 
 coprimeThueMahler:=function(alist,a,primelist : verb:=false)
     /*
-      Solves a_0 X^d + ... + a_d Y^d = a p_1^{z_1} ... p_v^{z_v}
+      Solve a_0 X^d + ... + a_d Y^d = a p_1^{z_1} ... p_v^{z_v}
       subject to the assumptions that X, Y are integers and
       gcd(X,Y) = gcd(a_0,Y) = 1.
 
@@ -247,7 +247,7 @@ end function;
 
 coprimeTMSUnit:=function(alist,a,primelist,j : verb:=false)
     /*
-      Solves a_0 X^d + ... + a_d Y^d = a p_1^{z_1} ... p_v^{z_v}
+      Solve a_0 X^d + ... + a_d Y^d = a p_1^{z_1} ... p_v^{z_v}
       at the jth S-unit equation, subject to the assumptions that X, Y are
       integers and gcd(X,Y) = gcd(a_0,Y) = 1.
 
@@ -319,7 +319,7 @@ end function;
 
 solveThueMahler:=function(alist,a,primelist : verb:=false,coprime:=true)
     /*
-      Solves a_0 X^d + ... + a_d Y^d = a p_1^{z_1} ... p_v^{z_v}
+      Solve a_0 X^d + ... + a_d Y^d = a p_1^{z_1} ... p_v^{z_v}
       subject to the assumptions that X, Y are integers and
       gcd(X,Y) = 1, with a_0, Y optionally coprime.
 
@@ -384,7 +384,7 @@ end function;
 
 solveTMSUnit:=function(alist,a,primelist,ij : verb:=false)
     /*
-      Solves a_0 X^d + ... + a_d Y^d = a p_1^{z_1} ... p_v^{z_v} at the (i,j)th
+      Solve a_0 X^d + ... + a_d Y^d = a p_1^{z_1} ... p_v^{z_v} at the (i,j)th
       S-unit equation, subject to the assumptions that X, Y are integers and
       gcd(X,Y) = gcd(a_0,Y) = 1.
 
