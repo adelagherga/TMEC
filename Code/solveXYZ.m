@@ -463,6 +463,32 @@ solveXYZ:=function(primelist)
 end function;
 
 
+extractForm:=function(set)
+    /*
+      Extracts Nlist,alist,a,primelist,[i,j] from the string set.
+
+      Parameters
+          set: MonStgElt
+              A string in the format "Nlist,alist,a,primelist,[i,j]".
+      Returns
+          Nlist: SeqEnum
+              A list of conductors.
+          alist: SeqEnum
+              A list of coefficients a_0, a_1,...,a_3.
+          a: RngIntElt
+          primelist: SeqEnum
+              A list of rational primes p_1, p_2,...,p_v.
+          ij: SeqEnum
+              The index (i,j) of the corresponding S-unit equation.
+   */
+    bracketSplit:=Split(set,"[]");
+    assert (#bracketSplit eq 3);
+    Nlist:=[StringToInteger(N) : N in Split(bracketSplit[1],",")];
+    primelist:=[StringToInteger(p) : p in Split(bracketSplit[3],",")];
+    return Nlist,primelist;
+end function;
+
+
 Nlist,primelist:=extractForm(set);
 if #primelist ge 3 then
     time sols:=SUnitXYZ(primelist);
