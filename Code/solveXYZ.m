@@ -10,6 +10,7 @@ Created
     17 November 2022
 */
 
+ChangeDirectory("./Code");
 load "./parseIO.m";
 SetAutoColumns(false);
 SetColumns(235);
