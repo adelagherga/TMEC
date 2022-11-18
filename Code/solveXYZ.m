@@ -439,8 +439,8 @@ solveXYZ:=function(primelist)
     assert &and[IsPrime(p) : p in primelist];
     assert 2 in primelist;
     Sort(~primelist);
-    assert #primelist ge 2;
     s:=#primelist;
+    assert s ge 2;
 
     vecB:=reducedBound(primelist);
     sols:={};
