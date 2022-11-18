@@ -22,6 +22,49 @@ load "./parseIO.m";
 SetAutoColumns(false);
 SetColumns(235);
 
+heightBoundXY:=function(alist,a,primelist)
+    /*
+      Determine the height bound max(h(X),h(Y)) on X and Y which satisfy
+      a_0 X^d + ... + a_d Y^d = a p_1^{z_1} ... p_v^{z_v}, as per von Kanel and
+      Matshke, and return 2*max(h(X),h(Y))+Log(2)+Log(a0).
+
+      Parameters
+          alist: SeqEnum
+              A list of coefficients a_0, a_1,...,a_d.
+          a: RngIntElt
+          primelist: SeqEnum
+              A list of rational primes p_1, p_2,...,p_v.
+      Returns
+          maxhXY: FldReElt
+	      The value 2*max(h(X),h(Y))+Log(2)+Log(a0), where max(h(X),h(Y)) is
+	      the height bound of von Kanel and Matshke.
+   */
+    assert &and[IsPrime(p) : p in primelist];
+    assert &and[a_i in Integers() : a_i in alist];
+    a0:=Integers()!alist[1];
+    assert a0 ne 0;
+    d:=#alist-1;
+    assert d eq 3;
+    QUV<U,V>:=PolynomialRing(Rationals(),2);
+    Qx<x>:=PolynomialRing(Rationals());
+    F:=&+[alist[i+1]*U^(d-i)*V^i : i in [0..d]];
+    assert IsHomogeneous(F);
+    f:=Evaluate(F,[x,1]);
+
+    m:=Integers()!(432*Discriminant(f)*a^2);
+    mS0:=1;
+    for p in PrimeDivisors(m) do
+	if p notin primelist then
+	    mS0:=mS0*p^(Min(2,Valuation(m,p)));
+	end if;
+    end for;
+    NS:=&*primelist;
+    mS:=1728*(NS^2)*mS0;
+    hpoly:=Max([Log(Abs(a_i)) : a_i in alist] cat [Log(Abs(a))]);
+    maxhXY:=2*(2*mS*Log(mS)+172*hpoly)+Log(2)+Log(a0);
+    return maxhXY;
+end function;
+
 makeMonic:=function(alist,a,primelist)
     /*
       Determine all possible values of b = gcd(Y,a_0) and apply the
@@ -190,6 +233,7 @@ coprimeThueMahler:=function(alist,a,primelist : verb:=false)
     printf "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
     printf "alist:=%o; a:=%o; primelist:=%o; \n",alist,a,primelist;
     printf "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
+    maxhXY:=heightBoundXY(alist,a,primelist);
     time tauDeltaList:=equationsInK(alist,a,primelist);
     if (#tauDeltaList eq 0) then
 	printf "No S-unit equations to solve!\n";
@@ -218,7 +262,7 @@ coprimeThueMahler:=function(alist,a,primelist : verb:=false)
 	printf "Working on equation number %o...\n",eqncount;
 	tau:=pr[1];
 	deltaList:=pr[2];
-	time vecs,vecB,S,range:=reducedBound(tau,deltaList : verb:=verb);
+	time vecs,vecB,S,range:=reducedBound(tau,deltaList,maxhXY : verb:=verb);
 	print "S is ",S;
 	printf "The range is %o.\n",range;
 	cBfsq:= &+[i^2 : i in vecB];
@@ -270,6 +314,7 @@ coprimeTMSUnit:=function(alist,a,primelist,j : verb:=false)
     printf "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
     printf "alist:=%o; a:=%o; primelist:=%o; j:=%o;\n",alist,a,primelist,j;
     printf "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
+    maxhXY:=heightBoundXY(alist,a,primelist);
     time tauDeltaList:=equationsInK(alist,a,primelist);
     assert (#tauDeltaList ne 0);
     if (j mod 10) eq 1 then
@@ -292,7 +337,7 @@ coprimeTMSUnit:=function(alist,a,primelist,j : verb:=false)
     pr:=tauDeltaList[j];
     tau:=pr[1];
     deltaList:=pr[2];
-    time vecs,vecB,S,range:=reducedBound(tau,deltaList : verb:=verb);
+    time vecs,vecB,S,range:=reducedBound(tau,deltaList,maxhXY : verb:=verb);
     print "S is ",S;
     printf "The range is %o.\n",range;
     cBfsq:= &+[i^2 : i in vecB];

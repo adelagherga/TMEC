@@ -38,7 +38,7 @@ degL:=function(K)
     return D;
 end function;
 
-initialBound:=function(tau,deltaList,S)
+initialBound:=function(tau,deltaList,S,maxhXY)
     /*
       For a_0 X - theta Y = tau delta_1^{b_1} ... delta_r^{b_r}, determine
       a bound for B = max(|b_1|,...,|b_r|) using the bounds of Matveev and Yu.
@@ -49,12 +49,15 @@ initialBound:=function(tau,deltaList,S)
               The list delta_1,...,delta_r.
           S: SeqEnum
               A list of prime ideals fp_1,...,fp_s of K.
+          maxhXY: FldReElt
+              The value 2*max(h(X),h(Y))+Log(2)+Log(a0), where max(h(X),h(Y)) is
+	      the height bound of von Kanel and Matshke.
       Returns
           c17: FldReElt
               A positive real constant used to derive c20.
           c20: FldReElt
               The upper bound for B = max(|b_1|,...,|b_r|) derived using the
-              bounds of Matveev and Yu.
+              bounds of Matveev and Yu or von Kanel and Matshke.
    */
     K:=Universe([tau] cat deltaList);
     K:=NumberField(K);
@@ -140,7 +143,11 @@ initialBound:=function(tau,deltaList,S)
     c17:=Min(c17list);
     c18:=2*d*c17*c16;
     c19:=2*d*c17*c15;
-    c20:=2*c18 + Max(4*e^2,2*c19*Log(c19));
+    c20MY:=2*c18 + Max(4*e^2,2*c19*Log(c19));
+    // The height bound derived using Matveev and Yu.
+    c20vKM:=2*d*c17*(maxhXY+htheta-htau);
+    // The height bound derived using von Kanel and Matshke.
+    c20:=Min(c20MY,c20vKM);
     return c17,c20;
 end function;
 
@@ -749,8 +756,7 @@ distanceLBsq2:=function(LL,ww,cB5sq)
 	    u:=5*u;
 	    P:=ShortVectorsProcess(LL,l,u);
 	end while;
-	// Find at least 1 vector v in L such that
-	// cB5^2 <= Norm(v+w) <= mult*cB5^2.
+	// Find at least 1 vector v in L such that cB5^2 <= Norm(v+w) <= mult*cB5^2.
 	P:=ShortVectorsProcess(LL,u);
 	// Find all vectors v in L such that Norm(v+w) <= mult*cB5^2.
 	vecs:=[];
@@ -932,7 +938,7 @@ fixedRealEmbeddingRed:=function(tau,deltaList,S,consts,sigma : verb:=false)
     return vecs,vecB,expSbds;
 end function;
 
-reducedBound:=function(tau,deltaList : verb:=false)
+reducedBound:=function(tau,deltaList,maxhXY : verb:=false)
     /*
       For a_0 X - theta Y = tau delta_1^{b_1} ... delta_r^{b_r}, determine
       the final bound for B = max(|b_1|,...,|b_r|) after successively reducing
@@ -942,6 +948,9 @@ reducedBound:=function(tau,deltaList : verb:=false)
           tau: FldNumElt
           deltaList: SeqEnum
               The list delta_1,...,delta_r.
+          maxhXY: FldReElt
+    	      The value 2*max(h(X),h(Y))+Log(2)+Log(a0), where max(h(X),h(Y)) is
+	      the height bound of von Kanel and Matshke.
           verb: BoolElt
               A true/false value. If set to true, this function returns status
 	      updates as it proceeds.
@@ -971,7 +980,7 @@ reducedBound:=function(tau,deltaList : verb:=false)
     assert &and[fact[1] in S : fact in Factorisation(tau*OK) | fact[2] lt 0];
     // This is a sanity check. According to the paper, the denominator ideal
     // of tau is supported on S.
-    c17,c20:=initialBound(tau,deltaList,S);
+    c17,c20:=initialBound(tau,deltaList,S,maxhXY);
     c22,c23:=boundConstants(K,theta,tau);
     c26:=1/(2*c17);
     consts:=[c17,c20,c22,c23,c26];
