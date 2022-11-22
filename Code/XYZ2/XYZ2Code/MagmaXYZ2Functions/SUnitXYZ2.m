@@ -24,21 +24,13 @@ REFERENCE:
 
 ChangeDirectory("./Code");
 load "./parseIO.m";
-load "../solveXYZ.m";
+load "./solveXYZ.m";
 SetAutoColumns(false);
 SetColumns(235);
 
 ChangeDirectory("./XYZ2");
-Attach("./XYZ2Code/MagmaXYZ2IntrinsicFunctions/ConvertpAdic.m");
-Attach("./XYZ2Code/MagmaXYZ2IntrinsicFunctions/pAdicLog.m");
-Attach("./XYZ2Code/MagmaXYZ2IntrinsicFunctions/SFactors.m");
-Attach("./XYZ2Code/MagmaXYZ2IntrinsicFunctions/NonEmptyMaxMinProductSum.m");
-Attach("./XYZ2Code/MagmaXYZ2IntrinsicFunctions/Ordp.m");
-Attach("./XYZ2Code/MagmaXYZ2IntrinsicFunctions/QsqrtDPrecision.m");
-Attach("./XYZ2Code/MagmaXYZ2IntrinsicFunctions/BinaryRecurrenceSequence.m");
-Attach("./XYZ2Code/MagmaXYZ2IntrinsicFunctions/BinaryRecurrenceSequencePeriod.m");
+Attach("./XYZ2/XYZ2Intrinsics.m");
 
-load "../solveXYZ.m";
 load "./XYZ2Code/MagmaXYZ2Functions/SUnitXYZtoSUnitXYZ2.m";
 load "./XYZ2Code/MagmaXYZ2Functions/ExponentsXYZ2.m";
 load "./XYZ2Code/MagmaXYZ2Functions/DecompositionOfPrimesXYZ2.m";
