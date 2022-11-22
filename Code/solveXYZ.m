@@ -10,11 +10,6 @@ Created
     17 November 2022
 */
 
-ChangeDirectory("./Code");
-load "./parseIO.m";
-SetAutoColumns(false);
-SetColumns(235);
-
 pAdicApprox:=function(x,p,mu)
     /*
       Given a p-adic number x, determine the positive rational integer x^{mu}
@@ -461,38 +456,3 @@ solveXYZ:=function(primelist)
     sols:=sols join solutionVectors(primelist,primelist,vecs);
     return sols;
 end function;
-
-
-extractForm:=function(set)
-    /*
-      Extracts Nlist,alist,a,primelist,[i,j] from the string set.
-
-      Parameters
-          set: MonStgElt
-              A string in the format "Nlist,alist,a,primelist,[i,j]".
-      Returns
-          Nlist: SeqEnum
-              A list of conductors.
-          alist: SeqEnum
-              A list of coefficients a_0, a_1,...,a_3.
-          a: RngIntElt
-          primelist: SeqEnum
-              A list of rational primes p_1, p_2,...,p_v.
-          ij: SeqEnum
-              The index (i,j) of the corresponding S-unit equation.
-   */
-    bracketSplit:=Split(set,"[]");
-    assert (#bracketSplit eq 3);
-    Nlist:=[StringToInteger(N) : N in Split(bracketSplit[1],",")];
-    primelist:=[StringToInteger(p) : p in Split(bracketSplit[3],",")];
-    return Nlist,primelist;
-end function;
-
-
-Nlist,primelist:=extractForm(set);
-//if #primelist ge 3 then
-    time sols:=solveXYZ(primelist);
-    out:="../Data/Test/" cat seqEnumToString(primelist) cat ".txt";
-    fprintf out, "%o\n",sols;
-//end if;
-exit;

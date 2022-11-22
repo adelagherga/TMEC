@@ -20,9 +20,15 @@ COMMENTS:
 REFERENCE:
     B.M.M.De Weger. Algorithms For Diophantine Equations. PhD thesis, University of Leiden, 1988.
 
-
 */
 
+ChangeDirectory("./Code");
+load "./parseIO.m";
+load "../solveXYZ.m";
+SetAutoColumns(false);
+SetColumns(235);
+
+ChangeDirectory("./XYZ2");
 Attach("./XYZ2Code/MagmaXYZ2IntrinsicFunctions/ConvertpAdic.m");
 Attach("./XYZ2Code/MagmaXYZ2IntrinsicFunctions/pAdicLog.m");
 Attach("./XYZ2Code/MagmaXYZ2IntrinsicFunctions/SFactors.m");
@@ -32,7 +38,7 @@ Attach("./XYZ2Code/MagmaXYZ2IntrinsicFunctions/QsqrtDPrecision.m");
 Attach("./XYZ2Code/MagmaXYZ2IntrinsicFunctions/BinaryRecurrenceSequence.m");
 Attach("./XYZ2Code/MagmaXYZ2IntrinsicFunctions/BinaryRecurrenceSequencePeriod.m");
 
-load "./XYZ2Code/MagmaXYZFunctions/SUnitXYZ.m";
+load "../solveXYZ.m";
 load "./XYZ2Code/MagmaXYZ2Functions/SUnitXYZtoSUnitXYZ2.m";
 load "./XYZ2Code/MagmaXYZ2Functions/ExponentsXYZ2.m";
 load "./XYZ2Code/MagmaXYZ2Functions/DecompositionOfPrimesXYZ2.m";
@@ -68,58 +74,94 @@ load "./XYZ2Code/MagmaXYZ2Functions/FPRestrictionsXYZ2.m";
 load "./XYZ2Code/MagmaXYZ2Functions/FPParametersXYZ2.m";
 load "./XYZ2Code/MagmaXYZ2Functions/FinalSearchXYZ2.m";
 
+solTest:=function(u,y1,y2)
+    X:=u^2;
+    Y:=y1*y2;
+    Z:=Integers()!((y1+y2)/2);
+    if (X+Y eq Z^2) and (X ge Y) and (Z gt 0) then
+	return {[X,Y,Z]};
+    end if;
+    return {};
+end function;
+
+convertToXYZ2:=function(xyzsols)
+    /*
+      <description>
+
+      Parameters
+          <param>: <param type>
+	      <param description>
+      Returns
+          <param>: <param type>
+	      <param description>
+   */
+
+    sols:={};
+    for s in xyzsols do
+	a,b,c:=Explode(s);
+	if IsEven(a) then
+	    sols:=sols join solTest(Integers()!(a/2),b,c);
+	    sols:=sols join solTest(b,2*c,2*a);
+	    sols:=sols join solTest(c,2*a,-2*b);
+	elif IsEven(b) then
+            sols:=sols join solTest(a,2*b,2*c);
+	    sols:=sols join solTest(Integers()!(b/2),c,a);
+	    sols:=sols join solTest(c,2*a,-2*b);
+	else
+	    assert IsEven(c);
+            sols:=sols join solTest(a,2*b,2*c);
+	    sols:=sols join solTest(b,2*c,2*a);
+	    sols:=sols join solTest(Integers()!(c/2),a,-b);
+	end if;
+    end for;
+    return sols;
+end function;
 
 function SUnitXYZ2(S)
     Z:= IntegerRing();
     D0:= ExponentsXYZ2(S,0);    // generates all possible values for D:= ( (p_1)^(b_1) )* /cdots *( (p_n)^(b_n) ), where S:= [p_1, ..., p_n], b_i in {0,1}
 
+    time xyzsol:=solveXYZ(S);       // computes all [x,y,z] where x + y = z
+    sols:=convertToXYZ2(xyzsols);
+    Exclude(~D0,1);
+
     AllSolns:= [];      // stores all [x,y,z] where x + y = z^2
     for D in D0 do
         print "D:", D;
-        if D eq 1 then
-            xyzsol:= SUnitXYZ(S);       // computes all [x,y,z] where x + y = z
-            sol:= [];   // stores [x,y,z] where x + y = z^2 coming from SUnitXYZ.m
-            for s in xyzsol do
-                sol:= sol cat SUnitXYZtoSUnitXYZ2(s);   // converts xyz solutions to [x,y,z] where x + y = z^2
+        b0, SplitPrimes, NonSplitPrimes:= DecompositionOfPrimesXYZ2(S,D);
+        if IsEmpty(SplitPrimes) then
+            A0:= AlphasXYZ2([],b0,SplitPrimes,NonSplitPrimes,S,D);  // generates all alphas in the case I, I_ == []
+            for A in A0 do
+                AllSolns:= AllSolns cat SymmetricCaseXYZ2(A,S,D);   // generates [x,y,z] where x + y = z in the symmetric case
             end for;
-            AllSolns:= AllSolns cat sol;        // appends solutions from SUnitXYZ.m
         else
-            K<sqrtD>:= QuadraticField(D);       // generates real quadratic field K = Q(Sqrt(D))
-            R:= RingOfIntegers(K);      // generates ring of integers of K
-            b0, SplitPrimes, NonSplitPrimes:= DecompositionOfPrimesXYZ2(S,D);
-            if IsEmpty(SplitPrimes) then
-                A0:= AlphasXYZ2([],b0,SplitPrimes,NonSplitPrimes,S,D);  // generates all alphas in the case I, I_ == []
+            J:= IIPrimeXYZ2(SplitPrimes,D);         // generates all possible I, I_
+            for II_ in J do
+                A0:= AlphasXYZ2(II_,b0,SplitPrimes,NonSplitPrimes,S,D);     // generates all alphas in the case I, I_ != []
+                FA:= MaximalC12BoundXYZ2(II_,b0,SplitPrimes,NonSplitPrimes,S,D);    // computes maximal upper bound on U0, M0, M0_, absn
+                U0, M0, M0_, absn:= SmallestLatticeBoundXYZ2(II_,FA,S);     // generates reduced bounds U0, M0, M0_, absn
                 for A in A0 do
-                    AllSolns:= AllSolns cat SymmetricCaseXYZ2(A,S,D);   // generates [x,y,z] where x + y = z in the symmetric case
-                end for;
-            else
-                J:= IIPrimeXYZ2(SplitPrimes,D);         // generates all possible I, I_
-                for II_ in J do
-                    A0:= AlphasXYZ2(II_,b0,SplitPrimes,NonSplitPrimes,S,D);     // generates all alphas in the case I, I_ != []
-                    FA:= MaximalC12BoundXYZ2(II_,b0,SplitPrimes,NonSplitPrimes,S,D);    // computes maximal upper bound on U0, M0, M0_, absn
-                    U0, M0, M0_, absn:= SmallestLatticeBoundXYZ2(II_,FA,S);     // generates reduced bounds U0, M0, M0_, absn
-                    for A in A0 do
-                        a:= A[3];
-                        U01:= U0;
-                        M01:= M0;
-                        M0_1:= M0_;
-                        absn1:= absn;
-                        if (#M0 + #M0_) gt 2 then
-                            U01, M01, M0_1, absn1, eqns:= FPParametersXYZ2(FA,U01,M01,M0_1,absn1,b0,A,S);   // reduces U0, M0, M0_, absn via Fincke-Pohst, when more than 1 prime splits in K
-                            AllSolns:= AllSolns cat eqns;   // appends solutions that may have come from the Fincke-Pohst reduction
+                    a:= A[3];
+                    U01:= U0;
+                    M01:= M0;
+                    M0_1:= M0_;
+                    absn1:= absn;
+                    if (#M0 + #M0_) gt 2 then
+                        U01, M01, M0_1, absn1, eqns:= FPParametersXYZ2(FA,U01,M01,M0_1,absn1,b0,A,S);   // reduces U0, M0, M0_, absn via Fincke-Pohst, when more than 1 prime splits in K
+                        AllSolns:= AllSolns cat eqns;   // appends solutions that may have come from the Fincke-Pohst reduction
+                    end if;
+                    xyz2:= FinalSearchXYZ2(U01,M01,M0_1,absn1,A,S,D);       // computes all [x,y,z] where x + y = z^2 below the reduced bounds U0, M0, M0_, absn
+                    for s in xyz2 do
+                        if (s in AllSolns) eq false then
+                            Append(~AllSolns, s);
                         end if;
-                        xyz2:= FinalSearchXYZ2(U01,M01,M0_1,absn1,A,S,D);       // computes all [x,y,z] where x + y = z^2 below the reduced bounds U0, M0, M0_, absn
-                        for s in xyz2 do
-                            if (s in AllSolns) eq false then
-                                Append(~AllSolns, s);
-                            end if;
-                        end for;
                     end for;
                 end for;
-            end if;
+            end for;
         end if;
-        Append(~AllSolns, [D,-D,0]);    // appends the trivial solution [x,y,z]:= [D,-D,0]
-    end for;
+    end if;
+    Append(~AllSolns, [D,-D,0]);    // appends the trivial solution [x,y,z]:= [D,-D,0]
+
 
     FinalSolns:= [];
     for s in AllSolns do
@@ -136,3 +178,39 @@ function SUnitXYZ2(S)
 
     return FinalSolns;
 end function;
+
+
+
+extractForm:=function(set)
+    /*
+      Extracts Nlist,alist,a,primelist,[i,j] from the string set.
+
+      Parameters
+          set: MonStgElt
+              A string in the format "Nlist,alist,a,primelist,[i,j]".
+      Returns
+          Nlist: SeqEnum
+              A list of conductors.
+          alist: SeqEnum
+              A list of coefficients a_0, a_1,...,a_3.
+          a: RngIntElt
+          primelist: SeqEnum
+              A list of rational primes p_1, p_2,...,p_v.
+          ij: SeqEnum
+              The index (i,j) of the corresponding S-unit equation.
+   */
+    bracketSplit:=Split(set,"[]");
+    assert (#bracketSplit eq 3);
+    Nlist:=[StringToInteger(N) : N in Split(bracketSplit[1],",")];
+    primelist:=[StringToInteger(p) : p in Split(bracketSplit[3],",")];
+    return Nlist,primelist;
+end function;
+
+
+Nlist,primelist:=extractForm(set);
+//if #primelist ge 3 then
+    time sols:=solveXYZ(primelist);
+    out:="../Data/Test/" cat seqEnumToString(primelist) cat ".txt";
+    fprintf out, "%o\n",sols;
+//end if;
+exit;
