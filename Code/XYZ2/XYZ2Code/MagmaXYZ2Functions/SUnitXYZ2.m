@@ -29,9 +29,12 @@ SetAutoColumns(false);
 SetColumns(235);
 
 ChangeDirectory("./XYZ2");
-Attach("./XYZ2/XYZ2Intrinsics.m");
+Attach("./XYZ2Code/XYZ2Intrinsics.m");
+load "./FinckePohstCode/F3Approx.m";
+load "./FinckePohstCode/MyCholesky.m";
+load "./FinckePohstCode/ShortVectors.m";
+load "./FinckePohstCode/FinckePohst.m";
 
-load "./XYZ2Code/MagmaXYZ2Functions/SUnitXYZtoSUnitXYZ2.m";
 load "./XYZ2Code/MagmaXYZ2Functions/ExponentsXYZ2.m";
 load "./XYZ2Code/MagmaXYZ2Functions/DecompositionOfPrimesXYZ2.m";
 load "./XYZ2Code/MagmaXYZ2Functions/IdealExponentsXYZ2.m";
@@ -39,7 +42,6 @@ load "./XYZ2Code/MagmaXYZ2Functions/IdealConjugatesXYZ2.m";
 load "./XYZ2Code/MagmaXYZ2Functions/AlphasXYZ2.m";
 load "./XYZ2Code/MagmaXYZ2Functions/FundamentalUnitXYZ2.m";
 load "./XYZ2Code/MagmaXYZ2Functions/IUFactorsXYZ2.m";
-load "./XYZ2Code/MagmaXYZ2Functions/SymmetricCaseZerosXYZ2.m";
 load "./XYZ2Code/MagmaXYZ2Functions/SymmetricCaseXYZ2.m";
 load "./XYZ2Code/MagmaXYZ2Functions/SplitPrimePropertiesXYZ2.m";
 load "./XYZ2Code/MagmaXYZ2Functions/IIPrimeXYZ2.m";
@@ -110,21 +112,23 @@ convertToXYZ2:=function(xyzsols)
 end function;
 
 function SUnitXYZ2(S)
-    Z:= IntegerRing();
+    Sort(~S);
+    assert 2 in S;
+    s:=#S;
+    assert s ge 2;
     D0:= ExponentsXYZ2(S,0);    // generates all possible values for D:= ( (p_1)^(b_1) )* /cdots *( (p_n)^(b_n) ), where S:= [p_1, ..., p_n], b_i in {0,1}
 
-    time xyzsol:=solveXYZ(S);       // computes all [x,y,z] where x + y = z
+    time xyzsols:=solveXYZ(S);       // computes all [x,y,z] where x + y = z
     sols:=convertToXYZ2(xyzsols);
     Exclude(~D0,1);
 
-    AllSolns:= [];      // stores all [x,y,z] where x + y = z^2
     for D in D0 do
         print "D:", D;
         b0, SplitPrimes, NonSplitPrimes:= DecompositionOfPrimesXYZ2(S,D);
         if IsEmpty(SplitPrimes) then
             A0:= AlphasXYZ2([],b0,SplitPrimes,NonSplitPrimes,S,D);  // generates all alphas in the case I, I_ == []
             for A in A0 do
-                AllSolns:= AllSolns cat SymmetricCaseXYZ2(A,S,D);   // generates [x,y,z] where x + y = z in the symmetric case
+                sols:=sols join SymmetricCaseXYZ2(A,S,D);   // generates [x,y,z] where x + y = z in the symmetric case
             end for;
         else
             J:= IIPrimeXYZ2(SplitPrimes,D);         // generates all possible I, I_

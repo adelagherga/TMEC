@@ -1,8 +1,98 @@
+// SymmetricCaseZerosXYZ2.m
+
+/*
+INPUT:
+    b:= an integer partially determining the recurrence relation
+    c:= an integer partially determining the recurrence relation
+    u_0:= an integer; the 0th term of the binary recurrence sequence
+    u_1:= an integer; the 1st term of the binary recurrence sequence
+    p:= a rational prime
+    n:= an integer > 0
+
+OUTPUT:
+    Is:= [i_1,...,i_k], where i_j is the index of G(i) such that G(i_j):= 0 mod (p^n);
+        G(i):= the binary recurrence sequence defined by initial conditions u_0 and u_1 and recurrence relation
+            u_{n+2} = b*( u_{n+1} )+c*( u_n )
+
+COMMENTS:
+    Used in the Symmetric Case for SUnitXYZ2.m
+
+EXAMPLE:
+    > b:= 3;
+    > c:= 1;
+    > u_0:= 2;
+    > u_1:= 1;
+    > p:= 37;
+    > n:= 20;
+    > SymmetricCaseZerosXYZ2(b,c,u_0,u_1,p,n);
+    [ 7977515069008045655059677577607, 19851222897834046082276943035694,
+    31724930726660046509494208493781, 43598638555486046936711473951868 ]
+
+    > // verification:
+    > i:= SymmetricCaseZerosXYZ2(b,c,u_0,u_1,p,n)[1];
+    > BinaryRecurrenceSequence(b,c,u_0,u_1,i,p^n);
+    0
+
+*/
+
+
+function SymmetricCaseZerosXYZ2(b,c,u_0,u_1,p,n)
+    periodn0:= BinaryRecurrenceSequencePeriod(b,c,u_0,u_1,p);   // computes the period mod p of the binary recurrence sequence, G(i)
+    Is0:= [];   // stores indices i for which the binary recurrence sequence, G(i), is divisible by p in its period mod p; ie. where G(i) = 0 mod p
+
+    for i in [0..(periodn0 - 1)] do   // runs through all elements in the period mod p
+        if BinaryRecurrenceSequence(b,c,u_0,u_1,i,p) eq 0 then  // if G(i) mod p is 0 for all i in the period mod p
+            Append(~Is0,i);
+        end if;
+    end for;
+
+    if IsEmpty(Is0) eq true then
+        Is:= [];        // if no elements in the period mod p are divisible by p, returns the empty set, Is; ie there are no i such that G(i) = 0 mod p
+
+    elif n eq 1 then
+        Is:= Is0;       // if n == 1, returns Is, the set of indices for which the binary recurrene sequence, G(i), is 0 mod p in its period mod p, [1, ..., periodn0]
+    else        // if n > 1 and at least one index, i, in the range [1, ... , periodn], is divisible by p, it may also be divisible by p^n, where
+                    // periodn:= the period mod (p^n)
+
+        Isc:= Is0;      // generates the set of all indices in the range [1,...,periodn] which are divisible by p, where
+                            // periodn:= the period mod (p^n0)
+                            // everything not divisible by p cannot be divisible by p^n for n > 1, so we may ignore those indices
+        n0:= 2;         // computes SymmetricCaseZerosXYZ2 successively, for each exponent n0 <= n
+        while n0 le n do
+            periodn:= BinaryRecurrenceSequencePeriod(b,c,u_0,u_1,p^n0);         // computes the period mod (p^n0), n0 > 1, of the binary recurrence sequence, G(i)
+            t:= #(Is0)*periodn/periodn0 - #(Is0);       // computes the multiplication factor needed to increase the period of G(i) mod ( p^(n0-1) ) to the period of G(i) mod (p^n0)
+                                                        // ie. this is ( the number of 0s in the period mod (p^(n0-1)) )*( the scale difference between the period mod p^n0 and the period mod p^(n0-1) )
+                                                                // - ( the number of 0s in the period mod (p^(n0-1)) )
+            for j in [1..t] do
+                Append(~Isc, Isc[j] + periodn0);        // computes the indices in the period mod p^n0 which are divisible by p^(n0-1) by extending the 0s from the period mod (p^(n0-1)) to that of p^n0
+            end for;
+
+            A:= Isc;    // generates a copy of Isc, the elements in the period mod p^n0 which are divisible by p^(n0-1)
+            for i in A do
+                if  BinaryRecurrenceSequence(b,c,u_0,u_1,i,p^n0) ne 0 then      // removes the index i if G(i) - which is 0 mod (p^(n0-1)) - is not also 0 mod (p^n0)
+                    Exclude(~Isc, i);   // stores only those indices i for which G(i):= 0 mod (p^n0)
+                end if;
+            end for;
+
+            if IsEmpty(Isc) eq true then
+                break;  // terminates algorithm if none of the indices in the range of the period mod (p^(n0)) are 0 mod p^(n0); ie. since n0 <= n, there are no indices which are 0 mod (p^n)
+            else
+                periodn0:= periodn;     // updates the period; periodn0 represents the period mod (p^(n0-1))
+                n0:= n0 + 1;
+                Is0:= Isc;      // updates the set of indices which are 0 mod (p^(n0-1))
+            end if;
+        end while;
+
+        Is:= Isc;
+    end if;
+    return Is;
+end function;
+
 //SymmetricCaseXYZ2.m
 
 /*
 INPUT:
-    A:= [ q, q_, alpha, tplus1 ] (as output by AlphasXYZ2.m), where 
+    A:= [ q, q_, alpha, tplus1 ] (as output by AlphasXYZ2.m), where
         q:= < prod_i, [< p, h_i, pi, pi_, P , d_i > : j in [1..n] ] >, such that
             prod_i:= prod_{i in I}(P_i)^(d_i), the product of prime ideals of I which contribute to alpha
             p:= prime of S which splits in K
@@ -23,26 +113,26 @@ INPUT:
             d_i:= the exponent on the prime ideal P_i in prod_i
         alpha:= element of K, generating the ideal (alpha), where
             (alpha):= (2)^(b_0)*[prod_{i in I}(P_i)^(d_i)]*[prod_{i in I_}((P_i)_i)^(d_i)]*prod_{i = t + 1 ... s}P_i^(a_i)
-        tplus1:= the product of primes of S from NonSplitPrimes whose prime ideals above contribute to alpha as 
+        tplus1:= the product of primes of S from NonSplitPrimes whose prime ideals above contribute to alpha as
             prod_{i = t + 1 ... s}P_i^(a_i)
     S:= [p_1,...,p_s], p_i primes in S
     D:= squarefree part of x, where
         x:= Du^2 and x + y = z^2
-            
+
 OUTPUT:
     eqns:= [[x_1,y_1,z_1],...,[x_n,y_n,z_n]], all S-unit equations x_i + y_i = (z_i)^2 corresponding to D, a, in the symmetric case
         ie. in the case where I == I_ == []
-    
+
 COMMENTS:
     In the case where I == I_ == [] (the "symmetric" case), none of the primes of S split in K, hence (since t == 0) G_{alpha} becomes
         G_a(n):= ( alpha/(2*sqrtD) )*( (eps)^n ) - ( alpha_/(2*sqrtD) )*( (eps_)^n ).
-    That is, G_a(n) is a linear binary recurrence sequence, with G_a(n+2) = A*G_a(n+1) - B*G_a(n), where 
-        A:= eps + eps_ 
+    That is, G_a(n) is a linear binary recurrence sequence, with G_a(n+2) = A*G_a(n+1) - B*G_a(n), where
+        A:= eps + eps_
         B:= (eps)*(eps_)
     In this situation, elementary congruence arguments are applied to solve
         G_a(n):= ( alpha/(2*sqrtD) )*( (eps)^n ) - ( alpha_/(2*sqrtD) )*( (eps_)^n ):= +/- prod_{ i \in IU} (p_i)^(u_i):= +/- u,
     hence to compute all solutions to x + y = z^2 in the symmetric case
-    
+
 EXAMPLE:
     > a:= sqrtD;
     > S:= [2,3,5,7];
@@ -52,7 +142,7 @@ EXAMPLE:
         [ 12, -3, 3 ],
         [ 147, -3, 12 ]
     ]
-    
+
 */
 
 
@@ -61,38 +151,38 @@ function SymmetricCaseXYZ2(A,S,D)
     Sort(~S);   // orders primes by size p_1 < ... < p_s
     K<sqrtD>:= QuadraticField(D);       // generates real quadratic field K = Q(Sqrt(D))
     R:= RingOfIntegers(K);      // generates ring of integers of K
-    
+
     a:= A[3];
     a_:= Conjugate(a);
     eps:= FundamentalUnitXYZ2(D);
     eps_:= Conjugate(eps);
-    
+
     if ideal<R|a> ne ideal<R|a_> then   // verification that indeed (a)O_K == (a_)O_K: if false, there is an problem in SymmetricCaseXYZ2.m
         print "There is a problem in SymmetricCaseXYZ2: the ideals (a)O_K and (a_)O_K are not the same";
     end if;
-    
+
     IU:= IUFactorsXYZ2([],a,S,D);       // generates the set of primes [p_1,...,p_n] of S such that G_a:= G_{alpha} mod p_i == 0, where G_a:= G_{alpha}:= prod_{i in IU}(p_i)^(u_i); in this case, II_:= []
-    
+
     b:= Z! (eps+eps_);  // equivalently, 2*Re(eps), an integer
     c:= Z! -(eps*eps_);         // equivalently, Norm(eps):= +/- 1
     u_0:= Z! ( (a/(2*sqrtD))*(eps)^(0) - (a_/(2*sqrtD))*(eps_)^(0) );   // generates G_a(0), an integer; this is the 0th term of the binary recurrence sequence G_a(n)
     u_1:= Z! ( (a/(2*sqrtD))*(eps)^(1) - (a_/(2*sqrtD))*(eps_)^(1) );   // generates G_a(1), an integer; this is the 1st term of the binary recurrence sequence G_a(n)
-    
-    l:= [];     // stores [[p_1,m_1],...,[p_n,m_n]], where p_i is a prime of IU and m_i is an integer such that G_a(n) != 0 mod (p_i)^( (m_i)+1 ) for all integers, n, but 
+
+    l:= [];     // stores [[p_1,m_1],...,[p_n,m_n]], where p_i is a prime of IU and m_i is an integer such that G_a(n) != 0 mod (p_i)^( (m_i)+1 ) for all integers, n, but
                     // G_a(n):= 0 mod (p_i)^(m_i) for at least one integer n; hence ord_{p_i}( G_a(n) ) <= m_i
     for p in IU do      // runs through all primes p in IU; ie. these are the only primes of S for which G_a(n):= 0 mod p (so p|G_a(n))
-        
+
         m:= 1;  // sets initial exponent, m:= 1
         bound:= 3;      // sets initial bound on m to 3
         r:= [];         // for each m, stores the number of times G_a(n) is divisible by p^m
         while (m le bound) do   // note that after m:= 5, computation time takes noticable longer since G_a(n) increases rapidly and the periods are harder to compute
 
             I:= SymmetricCaseZerosXYZ2(b,c,u_0,u_1,p,m);        // determines the indices i of G_a(i) such that G_a(i):= 0 mod (p^m)
-            
+
             if IsEmpty(I) eq true then  // if I == [], then G_a(n) != 0 mod (p^m) for all n; otherwise if G_a(n):= 0 mod (p^m), then I would contain 'n'
                 Append(~l, [p,m-1]);    // if G_a(n) != 0 mod (p^m) for all n in the period mod (p^m), hence for all n, then ord_p(G_a(n)) <= m-1
                 break;  // exits the while loop
-            
+
             elif u_0 eq 0 then  // if G_a(0) == 0
                 break;  // exits the while loop; if G_a(0) == 0, then I will contain at least the index 0 for every m
 
@@ -111,43 +201,43 @@ function SymmetricCaseXYZ2(A,S,D)
                 m:= m + 1;
             end if;
         end while;
-        
+
         if (p in [ell[1] : ell in l] eq false) then     // if l does not contain the prime p
             I:= SymmetricCaseZerosXYZ2(b,c,u_0,u_1,p,1);        // determines the indices i of G_a(i) such that G_a(i):= 0 mod p; Nb. I != [] as otherwise l would contain p
-            
+
             if (#I eq 1) and (u_0 eq 0) then    // if the only element that is divisible by p is the first, u_0
-                j:= BinaryRecurrenceSequencePeriod(b,c,u_0,u_1,p);      // computes the period of G_a mod p, j; 
-                                                                            // j corresponds to the first element of the period mod p such that G_a(j) != 0 and G_a(j) == 0 mod p 
+                j:= BinaryRecurrenceSequencePeriod(b,c,u_0,u_1,p);      // computes the period of G_a mod p, j;
+                                                                            // j corresponds to the first element of the period mod p such that G_a(j) != 0 and G_a(j) == 0 mod p
             else
                 for k in I do
                     if (BinaryRecurrenceSequence(b,c,u_0,u_1,k,0) ne 0) then
-                        j:= k;  // computes the index j, the first element of the period mod p such that G_a(j) != 0 and G_a(j) == 0 mod p 
+                        j:= k;  // computes the index j, the first element of the period mod p such that G_a(j) != 0 and G_a(j) == 0 mod p
                         break k;
                     end if;
                 end for;
             end if;
-            
+
             m:= 1;
             while Abs(BinaryRecurrenceSequence(b,c,u_0,u_1,j,0)) le &*( [q^(Valuation(BinaryRecurrenceSequence(b,c,u_0,u_1,j,0),q)) : q in IU] ) do
             // if Abs(G_a(j)) <= prod( (p_i)^(h_{p_i}) ) over all primes, p_i, of IU, where h_{p_i} = ord_{p_i}( G_a(j) )
                 m:= m + 1;      // increases the exponent on p until the index j is reached such that G_a(j) > prod( (p_i)^(h_{p_i}) ) over all primes, p_i, of IU, where h_{p_i} = ord_{p_i}( G_a(j) )
                 I:= SymmetricCaseZerosXYZ2(b,c,u_0,u_1,p,m);        // determines the indices i of G_a(i) such that G_a(i):= 0 mod (p^m)
-                
+
                 if (#I eq 1) and (u_0 eq 0) then    // if the only element that is divisible by p^m is the first, u_0
-                    j:= BinaryRecurrenceSequencePeriod(b,c,u_0,u_1,p^m);        // computes the period of G_a mod (p^m), j; 
-                                                                                    // j corresponds to the first element of the period mod (p^m) such that G_a(j) != 0 and G_a(j) == 0 mod (p^m) 
+                    j:= BinaryRecurrenceSequencePeriod(b,c,u_0,u_1,p^m);        // computes the period of G_a mod (p^m), j;
+                                                                                    // j corresponds to the first element of the period mod (p^m) such that G_a(j) != 0 and G_a(j) == 0 mod (p^m)
                 elif IsEmpty(I) eq true then    // if I == [], then G_a(n) != 0 mod (p^m) for all n; otherwise if G_a(n):= 0 mod (p^m), then I would contain 'n'
-                    break;      // exits the while loop       
-            
+                    break;      // exits the while loop
+
                 else
                     for k in I do
                         if (BinaryRecurrenceSequence(b,c,u_0,u_1,k,0) ne 0) then
-                            j:= k;  // computes the index j, the first element of the period mod p such that G_a(j) != 0 and G_a(j) == 0 mod p 
+                            j:= k;  // computes the index j, the first element of the period mod p such that G_a(j) != 0 and G_a(j) == 0 mod p
                             break k;
                         end if;
                     end for;
                 end if;
-           
+
             end while;
             Append(~l, [p,m-1]);    // if G_a(n) != 0 mod (p^m) for all n in the period mod (p^m), hence for all n, then ord_p(G_a(n)) <= m-1
         end if;
@@ -157,15 +247,15 @@ function SymmetricCaseXYZ2(A,S,D)
     if BinaryRecurrenceSequence(b,c,u_0,u_1,i,0) eq 0 then
         i:= i + 1;      // computes the ith term of G_a(n) such that G_a(i) != 0
     end if;
-    
-    soln:= [];  // stores S-unit solutions x + y = z^2
+
+    soln:= {};  // stores S-unit solutions x + y = z^2
     LargestG_alpha:= NonEmptyProduct([ell[1]^ell[2] : ell in l]);       // computes the largest G_{alpha} possible, based on the upper bounds on each exponent m_i on p_i in l
     G_alpha:= Z! BinaryRecurrenceSequence(b,c,u_0,u_1,i,0);
-    
+
     while Abs(G_alpha) le LargestG_alpha do
-        rem, factors:= SFactors( G_alpha, IU );    
+        rem, factors:= SFactors( G_alpha, IU );
         if (rem eq 1) or (rem eq -1) then       // if G_a:= G_alpha is a nonzero integer <= LargestG_alpha, divisible only by primes of IU
-    
+
             u:= G_alpha;        // u:= G_a(i)
             z:= Z! ( (a/(2))*(eps)^(i) + (a_/2)*(eps_)^(i) );
             x:= Z! ((sqrtD*u)^2);
@@ -174,12 +264,12 @@ function SymmetricCaseXYZ2(A,S,D)
                 i:= i + 1;      // omits G_alpha if any one of x,y,z is identically 0
                 G_alpha:= Z! BinaryRecurrenceSequence(b,c,u_0,u_1,i,0);         // updates G_alpha
             else
-                if (x ge y) and ([x,y,z] in soln eq false) then
-                    Append(~soln,[x,y,z]);
-                elif (x lt y) and ([y,x,z] in soln eq false) then
-                    Append(~soln,[y,x,z]);
+                if (x ge y) then
+		    soln:=soln join {[x,y,z]};
+                elif (x lt y) then
+                    soln:=soln join {[y,x,z]};
                 end if;
-                
+
                 i:= i + 1;
                 G_alpha:= Z! BinaryRecurrenceSequence(b,c,u_0,u_1,i,0);         // updates G_alpha
             end if;
