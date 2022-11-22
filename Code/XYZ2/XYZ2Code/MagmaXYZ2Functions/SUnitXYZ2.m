@@ -1,0 +1,138 @@
+//SUnitXYZ2.m
+
+/*
+INPUT:
+    S:= [p_1,...,p_s], p_i primes in S
+
+OUTPUT:
+    FinalSolns:= [[x_1,y_1,z_1],...,[x_n,y_n,z_n]], all S-unit equations x_i + y_i = z_i^2, where
+        x_i, y_i:= prod_{i:= 1 to s} p_i^{a_i} for rational integers x_i, y_i such that
+            gcd(x_i, y_i) is squarefree
+            x_i >= y_i and x_i >= 0
+        z_i:= a rational integer, > 0
+
+COMMENTS:
+    Computes all S-unit equations x + y = z^2
+    This algorithm uses the Fincke-Pohst algorithm and LLL
+
+    Based on the algorithm found in Chapter 7 of the Reference
+
+REFERENCE:
+    B.M.M.De Weger. Algorithms For Diophantine Equations. PhD thesis, University of Leiden, 1988.
+
+
+*/
+
+Attach("./XYZ2Code/MagmaXYZ2IntrinsicFunctions/ConvertpAdic.m");
+Attach("./XYZ2Code/MagmaXYZ2IntrinsicFunctions/pAdicLog.m");
+Attach("./XYZ2Code/MagmaXYZ2IntrinsicFunctions/SFactors.m");
+Attach("./XYZ2Code/MagmaXYZ2IntrinsicFunctions/NonEmptyMaxMinProductSum.m");
+Attach("./XYZ2Code/MagmaXYZ2IntrinsicFunctions/Ordp.m");
+Attach("./XYZ2Code/MagmaXYZ2IntrinsicFunctions/QsqrtDPrecision.m");
+Attach("./XYZ2Code/MagmaXYZ2IntrinsicFunctions/BinaryRecurrenceSequence.m");
+Attach("./XYZ2Code/MagmaXYZ2IntrinsicFunctions/BinaryRecurrenceSequencePeriod.m");
+
+load "./XYZ2Code/MagmaXYZFunctions/SUnitXYZ.m";
+load "./XYZ2Code/MagmaXYZ2Functions/SUnitXYZtoSUnitXYZ2.m";
+load "./XYZ2Code/MagmaXYZ2Functions/ExponentsXYZ2.m";
+load "./XYZ2Code/MagmaXYZ2Functions/DecompositionOfPrimesXYZ2.m";
+load "./XYZ2Code/MagmaXYZ2Functions/IdealExponentsXYZ2.m";
+load "./XYZ2Code/MagmaXYZ2Functions/IdealConjugatesXYZ2.m";
+load "./XYZ2Code/MagmaXYZ2Functions/AlphasXYZ2.m";
+load "./XYZ2Code/MagmaXYZ2Functions/FundamentalUnitXYZ2.m";
+load "./XYZ2Code/MagmaXYZ2Functions/IUFactorsXYZ2.m";
+load "./XYZ2Code/MagmaXYZ2Functions/SymmetricCaseZerosXYZ2.m";
+load "./XYZ2Code/MagmaXYZ2Functions/SymmetricCaseXYZ2.m";
+load "./XYZ2Code/MagmaXYZ2Functions/SplitPrimePropertiesXYZ2.m";
+load "./XYZ2Code/MagmaXYZ2Functions/IIPrimeXYZ2.m";
+load "./XYZ2Code/MagmaXYZ2Functions/nExponentsXYZ2.m";
+load "./XYZ2Code/MagmaXYZ2Functions/C1pnXYZ2.m";
+load "./XYZ2Code/MagmaXYZ2Functions/LambdaBoundXYZ2.m";
+load "./XYZ2Code/MagmaXYZ2Functions/KappaBoundXYZ2.m";
+load "./XYZ2Code/MagmaXYZ2Functions/Kappa_BoundXYZ2.m";
+load "./XYZ2Code/MagmaXYZ2Functions/C12BoundXYZ2.m";
+load "./XYZ2Code/MagmaXYZ2Functions/MaximalC12BoundXYZ2.m";
+load "./XYZ2Code/MagmaXYZ2Functions/LambdaLogpXYZ2.m";
+load "./XYZ2Code/MagmaXYZ2Functions/LambdaInitialSortXYZ2.m";
+load "./XYZ2Code/MagmaXYZ2Functions/LambdaLatticeXYZ2.m";
+load "./XYZ2Code/MagmaXYZ2Functions/HenselLiftXYZ2.m";
+load "./XYZ2Code/MagmaXYZ2Functions/KappaInitialSortXYZ2.m";
+load "./XYZ2Code/MagmaXYZ2Functions/Kappa_InitialSortXYZ2.m";
+load "./XYZ2Code/MagmaXYZ2Functions/KappaLatticeXYZ2.m";
+load "./XYZ2Code/MagmaXYZ2Functions/Kappa_LatticeXYZ2.m";
+load "./XYZ2Code/MagmaXYZ2Functions/SmallestLatticeBoundXYZ2.m";
+load "./XYZ2Code/MagmaXYZ2Functions/FPRestrictionsKappaXYZ2.m";
+load "./XYZ2Code/MagmaXYZ2Functions/FPRestrictionsKappa_XYZ2.m";
+load "./XYZ2Code/MagmaXYZ2Functions/FPRestrictionsLambdaXYZ2.m";
+load "./XYZ2Code/MagmaXYZ2Functions/FPRestrictionsXYZ2.m";
+load "./XYZ2Code/MagmaXYZ2Functions/FPParametersXYZ2.m";
+load "./XYZ2Code/MagmaXYZ2Functions/FinalSearchXYZ2.m";
+
+
+function SUnitXYZ2(S)
+    Z:= IntegerRing();
+    D0:= ExponentsXYZ2(S,0);    // generates all possible values for D:= ( (p_1)^(b_1) )* /cdots *( (p_n)^(b_n) ), where S:= [p_1, ..., p_n], b_i in {0,1}
+
+    AllSolns:= [];      // stores all [x,y,z] where x + y = z^2
+    for D in D0 do
+        print "D:", D;
+        if D eq 1 then
+            xyzsol:= SUnitXYZ(S);       // computes all [x,y,z] where x + y = z
+            sol:= [];   // stores [x,y,z] where x + y = z^2 coming from SUnitXYZ.m
+            for s in xyzsol do
+                sol:= sol cat SUnitXYZtoSUnitXYZ2(s);   // converts xyz solutions to [x,y,z] where x + y = z^2
+            end for;
+            AllSolns:= AllSolns cat sol;        // appends solutions from SUnitXYZ.m
+        else
+            K<sqrtD>:= QuadraticField(D);       // generates real quadratic field K = Q(Sqrt(D))
+            R:= RingOfIntegers(K);      // generates ring of integers of K
+            b0, SplitPrimes, NonSplitPrimes:= DecompositionOfPrimesXYZ2(S,D);
+            if IsEmpty(SplitPrimes) then
+                A0:= AlphasXYZ2([],b0,SplitPrimes,NonSplitPrimes,S,D);  // generates all alphas in the case I, I_ == []
+                for A in A0 do
+                    AllSolns:= AllSolns cat SymmetricCaseXYZ2(A,S,D);   // generates [x,y,z] where x + y = z in the symmetric case
+                end for;
+            else
+                J:= IIPrimeXYZ2(SplitPrimes,D);         // generates all possible I, I_
+                for II_ in J do
+                    A0:= AlphasXYZ2(II_,b0,SplitPrimes,NonSplitPrimes,S,D);     // generates all alphas in the case I, I_ != []
+                    FA:= MaximalC12BoundXYZ2(II_,b0,SplitPrimes,NonSplitPrimes,S,D);    // computes maximal upper bound on U0, M0, M0_, absn
+                    U0, M0, M0_, absn:= SmallestLatticeBoundXYZ2(II_,FA,S);     // generates reduced bounds U0, M0, M0_, absn
+                    for A in A0 do
+                        a:= A[3];
+                        U01:= U0;
+                        M01:= M0;
+                        M0_1:= M0_;
+                        absn1:= absn;
+                        if (#M0 + #M0_) gt 2 then
+                            U01, M01, M0_1, absn1, eqns:= FPParametersXYZ2(FA,U01,M01,M0_1,absn1,b0,A,S);   // reduces U0, M0, M0_, absn via Fincke-Pohst, when more than 1 prime splits in K
+                            AllSolns:= AllSolns cat eqns;   // appends solutions that may have come from the Fincke-Pohst reduction
+                        end if;
+                        xyz2:= FinalSearchXYZ2(U01,M01,M0_1,absn1,A,S,D);       // computes all [x,y,z] where x + y = z^2 below the reduced bounds U0, M0, M0_, absn
+                        for s in xyz2 do
+                            if (s in AllSolns) eq false then
+                                Append(~AllSolns, s);
+                            end if;
+                        end for;
+                    end for;
+                end for;
+            end if;
+        end if;
+        Append(~AllSolns, [D,-D,0]);    // appends the trivial solution [x,y,z]:= [D,-D,0]
+    end for;
+
+    FinalSolns:= [];
+    for s in AllSolns do
+        sqfree,sq:= Squarefree(GCD(Z!s[1],Z!s[2]));   // computes the squarefree integer sqfree as well as an integer sq, such that GCD(x,y) = (sqfree)*(sq^2)
+        if sq ne 1 then         // if GCD(x,y) is not squarefree
+            Reduceds:= [s[1]/(sq^2), s[2]/(sq^2), s[3]/sq];
+            if (Reduceds in FinalSolns) eq false then
+                Append(~FinalSolns, Reduceds);  // appends only the reduced solution, [x,y,z] with GCD(x,y) squarefree, to FinalSolns
+            end if;
+        elif (s in FinalSolns) eq false then    // appends the solution, [x,y,z] to FinalSolns; this solution is reduced, ie. GCD(x,y) is squarefree
+            Append(~FinalSolns, s);
+        end if;
+    end for;
+
+    return FinalSolns;
+end function;
