@@ -30,11 +30,10 @@ SetColumns(235);
 
 ChangeDirectory("./XYZ2");
 Attach("./XYZ2Code/XYZ2Intrinsics.m");
-load "./FinckePohstCode/F3Approx.m";
-load "./FinckePohstCode/MyCholesky.m";
-load "./FinckePohstCode/ShortVectors.m";
-load "./FinckePohstCode/FinckePohst.m";
-
+load "./XYZ2Code/MagmaXYZ2Functions/F3Approx.m";
+load "./XYZ2Code/MagmaXYZ2Functions/MyCholesky.m";
+load "./XYZ2Code/MagmaXYZ2Functions/ShortVectors.m";
+load "./XYZ2Code/MagmaXYZ2Functions/FinckePohst.m";
 load "./XYZ2Code/MagmaXYZ2Functions/ExponentsXYZ2.m";
 load "./XYZ2Code/MagmaXYZ2Functions/DecompositionOfPrimesXYZ2.m";
 load "./XYZ2Code/MagmaXYZ2Functions/IdealExponentsXYZ2.m";
@@ -199,7 +198,7 @@ end function;
 
 Nlist,primelist:=extractForm(set);
 //if #primelist ge 3 then
-    time sols:=solveXYZ(primelist);
+    time sols:=solveXYZ2(primelist);
     out:="../Data/Test/" cat seqEnumToString(primelist) cat ".txt";
     fprintf out, "%o\n",sols;
 //end if;
