@@ -159,9 +159,9 @@ function SUnitXYZ2(S)
         sqfree,sq:= Squarefree(GCD(Z!s[1],Z!s[2]));   // computes the squarefree integer sqfree as well as an integer sq, such that GCD(x,y) = (sqfree)*(sq^2)
 	FinalSolns:=FinalSolns join {[s[1]/(sq^2), s[2]/(sq^2), s[3]/sq]};
 
-        //if sq ne 1 then         // if GCD(x,y) is not squarefree
+//if sq ne 1 then         // if GCD(x,y) is not squarefree
 //            FinalSolns:=FinalSolns join {[s[1]/(sq^2), s[2]/(sq^2), s[3]/sq]};
-	    // appends only the reduced solution, [x,y,z] with GCD(x,y) squarefree, to FinalSolns
+// appends only the reduced solution, [x,y,z] with GCD(x,y) squarefree, to FinalSolns
 //        elif (s in FinalSolns) eq false then    // appends the solution, [x,y,z] to FinalSolns; this solution is reduced, ie. GCD(x,y) is squarefree
 //            Append(~FinalSolns, s);
 //        end if;
@@ -199,7 +199,8 @@ end function;
 Nlist,primelist:=extractForm(set);
 //if #primelist ge 3 then
     time sols:=SUnitXYZ2(primelist);
-    out:="../Data/Test/" cat seqEnumToString(primelist) cat ".txt";
+    out:="../../Data/Test/" cat seqEnumToString(primelist) cat ".txt";
     fprintf out, "%o\n",sols;
 //end if;
 exit;
+// NEED TO FIX DIRECTORY
