@@ -1,5 +1,5 @@
 /*
-computeEllipticCurvesTM.m
+runTMEC.m
 
 This function solves the Thue--Mahler equations defined in the string "set",
 computes the corresponding elliptic curves, and outputs the logfile and elliptic
@@ -27,14 +27,14 @@ Created
     24 August 2022
 */
 
-ChangeDirectory("./Code");
-LogFile:="../" cat dir cat "/TMLogfiles/" cat set cat "Log.txt";
+ChangeDirectory("./Code/TM");
+LogFile:="../../" cat dir cat "/TMLogfiles/" cat set cat "Log.txt";
 SetOutputFile(LogFile);
 load "./solveThueMahler.m";
 load "./convertTMToEllipticCurves.m";
 
 Nlist,alist,a,primelist,ij:=extractForm(set);
-OutFile:="../" cat dir cat "/TMOutfiles/" cat set cat "Out.csv";
+OutFile:="../../" cat dir cat "/TMOutfiles/" cat set cat "Out.csv";
 printf "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
 printf "Nlist:=%o; ij:=%o;\n",Nlist,ij;
 printf "alist:=%o; a:=%o; primelist:=%o;\n",alist,a,primelist;

@@ -163,18 +163,8 @@ assert (IsEmpty(primelist) eq false);
 caseNo:=sortByD(primelist);
 for i in [1..#caseNo] do
     assert i eq caseNo[i][1];
-    if (caseNo[i][2] ne 0) then
-	for j in [1..caseNo[i][2]] do
-	    fprintf OutFile, "%o,%o,%o\n",seqEnumToString(Nlist),
-		    seqEnumToString(primelist),seqEnumToString([i,j]);
-	end for;
-    end if;
+    j:=caseNo[i][2];
+    fprintf OutFile, "%o,%o,%o\n",seqEnumToString(Nlist),
+	    seqEnumToString(primelist),seqEnumToString([i,j]);
 end for;
-
-exit;
-
-Nlist,primelist:=extractForm(set);
-time sols:=SUnitXYZ2(primelist);
-out:="../../Data/Test/" cat seqEnumToString(primelist) cat ".txt";
-fprintf out, "%o\n",sols;
 exit;

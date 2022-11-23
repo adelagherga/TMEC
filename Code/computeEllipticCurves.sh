@@ -491,7 +491,7 @@ main () {
     # in parallel, for each <line> of ${TMForms}, storing GNU parallel's
     # progress in the file ${Dir}/optimalLog.
     TMForms=$(cat ${Dir}/TMForms.csv)
-    program="magma -b set:={} dir:='${Dir}' Code/optimalForm.m 2>&1"
+    program="magma -b set:={} dir:='${Dir}' Code/TM/optimalForm.m 2>&1"
     printf "Generating optimal GL2(Z)-equivalent cubic forms..."
     runParallel "${TMForms}" optimalLog "${program}"
     printf "Done.\n"
@@ -506,7 +506,7 @@ main () {
     # in parallel, for each <line> of ${TMForms}, storing GNU parallel's
     # progress in the file ${Dir}/optimalLog.
     TMForms=$(cat ${Dir}/TMForms.csv)
-    program="magma -b set:={} dir:='${Dir}' Code/computeEllipticCurvesTM.m 2>&1"
+    program="magma -b set:={} dir:='${Dir}' Code/TM/runTMEC.m 2>&1"
     printf "Solving the Thue--Mahler equations..."
     runParallel "${TMForms}" TMLog "${program}"
     printf "Done.\n"
