@@ -143,33 +143,29 @@ function SUnitXYZ2(S)
                     M0_1:= M0_;
                     absn1:= absn;
                     if (#M0 + #M0_) gt 2 then
-                        U01, M01, M0_1, absn1, eqns:= FPParametersXYZ2(FA,U01,M01,M0_1,absn1,b0,A,S);   // reduces U0, M0, M0_, absn via Fincke-Pohst, when more than 1 prime splits in K
-                        AllSolns:= AllSolns cat eqns;   // appends solutions that may have come from the Fincke-Pohst reduction
+                        U01, M01, M0_1, absn1, eqns:=
+			    FPParametersXYZ2(FA,U01,M01,M0_1,absn1,b0,A,S);   // reduces U0, M0, M0_, absn via Fincke-Pohst, when more than 1 prime splits in K
+                        sols:=sols join eqns;   // appends solutions that may have come from the Fincke-Pohst reduction
                     end if;
-                    xyz2:= FinalSearchXYZ2(U01,M01,M0_1,absn1,A,S,D);       // computes all [x,y,z] where x + y = z^2 below the reduced bounds U0, M0, M0_, absn
-                    for s in xyz2 do
-                        if (s in AllSolns) eq false then
-                            Append(~AllSolns, s);
-                        end if;
-                    end for;
+                    sols:=sols join FinalSearchXYZ2(U01,M01,M0_1,absn1,A,S,D);       // computes all [x,y,z] where x + y = z^2 below the reduced bounds U0, M0, M0_, absn
                 end for;
             end for;
         end if;
     end if;
-    Append(~AllSolns, [D,-D,0]);    // appends the trivial solution [x,y,z]:= [D,-D,0]
+    sols:=sols join {[D,-D,0]};    // appends the trivial solution [x,y,z]:= [D,-D,0]
 
 
-    FinalSolns:= [];
-    for s in AllSolns do
+    FinalSolns:={};
+    for s in sols do
         sqfree,sq:= Squarefree(GCD(Z!s[1],Z!s[2]));   // computes the squarefree integer sqfree as well as an integer sq, such that GCD(x,y) = (sqfree)*(sq^2)
-        if sq ne 1 then         // if GCD(x,y) is not squarefree
-            Reduceds:= [s[1]/(sq^2), s[2]/(sq^2), s[3]/sq];
-            if (Reduceds in FinalSolns) eq false then
-                Append(~FinalSolns, Reduceds);  // appends only the reduced solution, [x,y,z] with GCD(x,y) squarefree, to FinalSolns
-            end if;
-        elif (s in FinalSolns) eq false then    // appends the solution, [x,y,z] to FinalSolns; this solution is reduced, ie. GCD(x,y) is squarefree
-            Append(~FinalSolns, s);
-        end if;
+	FinalSolns:=FinalSolns join {[s[1]/(sq^2), s[2]/(sq^2), s[3]/sq]};
+
+        //if sq ne 1 then         // if GCD(x,y) is not squarefree
+//            FinalSolns:=FinalSolns join {[s[1]/(sq^2), s[2]/(sq^2), s[3]/sq]};
+	    // appends only the reduced solution, [x,y,z] with GCD(x,y) squarefree, to FinalSolns
+//        elif (s in FinalSolns) eq false then    // appends the solution, [x,y,z] to FinalSolns; this solution is reduced, ie. GCD(x,y) is squarefree
+//            Append(~FinalSolns, s);
+//        end if;
     end for;
 
     return FinalSolns;
