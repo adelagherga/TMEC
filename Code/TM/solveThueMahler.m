@@ -60,7 +60,7 @@ heightBoundXY:=function(alist,a,primelist)
     end for;
     NS:=&*primelist;
     mS:=1728*(NS^2)*mS0;
-    hpoly:=Log(Max([(Abs(a_i)) : a_i in alist] cat [(Abs(a))]);
+    hpoly:=Log(Max([Abs(a_i) : a_i in alist] cat [Abs(a)]));
     maxhXY:=2*(2*mS*Log(mS)+172*hpoly)+Log(2)+Log(a0);
     return maxhXY;
 end function;
