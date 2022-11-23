@@ -198,7 +198,7 @@ end function;
 
 Nlist,primelist:=extractForm(set);
 //if #primelist ge 3 then
-    time sols:=solveXYZ2(primelist);
+    time sols:=SUnitXYZ2(primelist);
     out:="../Data/Test/" cat seqEnumToString(primelist) cat ".txt";
     fprintf out, "%o\n",sols;
 //end if;
