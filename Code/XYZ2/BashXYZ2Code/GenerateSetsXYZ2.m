@@ -70,7 +70,7 @@ EXAMPLE:
 */
 
 ChangeDirectory("./Code");
-//load "./parseIO.m";
+load "./parseIO.m";
 SetAutoColumns(false);
 SetColumns(235);
 
@@ -94,12 +94,12 @@ function sortByD(S)
 	if D eq 1 then
 	    Append(~caseNo,[i,0]);
         else
-            b0, SplitPrimes, NonSplitPrimes:= DecompositionOfPrimesXYZ2(s,D);   // determines prime splitting
+            b0, SplitPrimes, NonSplitPrimes:= DecompositionOfPrimesXYZ2(S,D);   // determines prime splitting
             if IsEmpty(SplitPrimes) then
 		Append(~caseNo,[i,0]);
             else
                 J:= IIPrimeXYZ2(SplitPrimes,D);         // generates all possible I, I_
-                for j in [1..#J]; do
+                for j in [1..#J] do
 		    Append(~caseNo,[i,j]);
 		end for;
 	    end if;
@@ -133,30 +133,6 @@ extractForm:=function(set)
     return Nlist,primelist;
 end function;
 
-OutFile:="../" cat dir cat "/" cat set cat ".csv";
-Nlist,primelist:=extractForm(set);
-if IsEmpty(primelist) then
-    fprintf OutFile, "%o\n",set;
-else
-    alist,caseNo:=optimalForm(alist,a,primelist);
-    for i in [1..#caseNo] do
-	assert i eq caseNo[i][1];
-	if (caseNo[i][2] ne 0) then
-	    for j in [1..caseNo[i][2]] do
-		fprintf OutFile, "%o,%o,%o,%o,%o\n",seqEnumToString(Nlist),
-			seqEnumToString(alist),IntegerToString(a),
-			seqEnumToString(primelist),seqEnumToString([i,j]);
-	    end for;
-	end if;
-    end for;
-end if;
-exit;
-
-Nlist,primelist:=extractForm(set);
-time sols:=SUnitXYZ2(primelist);
-out:="../../Data/Test/" cat seqEnumToString(primelist) cat ".txt";
-fprintf out, "%o\n",sols;
-exit;
 
 
 
@@ -180,30 +156,25 @@ EXAMPLE:
 
 */
 
-load "./GenerateSCode/GenerateSFunctions/nSetsXYZ2.m";
-
-m:= StringToInteger(m);         // converts bash input to an integer in magma
-
-Set:= nSetsXYZ2(m);     // generates all sets of primes whose product is <= m
-print Set;      // prints output to a text file
-exit;   // exits magma
-
-
 OutFile:="../" cat dir cat "/" cat set cat ".csv";
-Nlist,alist,a,primelist,_:=extractForm(set);
-if IsEmpty(primelist) then
-    fprintf OutFile, "%o\n",set;
-else
-    alist,caseNo:=optimalForm(alist,a,primelist);
-    for i in [1..#caseNo] do
-	assert i eq caseNo[i][1];
-	if (caseNo[i][2] ne 0) then
-	    for j in [1..caseNo[i][2]] do
-		fprintf OutFile, "%o,%o,%o,%o,%o\n",seqEnumToString(Nlist),
-			seqEnumToString(alist),IntegerToString(a),
-			seqEnumToString(primelist),seqEnumToString([i,j]);
-	    end for;
-	end if;
-    end for;
-end if;
+Nlist,primelist:=extractForm(set);
+assert (IsEmpty(primelist) eq false);
+
+caseNo:=sortByD(primelist);
+for i in [1..#caseNo] do
+    assert i eq caseNo[i][1];
+    if (caseNo[i][2] ne 0) then
+	for j in [1..caseNo[i][2]] do
+	    fprintf OutFile, "%o,%o,%o\n",seqEnumToString(Nlist),
+		    seqEnumToString(primelist),seqEnumToString([i,j]);
+	end for;
+    end if;
+end for;
+
+exit;
+
+Nlist,primelist:=extractForm(set);
+time sols:=SUnitXYZ2(primelist);
+out:="../../Data/Test/" cat seqEnumToString(primelist) cat ".txt";
+fprintf out, "%o\n",sols;
 exit;
