@@ -116,10 +116,11 @@ function SUnitXYZ2(S)
     assert 2 in S;
     s:=#S;
     assert s ge 2;
+    Z:= IntegerRing();
     D0:= ExponentsXYZ2(S,0);    // generates all possible values for D:= ( (p_1)^(b_1) )* /cdots *( (p_n)^(b_n) ), where S:= [p_1, ..., p_n], b_i in {0,1}
 
     time xyzsols:=solveXYZ(S);       // computes all [x,y,z] where x + y = z
-    sols:=convertToXYZ2(xyzsols);
+    sols:={[1,-1,0]} join convertToXYZ2(xyzsols);
     Exclude(~D0,1);
 
     for D in D0 do
@@ -151,9 +152,8 @@ function SUnitXYZ2(S)
                 end for;
             end for;
         end if;
-    end if;
     sols:=sols join {[D,-D,0]};    // appends the trivial solution [x,y,z]:= [D,-D,0]
-
+    end for;
 
     FinalSolns:={};
     for s in sols do
@@ -170,8 +170,6 @@ function SUnitXYZ2(S)
 
     return FinalSolns;
 end function;
-
-
 
 extractForm:=function(set)
     /*
