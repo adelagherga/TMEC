@@ -310,10 +310,10 @@ amalgamateFormFiles() {
     #
     # Parameters
     #     ${line}.csv
-    #         The output file from Code/optimalForm.m containing, for each line,
-    #         the optimal Thue--Mahler S-unit equations to be solved.
+    #         The output file from Code/TM/optimalForm.m containing, for each
+    #         line, the optimal Thue--Mahler S-unit equations to be solved.
     #     ${line}tmp.txt
-    #         The magma logfile from Code/optimalForm.m tracking any magma
+    #         The magma logfile from Code/TM/optimalForm.m tracking any magma
     #         errors.
     # Returns
     #     Dir/TMForms.csv
@@ -323,6 +323,7 @@ amalgamateFormFiles() {
     local line
     local F1
     local F2
+    local msg
 
     while IFS= read -r line; do
 	F1="${Dir}/${line}.csv"
@@ -332,8 +333,8 @@ amalgamateFormFiles() {
 	    rm "${F1}"
 	fi
 	if grep -q "error" "${F2}"; then
-	    echo "magma -b set:=${line} dir:='${Dir}' Code/optimalForm.m 2>&1" \
-		 >> "${Dir}/Errors.txt"
+	    msg="magma -b set:=${line} dir:='${Dir}' Code/TM/optimalForm.m 2>&1"
+	    echo "${msg}" >> "${Dir}/Errors.txt"
 	fi
 	rm "${F2}"
     done < "${Dir}/TMForms.csv"
@@ -349,9 +350,9 @@ moveTMCurves() {
     #
     # Parameters
     #     inFile
-    #         The output file from Code/computeEllipticCurvesTM.m containing, for
-    #         each line, the elliptic curve obtained by solving the Thue--Mahler
-    #         S-unit equation in the filename.
+    #         The output file from Code/TM/runTMEC.m containing, for each line,
+    #         the elliptic curve obtained by solving the Thue--Mahler S-unit
+    #         equation in the filename.
 
     local line
     local N
@@ -394,12 +395,12 @@ sortCurves() {
     #
     # Parameters
     #     ${line}Out.csv
-    #         The output file from Code/computeEllipticCurvesTM.m containing, for
-    #         each line, the elliptic curve obtained by solving the Thue--Mahler
-    #         S-unit equation in ${line}.
+    #         The output file from Code/TM/runTMEC.m containing, for each line,
+    #         the elliptic curve obtained by solving the Thue--Mahler S-unit
+    #         equation in ${line}.
     #     ${line}Log.txt
-    #         The  magma logfile from Code/computeEllipticCurvesTM.m tracking the
-    #         code's progress, solutions, and any magma errors that arise.
+    #         The  magma logfile from Code/TM/runTMEC.m tracking the code's
+    #         progress, solutions, and any magma errors that arise.
     # Returns
     #     ${form}Log.txt
     #         The file containing the amalgamated logfiles ${line}Log.txt
@@ -423,7 +424,7 @@ sortCurves() {
 	    allLog="${TMLogDir}/${form}Log.txt"
 	    if grep -q "error" "${Log}"; then
 		rerun="magma -b set:='${line}' dir:='${Dir}'"
-		rerun="${rerun} Code/computeEllipticCurvesTM.m 2>&1"
+		rerun="${rerun} Code/TM/runTMEC.m 2>&1"
 		echo "${rerun}" >> "${Dir}/Errors.txt"
 	    fi
 	    if [ -f "${Out}" ]; then
@@ -487,7 +488,7 @@ main () {
 
     # Generate optimal Thue--Mahler forms and all S-unit equations in parallel.
     # That is, run
-    # magma -b set:=<line> dir:=${Dir} Code/optimalForm.m 2>&1
+    # magma -b set:=<line> dir:=${Dir} Code/TM/optimalForm.m 2>&1
     # in parallel, for each <line> of ${TMForms}, storing GNU parallel's
     # progress in the file ${Dir}/optimalLog.
     TMForms=$(cat ${Dir}/TMForms.csv)
@@ -502,7 +503,7 @@ main () {
 
     # Solve all Thue--Mahler S-unit equations in parallel.
     # That is, run
-    # magma -b set:=<line> dir:=${Dir} Code/computeEllipticCurvesTM.m 2>&1
+    # magma -b set:=<line> dir:=${Dir} Code/TM/runTMEC.m 2>&1
     # in parallel, for each <line> of ${TMForms}, storing GNU parallel's
     # progress in the file ${Dir}/optimalLog.
     TMForms=$(cat ${Dir}/TMForms.csv)
