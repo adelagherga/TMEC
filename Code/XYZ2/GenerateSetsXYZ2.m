@@ -74,10 +74,10 @@ load "./parseIO.m";
 SetAutoColumns(false);
 SetColumns(235);
 
-load "./XYZ2/XYZ2Code/ExponentsXYZ2.m";
-load "./XYZ2/XYZ2Code/DecompositionOfPrimesXYZ2.m";
-load "./XYZ2/XYZ2Code/SplitPrimePropertiesXYZ2.m";
-load "./XYZ2/XYZ2Code/IIPrimeXYZ2.m";
+load "./XYZ2/ExponentsXYZ2.m";
+load "./XYZ2/DecompositionOfPrimesXYZ2.m";
+load "./XYZ2/SplitPrimePropertiesXYZ2.m";
+load "./XYZ2/IIPrimeXYZ2.m";
 
 function sortByD(S)
     Sort(~S);

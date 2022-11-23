@@ -22,47 +22,79 @@ REFERENCE:
 
 */
 
-ChangeDirectory("./Code");
+ChangeDirectory("./Code/XYZ2");
 load "./parseIO.m";
-load "./solveXYZ.m";
 SetAutoColumns(false);
 SetColumns(235);
 
-ChangeDirectory("./XYZ2");
-Attach("./XYZ2Code/XYZ2Intrinsics.m");
-load "./XYZ2Code/FinckePohst.m";
-load "./XYZ2Code/ExponentsXYZ2.m";
-load "./XYZ2Code/DecompositionOfPrimesXYZ2.m";
-load "./XYZ2Code/IdealExponentsXYZ2.m";
-load "./XYZ2Code/IdealConjugatesXYZ2.m";
-load "./XYZ2Code/AlphasXYZ2.m";
-load "./XYZ2Code/FundamentalUnitXYZ2.m";
-load "./XYZ2Code/IUFactorsXYZ2.m";
-load "./XYZ2Code/SymmetricCaseXYZ2.m";
-load "./XYZ2Code/SplitPrimePropertiesXYZ2.m";
-load "./XYZ2Code/IIPrimeXYZ2.m";
-load "./XYZ2Code/nExponentsXYZ2.m";
-load "./XYZ2Code/C1pnXYZ2.m";
-load "./XYZ2Code/LambdaBoundXYZ2.m";
-load "./XYZ2Code/KappaBoundXYZ2.m";
-load "./XYZ2Code/Kappa_BoundXYZ2.m";
-load "./XYZ2Code/C12BoundXYZ2.m";
-load "./XYZ2Code/MaximalC12BoundXYZ2.m";
-load "./XYZ2Code/LambdaLogpXYZ2.m";
-load "./XYZ2Code/LambdaInitialSortXYZ2.m";
-load "./XYZ2Code/LambdaLatticeXYZ2.m";
-load "./XYZ2Code/HenselLiftXYZ2.m";
-load "./XYZ2Code/KappaInitialSortXYZ2.m";
-load "./XYZ2Code/Kappa_InitialSortXYZ2.m";
-load "./XYZ2Code/KappaLatticeXYZ2.m";
-load "./XYZ2Code/Kappa_LatticeXYZ2.m";
-load "./XYZ2Code/SmallestLatticeBoundXYZ2.m";
-load "./XYZ2Code/FPRestrictionsKappaXYZ2.m";
-load "./XYZ2Code/FPRestrictionsKappa_XYZ2.m";
-load "./XYZ2Code/FPRestrictionsLambdaXYZ2.m";
-load "./XYZ2Code/FPRestrictionsXYZ2.m";
-load "./XYZ2Code/FPParametersXYZ2.m";
-load "./XYZ2Code/FinalSearchXYZ2.m";
+Attach("./XYZ2Intrinsics.m");
+load "./solveXYZ.m";
+load "./FinckePohst.m";
+load "./ExponentsXYZ2.m";
+load "./DecompositionOfPrimesXYZ2.m";
+load "./IdealExponentsXYZ2.m";
+load "./IdealConjugatesXYZ2.m";
+load "./AlphasXYZ2.m";
+load "./FundamentalUnitXYZ2.m";
+load "./IUFactorsXYZ2.m";
+load "./SymmetricCaseXYZ2.m";
+load "./SplitPrimePropertiesXYZ2.m";
+load "./IIPrimeXYZ2.m";
+load "./nExponentsXYZ2.m";
+load "./C1pnXYZ2.m";
+load "./LambdaBoundXYZ2.m";
+load "./KappaBoundXYZ2.m";
+load "./Kappa_BoundXYZ2.m";
+load "./C12BoundXYZ2.m";
+load "./MaximalC12BoundXYZ2.m";
+load "./LambdaLogpXYZ2.m";
+load "./LambdaInitialSortXYZ2.m";
+load "./LambdaLatticeXYZ2.m";
+load "./HenselLiftXYZ2.m";
+load "./KappaInitialSortXYZ2.m";
+load "./Kappa_InitialSortXYZ2.m";
+load "./KappaLatticeXYZ2.m";
+load "./Kappa_LatticeXYZ2.m";
+load "./SmallestLatticeBoundXYZ2.m";
+load "./FPRestrictionsKappaXYZ2.m";
+load "./FPRestrictionsKappa_XYZ2.m";
+load "./FPRestrictionsLambdaXYZ2.m";
+load "./FPRestrictionsXYZ2.m";
+load "./FPParametersXYZ2.m";
+load "./FinalSearchXYZ2.m";
+
+seqEnumToString:=function(X : quotes:=false)
+    /*
+      Converts a SeqEnum into a string without whitespace, enclosed by "[ ]" for
+      .csv input
+
+      Parameters
+          X: SeqEnum
+          quotes: BoolElt
+              A true/false vale. If set to true, encloses the output in
+	      quotations.
+      Returns
+          stX: MonStgElt
+	      The set X as a string without whitespace.
+   */
+    strX:= "[";
+    for i in [1..#X] do
+	if X[i] in Integers() then
+	    strX:=strX cat IntegerToString(Integers()!X[i]);
+	elif X[i] in Rationals() then
+	    strX:=strX cat IntegerToString(Numerator(X[i])) cat "/" cat
+		  IntegerToString(Denominator(X[i]));
+	end if;
+	if (i ne #X) then
+	    strX:=strX cat ",";
+	end if;
+    end for;
+    strX:=strX cat "]";
+    if quotes then
+	strX:="\"" cat strX cat "\"";
+    end if;
+    return strX;
+end function;
 
 solTest:=function(u,y1,y2)
     X:=u^2;
