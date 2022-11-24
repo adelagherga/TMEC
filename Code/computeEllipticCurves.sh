@@ -451,7 +451,7 @@ sortCurves() {
     sortCurvesByN
 }
 
-main () {
+main() {
 
     # Generates all elliptic curves of given conductor(s), taking as input a
     # single conductor N, a range of conductors [N1,...,N2], or, with the
