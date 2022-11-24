@@ -75,9 +75,8 @@ OutFile:="../../" cat dir cat "/" cat set cat ".csv";
 Nlist,primelist,_:=extractForm(set);
 assert (IsEmpty(primelist) eq false);
 caseNo:=seperateForm(primelist);
-for i in [1..#caseNo] do
-    j:=caseNo[i][2];
+for ij in caseNo do
     fprintf OutFile, "%o,%o,%o\n",seqEnumToString(Nlist),
-	    seqEnumToString(primelist),seqEnumToString([i,j]);
+	    seqEnumToString(primelist),seqEnumToString(ij);
 end for;
 exit;
