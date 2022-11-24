@@ -24,7 +24,7 @@ Created
 
 SetOutputFile(dir cat "/" cat set cat "tmp.txt");
 ChangeDirectory("./Code/XYZ2");
-load "./SUnitXYZ2.m";
+load "./solveXYZ2.m";
 
 XYZ2Sunit:=function(primelist)
     /*

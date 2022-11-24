@@ -122,7 +122,7 @@ solveXYZ2:=function(S)
     Z:= IntegerRing();
 
     C:=CartesianProduct([[0,1] : i in [1..s]]);
-    DList:=Sort([&*[primelist[i]^c[i] : i in [1..s]] : c in C]);
+    DList:=Sort([&*[S[i]^c[i] : i in [1..s]] : c in C]);
     // Generate all possible values for D.
     time xyzsols:=solveXYZ(S);       // computes all [x,y,z] where x + y = z
     sols:={[1,-1,0]} join convertToXYZ2(xyzsols);
@@ -260,7 +260,7 @@ solveXYZ2SUnit:=function(S,ij)
     s:=#S;
     assert s ge 2;
     C:=CartesianProduct([[0,1] : i in [1..s]]);
-    DList:=Sort([&*[primelist[i]^c[i] : i in [1..s]] : c in C]);
+    DList:=Sort([&*[S[i]^c[i] : i in [1..s]] : c in C]);
     // Generate all possible values for D.
     i,j:=Explode(ij);
     D:=DList[i];
