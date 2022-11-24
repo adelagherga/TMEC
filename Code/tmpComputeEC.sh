@@ -292,9 +292,10 @@ main() {
 
     getNList "$@"
     generateDirectories
+    conductors=$(printf '%s\n' "${list[@]}")
 
 printf "Generating all required prime lists for conductors in ${name}..."
-seq $N1 $N2 | factor > ${XYZ2Dir}/XYZ2Forms.csv
+echo "${conductors}" | factor > ${XYZ2Dir}/XYZ2Forms.csv
 printf "Done.\n"
 
 verifyNonEmpty "${XYZ2Dir}/XYZ2Forms.csv"
