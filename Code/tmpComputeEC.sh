@@ -286,6 +286,25 @@ sortCurvesByN() {
     done
 }
 
+moveTMCurves() {
+
+    # For each line of inFile, extracts the conductor N and copies the line to
+    # the file ${ECDir}/${N}.csv.
+    #
+    # Parameters
+    #     inFile
+    #         The output file from Code/TM/runTMEC.m containing, for each line,
+    #         the elliptic curve obtained by solving the Thue--Mahler S-unit
+    #         equation in the filename.
+
+    local line
+    local N
+
+    while IFS= read -r line; do
+	N=$(echo "${line}" | cut -d' ' -f -1)
+	echo "${line}" >> "${ECDir}/${N}.csv"
+    done < "$1"
+}
 
 main() {
 
