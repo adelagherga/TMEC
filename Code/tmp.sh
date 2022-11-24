@@ -289,8 +289,8 @@ verifyNonEmpty() {
 	msg="Finished computing all elliptic curves of conductor ${name}"
 	msg="${msg} corresponding to the $2 solver.\n"
 	printf "${msg}"
-#	sortCurvesByN
-#	exit 0
+	sortCurvesByN
+	exit 0
     fi
 }
 
@@ -476,7 +476,7 @@ sortCurves() {
     sortCurvesByN
 }
 
-
+TM() (
     getNList "$@"
     generateDirectories
 
@@ -503,6 +503,7 @@ sortCurves() {
 
     # Remove redundant Thue--Mahler equations.
     gatherRedundantForms "TM"
+    printf "Made it here.\n"
 
         # Generate optimal Thue--Mahler forms and all S-unit equations in parallel.
     # That is, run
@@ -514,3 +515,8 @@ sortCurves() {
     printf "Generating optimal GL2(Z)-equivalent cubic forms..."
     runParallel "${TMForms}" optimalLog "${program}"
     printf "Done.\n"
+    )
+
+TM "$@"
+printf "Are we still here?"
+echo $name
