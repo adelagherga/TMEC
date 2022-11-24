@@ -476,25 +476,6 @@ sortCurves() {
     sortCurvesByN
 }
 
-main() {
-
-    # Generates all elliptic curves of given conductor(s), taking as input a
-    # single conductor N, a range of conductors [N1,...,N2], or, with the
-    # flag -l, an arbitrary finite list of conductors.
-    #
-    # Parameters
-    #     N1 [N2]
-    #         A single conductor, N1, or the range [N1,...,N2].
-    #     [-l N1] [N2...]: [OPTIONAL]
-    #         A finite, arbitrary list of conductors to generate [N1,N2,...].
-    # Returns
-    #     Dir
-    #         A subdirectory or Data storing all output, logs, errors, and
-    #         elliptic curves.
-
-    local conductors
-    local program
-    local TMForms
 
     getNList "$@"
     generateDirectories
@@ -522,39 +503,3 @@ main() {
 
     # Remove redundant Thue--Mahler equations.
     gatherRedundantForms "TM"
-
-    # Generate optimal Thue--Mahler forms and all S-unit equations in parallel.
-    # That is, run
-    # magma -b set:=<line> dir:=${TMDir} Code/TM/optimalForm.m 2>&1
-    # in parallel, for each <line> of ${TMForms}, storing GNU parallel's
-    # progress in the file ${Dir}/optimalLog.
-    TMForms=$(cat ${TMDir}/TMForms.csv)
-    program="magma -b set:={} dir:='${TMDir}' Code/TM/optimalForm.m 2>&1"
-    printf "Generating optimal GL2(Z)-equivalent cubic forms..."
-    runParallel "${TMForms}" optimalLog "${program}"
-    printf "Done.\n"
-
-    # Clean up directory and amalgamate all Thue--Mahler S-unit equations into a
-    # single file.
-    amalgamateFormFiles
-
-    # Solve all Thue--Mahler S-unit equations in parallel.
-    # That is, run
-    # magma -b set:=<line> dir:=${TMDir} Code/TM/runTMEC.m 2>&1
-    # in parallel, for each <line> of ${TMForms}, storing GNU parallel's
-    # progress in the file ${Dir}/optimalLog.
-    TMForms=$(cat ${TMDir}/TMForms.csv)
-    program="magma -b set:={} dir:='${TMDir}' Code/TM/runTMEC.m 2>&1"
-    printf "Solving the Thue--Mahler equations..."
-    runParallel "${TMForms}" TMLog "${program}"
-    printf "Done.\n"
-
-    # Clean up directory and amalgamate all Thue--Mahler logfiles and elliptic
-    # curves.
-    printf "Sorting all elliptic curves..."
-    sortCurves
-    printf "Done.\n"
-    printf "Finished computing all elliptic curves of conductor ${name}.\n"
-}
-
-main "$@"

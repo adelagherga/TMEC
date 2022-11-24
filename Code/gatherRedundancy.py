@@ -116,7 +116,13 @@ def prime_divisors(n):
             break
     return sorted(factors)
 
-def gatherXYZ2Redundancy(IF,OF):
+def determineOF(IF):
+    ind=[pos for pos, char in enumerate(IF) if char == "/"][-1]
+    assert IF[ind] == "/"
+    OF=IF[:i+1]+"tmp"+IF[i+1:]
+    return OF
+
+def gatherXYZ2Redundancy(IF):
     """
       Removes redundant conductor factorizations and appends 2 to each list.
       That is, for any 2 lines of the file IF, "N_1,primelist_1" and
@@ -135,6 +141,7 @@ def gatherXYZ2Redundancy(IF,OF):
               format "primelist,Nlist", with Nlist now a list of
               conductors.
     """
+    OF=determineOF(IF)
     primesN={}
     for line in open(IF):
         # Sort data by primelist.
@@ -167,7 +174,7 @@ def gatherXYZ2Redundancy(IF,OF):
     OutFile.close()
     os.rename(OF,IF)
 
-def gatherTMFormRedundancy(IF,OF):
+def gatherTMFormRedundancy(IF):
     """
       Removes redundant Thue--Mahler equations across conductors. That is, for
       any 2 lines of the file IF, "N_1,alist_1,a_1,primelist_1" and
@@ -187,6 +194,7 @@ def gatherTMFormRedundancy(IF,OF):
               format "Nlist,alist,a,primelist", with Nlist now a list of
               conductors.
     """
+    OF=determineOF(IF)
     forms={}
     for line in open(IF):
         # Sort data by alist.
@@ -263,7 +271,7 @@ def gatherTMFormRedundancy(IF,OF):
 if __name__ == '__main__':
     # Map command line arguments to function arguments.
     args=sys.argv
-    if args[3] == "TM":
-        gatherTMFormRedundancy(args[1],args[2])
-    elif args[3] == "XYZ2":
-        gatherXYZ2Redundancy(args[1],args[2])
+    if args[2] == "TM":
+        gatherTMFormRedundancy(args[1])
+    elif args[2] == "XYZ2":
+        gatherXYZ2Redundancy(args[1])

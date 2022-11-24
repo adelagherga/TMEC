@@ -25,17 +25,17 @@ Returns
 Authors
     Adela Gherga <adelagherga@gmail.com>
 Created
-    24 August 2022
+    23 November 2022
 */
 
 ChangeDirectory("./Code/XYZ2");
-LogFile:="../../" cat dir cat "/XYZ2Logfiles/" cat set cat "Log.txt";
+LogFile:="../../" cat dir cat "/Logfiles/" cat set cat "Log.txt";
 SetOutputFile(LogFile);
 load "./solveXYZ2.m";
 load "./convertXYZ2ToEllipticCurves.m";
 
 Nlist,primelist,ij:=extractForm(set);
-OutFile:="../../" cat dir cat "/XYZ2Outfiles/" cat set cat "Out.csv";
+OutFile:="../../" cat dir cat "/Outfiles/" cat set cat "Out.csv";
 printf "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
 printf "Nlist:=%o; ij:=%o;\n",Nlist,ij;
 printf "primelist:=%o;\n",primelist;

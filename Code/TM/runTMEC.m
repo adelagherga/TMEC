@@ -28,13 +28,13 @@ Created
 */
 
 ChangeDirectory("./Code/TM");
-LogFile:="../../" cat dir cat "/TMLogfiles/" cat set cat "Log.txt";
+LogFile:="../../" cat dir cat "/Logfiles/" cat set cat "Log.txt";
 SetOutputFile(LogFile);
 load "./solveThueMahler.m";
 load "./convertTMToEllipticCurves.m";
 
 Nlist,alist,a,primelist,ij:=extractForm(set);
-OutFile:="../../" cat dir cat "/TMOutfiles/" cat set cat "Out.csv";
+OutFile:="../../" cat dir cat "/Outfiles/" cat set cat "Out.csv";
 printf "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
 printf "Nlist:=%o; ij:=%o;\n",Nlist,ij;
 printf "alist:=%o; a:=%o; primelist:=%o;\n",alist,a,primelist;
