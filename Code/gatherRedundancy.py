@@ -120,6 +120,7 @@ def determineOF(IF):
     ind=[pos for pos, char in enumerate(IF) if char == "/"][-1]
     assert IF[ind] == "/"
     OF=IF[:ind+1]+"tmp"+IF[ind+1:]
+    print(OF)
     return OF
 
 def gatherXYZ2Redundancy(IF):
