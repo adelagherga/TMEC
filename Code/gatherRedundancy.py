@@ -119,7 +119,7 @@ def prime_divisors(n):
 def determineOF(IF):
     ind=[pos for pos, char in enumerate(IF) if char == "/"][-1]
     assert IF[ind] == "/"
-    OF=IF[:i+1]+"tmp"+IF[i+1:]
+    OF=IF[:ind+1]+"tmp"+IF[ind+1:]
     return OF
 
 def gatherXYZ2Redundancy(IF):
