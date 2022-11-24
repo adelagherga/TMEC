@@ -519,4 +519,4 @@ TM() (
 
 TM "$@"
 printf "Are we still here?"
-echo $name
+printf "$name"
