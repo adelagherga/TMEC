@@ -295,7 +295,7 @@ solveXYZ2SUnit:=function(S,ij)
             U01, M01, M0_1, absn1, eqns:= FPParametersXYZ2(FA,U01,M01,M0_1,absn1,b0,A,S);   // reduces U0, M0, M0_, absn via Fincke-Pohst, when more than 1 prime splits in K
             allSols:=allSols join eqns; // appends solutions that may have come from the Fincke-Pohst reduction
         end if;
-        alSols:=allSols join FinalSearchXYZ2(U01,M01,M0_1,absn1,A,S,D);
+        allSols:=allSols join FinalSearchXYZ2(U01,M01,M0_1,absn1,A,S,D);
 	// computes all [x,y,z] where x + y = z^2 below the reduced bounds U0, M0, M0_, absn
     end for;
     return squareFreeSol(allSols);

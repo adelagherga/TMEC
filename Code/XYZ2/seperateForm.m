@@ -1,9 +1,9 @@
 /*
-XYZ2SUnit.m
+seperateForm.m
 
 This function generates all quadratic fields associated to X+Y=Z^2, where X, Y
-are made up of {p_1,...,p_s}, and determines the indices to iterate over all
-associated S-unit equations.
+are made up of rational primes {p_1,...,p_s}, and determines the indices to
+iterate over all associated S-unit equations.
 
 Parameters
     set: MonStgElt
@@ -26,11 +26,11 @@ SetOutputFile(dir cat "/" cat set cat "tmp.txt");
 ChangeDirectory("./Code/XYZ2");
 load "./solveXYZ2.m";
 
-XYZ2Sunit:=function(primelist)
+seperateForm:=function(primelist)
     /*
       Generate all quadratic fields associated to X+Y=Z^2, where X, Y are made up
-      of {p_1,...,p_s}, and determine the indices to iterate over all associated
-      S-unit equations.
+      of rational primes {p_1,...,p_s}, and determine the indices to iterate over
+      all associated S-unit equations.
 
       Parameters
           primelist: SeqEnum
@@ -56,7 +56,8 @@ XYZ2Sunit:=function(primelist)
 	if D eq 1 then
 	    Append(~caseNo,[i,0]);
         else
-            b0,SplitPrimes,NonSplitPrimes:=DecompositionOfPrimesXYZ2(S,D);
+            b0,SplitPrimes,NonSplitPrimes:=
+		DecompositionOfPrimesXYZ2(primelist,D);
             if IsEmpty(SplitPrimes) then
 		Append(~caseNo,[i,0]);
             else
@@ -73,7 +74,7 @@ end function;
 OutFile:="../../" cat dir cat "/" cat set cat ".csv";
 Nlist,primelist,_:=extractForm(set);
 assert (IsEmpty(primelist) eq false);
-caseNo:=sortByD(primelist);
+caseNo:=seperateForm(primelist);
 for i in [1..#caseNo] do
     assert i eq caseNo[i][1];
     j:=caseNo[i][2];
