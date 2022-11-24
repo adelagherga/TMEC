@@ -6,17 +6,17 @@
 # lines of the file IF, "N_1,alist_1,a_1,primelist_1" and
 # "N_2,alist_2,a_2,primelist_2", where alist_1 = alist_2, a_1 = a_2, and
 # primelist_1 is a subset of primelist_2, writes
-# "[N_1,N_2],alist_1,a_1,primelist_2" in the file OF. In the XYZ2 case, for any 2
-# lines of the file IF, "N_1,primelist_1" and "N_2,primelist_2", if primelist_1
-# is a subset of primelist_2, writes "primelist_2,[N_1,N_2]" in the file OF.
+# "[N_1,N_2],alist_1,a_1,primelist_2" in a temporary output file OF. In the XYZ2
+# case, for any 2 lines of the file IF, "N_1,primelist_1" and "N_2,primelist_2",
+# if primelist_1 is a subset of primelist_2, writes "primelist_2,[N_1,N_2]" in
+# a temporary outpuf file OF. In both cases, the output file is then renamed as
+# IF.
 
 # Parameters
 #     IF: <class 'str'>
 #         The string denoting the input file, wherein each line is in the
 #         format "N,alist,a,primelist" in the Thue--Mahler case and
 #         "N: primelist" in the XYZ2 case.
-#     OF: <class 'str'>
-#         A string denoting an empty output file.
 # Returns
 #     OF: <class 'str'>
 #         The string denoting the output file, wherein each line is in the
@@ -33,7 +33,7 @@ from collections import OrderedDict
 
 def parseXYZ2Form(line):
     """
-      Extracts N, primelist from the string line.
+      Extract N, primelist from the string line.
 
       Parameters
           line: <class 'str'>
@@ -54,7 +54,7 @@ def parseXYZ2Form(line):
 
 def parseTMForm(line):
     """
-      Extracts N,alist,a,primelist from the string line.
+      Extract N,alist,a,primelist from the string line.
 
       Parameters
           line: <class 'str'>
@@ -74,7 +74,7 @@ def parseTMForm(line):
 
 def extractTMPrimelist(line):
     """
-      Extracts a,primelist from the string line.
+      Extract a,primelist from the string line.
 
       Parameters
           line: <class 'str'>
@@ -95,7 +95,7 @@ def extractTMPrimelist(line):
 
 def prime_divisors(n):
     """
-      Returns all the prime divisors of the positive integer n.
+      Determine all the prime divisors of the positive integer n.
 
       Parameters
           n: <class 'int'>
@@ -117,10 +117,21 @@ def prime_divisors(n):
     return sorted(factors)
 
 def determineOF(IF):
-    ind=[pos for pos, char in enumerate(IF) if char == "/"][-1]
-    assert IF[ind] == "/"
+    """
+      Given an input file, determine the string denoting the associated empty,
+      temporary output file.
+
+      Parameters
+          IF: <class 'str'>
+              The string denoting the input file, wherein each line is in the
+              format "N: primelist".
+      Returns
+          OF: <class 'str'>
+              A string denoting an empty output file.
+    """
+    ind=[pos for pos,char in enumerate(IF) if char == "/"][-1]
+    assert IF[ind]=="/"
     OF=IF[:ind+1]+"tmp"+IF[ind+1:]
-    print(OF)
     return OF
 
 def gatherXYZ2Redundancy(IF):
@@ -134,8 +145,6 @@ def gatherXYZ2Redundancy(IF):
           IF: <class 'str'>
               The string denoting the input file, wherein each line is in the
               format "N: primelist".
-          OF: <class 'str'>
-              A string denoting an empty output file.
       Returns
           OF: <class 'str'>
               The string denoting the output file, wherein each line is in the
@@ -187,8 +196,6 @@ def gatherTMFormRedundancy(IF):
           IF: <class 'str'>
               The string denoting the input file, wherein each line is in the
               format "N,alist,a,primelist".
-          OF: <class 'str'>
-              A string denoting an empty output file.
       Returns
           OF: <class 'str'>
               The string denoting the output file, wherein each line is in the
