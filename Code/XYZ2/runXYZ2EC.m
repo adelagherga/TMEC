@@ -40,7 +40,7 @@ printf "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
 printf "Nlist:=%o; ij:=%o;\n",Nlist,ij;
 printf "primelist:=%o;\n",primelist;
 printf "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
-sols:=solveXYZ2SUnit(primelist,ij);
+time sols:=solveXYZ2SUnit(primelist,ij);
 printf "sols:=%o\n",sols;
 ECs:={};
 for N in Nlist do

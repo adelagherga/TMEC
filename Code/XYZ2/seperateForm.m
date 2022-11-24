@@ -76,7 +76,6 @@ Nlist,primelist,_:=extractForm(set);
 assert (IsEmpty(primelist) eq false);
 caseNo:=seperateForm(primelist);
 for i in [1..#caseNo] do
-    assert i eq caseNo[i][1];
     j:=caseNo[i][2];
     fprintf OutFile, "%o,%o,%o\n",seqEnumToString(Nlist),
 	    seqEnumToString(primelist),seqEnumToString([i,j]);
