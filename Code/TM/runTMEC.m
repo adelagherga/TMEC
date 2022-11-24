@@ -10,7 +10,7 @@ Parameters
         A string in the format "Nlist,alist,a,primelist,[i,j]", with [i,j]
 	denoting the index of the associated S-unit equation.
     dir: MonStgElt
-        A string in the format "Data/[N1,N2,...]i" which serves as the name of
+        A string in the format "Data/[N1,N2,...]i/TM" which serves as the name of
 	the directory to which all output files are printed.
 Returns
     OutFile: MonStgElt

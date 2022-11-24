@@ -9,7 +9,7 @@ Parameters
     set: MonStgElt
         A string in the format "Nlist,alist,a,primelist".
     dir: MonStgElt
-        A string in the format "Data/[N1,N2,...]i" which serves as the name of
+        A string in the format "Data/[N1,N2,...]i/TM" which serves as the name of
 	the directory to which all output files are printed.
 Returns
     OutFile: MonStgElt
@@ -31,7 +31,7 @@ load "./solveThueMahler.m";
 
 findGL2Zactions:=function(a,c)
     /*
-      Given a, c, determines integers b, d such that the 2x2 matrix with entries
+      Given a, c, determine integers b, d such that the 2x2 matrix with entries
       [a b c d] defines an element of GL2(Z).
 
       Parameters
@@ -65,7 +65,7 @@ end function;
 
 equivForm:=function(alist)
     /*
-      Generates at most 10 GL2(Z)-equivalent forms to a_0 X^3 + ... + a_3 Y^3,
+      Generate at most 10 GL2(Z)-equivalent forms to a_0 X^3 + ... + a_3 Y^3,
       sorted by the number of prime divisors of a0.
 
       Parameters
@@ -138,8 +138,8 @@ end function;
 
 optimalForm:=function(alist,a,primelist)
     /*
-      Generates and tests cubic forms GL2(Z)-equivalent to
-      F(X,Y) = a_0 X^3 + ... + a_3 Y^3 and determines the form yielding the
+      Generate and test cubic forms GL2(Z)-equivalent to
+      F(X,Y) = a_0 X^3 + ... + a_3 Y^3 and determine the form yielding the
       least number of S-unit equations for F(X,Y) = a * p_1^{z_1} ... p_v^{z_v},
       along with the indices to iterate over all associated S-unit equations.
 

@@ -1,4 +1,13 @@
-//SUnitXYZ2.m
+/*
+solveXYZ2.m
+
+<description>
+
+Authors
+    Adela Gherga <adelagherga@gmail.com>
+Created
+    23 November 2022
+*/
 
 /*
 INPUT:
@@ -21,11 +30,6 @@ REFERENCE:
     B.M.M.De Weger. Algorithms For Diophantine Equations. PhD thesis, University of Leiden, 1988.
 
 */
-
-ChangeDirectory("./Code/XYZ2");
-load "./parseIO.m";
-SetAutoColumns(false);
-SetColumns(235);
 
 Attach("./XYZ2Intrinsics.m");
 load "./solveXYZ.m";
@@ -62,39 +66,9 @@ load "./FPRestrictionsLambdaXYZ2.m";
 load "./FPRestrictionsXYZ2.m";
 load "./FPParametersXYZ2.m";
 load "./FinalSearchXYZ2.m";
-
-seqEnumToString:=function(X : quotes:=false)
-    /*
-      Converts a SeqEnum into a string without whitespace, enclosed by "[ ]" for
-      .csv input
-
-      Parameters
-          X: SeqEnum
-          quotes: BoolElt
-              A true/false vale. If set to true, encloses the output in
-	      quotations.
-      Returns
-          stX: MonStgElt
-	      The set X as a string without whitespace.
-   */
-    strX:= "[";
-    for i in [1..#X] do
-	if X[i] in Integers() then
-	    strX:=strX cat IntegerToString(Integers()!X[i]);
-	elif X[i] in Rationals() then
-	    strX:=strX cat IntegerToString(Numerator(X[i])) cat "/" cat
-		  IntegerToString(Denominator(X[i]));
-	end if;
-	if (i ne #X) then
-	    strX:=strX cat ",";
-	end if;
-    end for;
-    strX:=strX cat "]";
-    if quotes then
-	strX:="\"" cat strX cat "\"";
-    end if;
-    return strX;
-end function;
+load "./parseIO.m";
+SetAutoColumns(false);
+SetColumns(235);
 
 solTest:=function(u,y1,y2)
     X:=u^2;
@@ -139,19 +113,22 @@ convertToXYZ2:=function(xyzsols)
     return sols;
 end function;
 
-function SUnitXYZ2(S)
+solveXYZ2:=function(S)
     Sort(~S);
+    assert &and[IsPrime(p) : p in S];
     assert 2 in S;
     s:=#S;
     assert s ge 2;
     Z:= IntegerRing();
-    D0:= ExponentsXYZ2(S,0);    // generates all possible values for D:= ( (p_1)^(b_1) )* /cdots *( (p_n)^(b_n) ), where S:= [p_1, ..., p_n], b_i in {0,1}
 
+    C:=CartesianProduct([[0,1] : i in [1..s]]);
+    DList:=Sort([&*[primelist[i]^c[i] : i in [1..s]] : c in C]);
+    // Generate all possible values for D.
     time xyzsols:=solveXYZ(S);       // computes all [x,y,z] where x + y = z
     sols:={[1,-1,0]} join convertToXYZ2(xyzsols);
-    Exclude(~D0,1);
+    Exclude(~DList,1);
 
-    for D in D0 do
+    for D in DList do
         print "D:", D;
         b0, SplitPrimes, NonSplitPrimes:= DecompositionOfPrimesXYZ2(S,D);
         if IsEmpty(SplitPrimes) then
@@ -197,6 +174,23 @@ function SUnitXYZ2(S)
     end for;
 
     return FinalSolns;
+end function;
+
+squareFreeSol:=function(sols)
+    Z:=Integers();
+    finalSols:={};
+    for s in sols do
+        sqfree,sq:= Squarefree(GCD(Z!s[1],Z!s[2]));   // computes the squarefree integer sqfree as well as an integer sq, such that GCD(x,y) = (sqfree)*(sq^2)
+	finalSols:=finalSols join {[s[1]/(sq^2), s[2]/(sq^2), s[3]/sq]};
+
+	//if sq ne 1 then         // if GCD(x,y) is not squarefree
+	//            FinalSolns:=FinalSolns join {[s[1]/(sq^2), s[2]/(sq^2), s[3]/sq]};
+	// appends only the reduced solution, [x,y,z] with GCD(x,y) squarefree, to FinalSolns
+	//        elif (s in FinalSolns) eq false then    // appends the solution, [x,y,z] to FinalSolns; this solution is reduced, ie. GCD(x,y) is squarefree
+	//            Append(~FinalSolns, s);
+	//        end if;
+    end for;
+    return finalSols;
 end function;
 
 //SUnitDXYZ2.m
@@ -259,104 +253,50 @@ EXAMPLE:
 
 */
 
-function SUnitDXYZ2(S,D,Ind)
+solveXYZ2SUnit:=function(S,ij)
     Sort(~S);
+    assert &and[IsPrime(p) : p in S];
     assert 2 in S;
     s:=#S;
     assert s ge 2;
-
-    Z:= IntegerRing();
-    AllSolns:= [];      // stores all [x,y,z] where x + y = z^2
-
-    if Ind eq 0 then    // corresponds to D == 1 or (I == [] and I_ == [])
-        if D eq 1 then
-            xyzsol:= SUnitXYZ(S);       // computes all [x,y,z] where x + y = z
-            sol:= [];   // stores [x,y,z] where x + y = z^2 coming from SUnitXYZ.m
-            for s in xyzsol do
-                sol:= sol cat SUnitXYZtoSUnitXYZ2(s);   // converts xyz solutions to [x,y,z] where x + y = z^2
-            end for;
-            AllSolns:= AllSolns cat sol;        // appends solutions from SUnitXYZ.m
-        else
-            b0, SplitPrimes, NonSplitPrimes:= DecompositionOfPrimesXYZ2(S,D);
-            if (IsEmpty(SplitPrimes) eq false) then     // verification that indeed SplitPrimes == []; if false, there is an error in nSetsXYZ2.m in defining Ind
-                print "Something is wrong in nSetsXYZ2: Ind == 0 but SplitPrimes != [].";
-            end if;
-            A0:= AlphasXYZ2([],b0,SplitPrimes,NonSplitPrimes,S,D);      // generates all alphas in the case I, I_ == []
-            for A in A0 do
-                AllSolns:= AllSolns cat SymmetricCaseXYZ2(A,S,D);       // generates [x,y,z] where x + y = z in the symmetric case
-            end for;
-        end if;
-    else
-        b0, SplitPrimes, NonSplitPrimes:= DecompositionOfPrimesXYZ2(S,D);
-        J:= IIPrimeXYZ2(SplitPrimes,D);         // generates all possible I, I_
-        II_:= J[Ind];   // selects II_ based on Ind
-        A0:= AlphasXYZ2(II_,b0,SplitPrimes,NonSplitPrimes,S,D);         // generates all alphas in the case I, I_ != []
-        FA:= MaximalC12BoundXYZ2(II_,b0,SplitPrimes,NonSplitPrimes,S,D);        // computes maximal upper bound on U0, M0, M0_, absn
-        U0, M0, M0_, absn:= SmallestLatticeBoundXYZ2(II_,FA,S);         // generates reduced bounds U0, M0, M0_, absn
-        for A in A0 do
-            a:= A[3];
-            U01:= U0;
-            M01:= M0;
-            M0_1:= M0_;
-            absn1:= absn;
-            if (#M0 + #M0_) gt 2 then
-                U01, M01, M0_1, absn1, eqns:= FPParametersXYZ2(FA,U01,M01,M0_1,absn1,b0,A,S);   // reduces U0, M0, M0_, absn via Fincke-Pohst, when more than 1 prime splits in K
-                AllSolns:= AllSolns cat eqns;   // appends solutions that may have come from the Fincke-Pohst reduction
-            end if;
-            xyz2:= FinalSearchXYZ2(U01,M01,M0_1,absn1,A,S,D);   // computes all [x,y,z] where x + y = z^2 below the reduced bounds U0, M0, M0_, absn
-            for s in xyz2 do
-                if (s in AllSolns) eq false then
-                    Append(~AllSolns, s);
-                end if;
-            end for;
-        end for;
+    C:=CartesianProduct([[0,1] : i in [1..s]]);
+    DList:=Sort([&*[primelist[i]^c[i] : i in [1..s]] : c in C]);
+    // Generate all possible values for D.
+    i,j:=Explode(ij);
+    D:=DList[i];
+    if D eq 1 then
+	assert ij eq [1,0];
+	time xyzsols:=solveXYZ(S);       // computes all [x,y,z] where x + y = z
+	allSols:={[1,-1,0]} join convertToXYZ2(xyzsols);
+	return squareFreeSol(allSols);
     end if;
-    Append(~AllSolns, [D,-D,0]);        // appends the trivial solution [x,y,z]:= [D,-D,0]
-
-    FinalSolns:= [];
-    for s in AllSolns do
-        sqfree,sq:= Squarefree(GCD(Z!s[1],Z!s[2]));     // computes the squarefree integer sqfree as well as an integer sq, such that GCD(x,y) = (sqfree)*(sq^2)
-        if sq ne 1 then         // if GCD(x,y) is not squarefree
-            Reduceds:= [s[1]/(sq^2), s[2]/(sq^2), s[3]/sq];
-            if (Reduceds in FinalSolns) eq false then
-                Append(~FinalSolns, Reduceds);  // appends only the reduced solution, [x,y,z] with GCD(x,y) squarefree, to FinalSolns
-            end if;
-        elif (s in FinalSolns) eq false then    // appends the solution, [x,y,z] to FinalSolns; this solution is reduced, ie. GCD(x,y) is squarefree
-            Append(~FinalSolns, s);
+    allSols:={[D,-D,0]};
+    b0,SplitPrimes,NonSplitPrimes:=DecompositionOfPrimesXYZ2(S,D);
+    if IsEmpty(SplitPrimes) then
+	assert j eq 0;
+        A0:=AlphasXYZ2([],b0,SplitPrimes,NonSplitPrimes,S,D);  // generates all alphas in the case I, I_ == []
+        for A in A0 do
+            allSols:=allSols join SymmetricCaseXYZ2(A,S,D);   // generates [x,y,z] where x + y = z in the symmetric case
+        end for;
+	return squareFreeSol(allSols);
+    end if;
+    J:=IIPrimeXYZ2(SplitPrimes,D);         // generates all possible I, I_
+    II_:=J[j];   // selects II_ based on Ind
+    A0:= AlphasXYZ2(II_,b0,SplitPrimes,NonSplitPrimes,S,D);         // generates all alphas in the case I, I_ != []
+    FA:= MaximalC12BoundXYZ2(II_,b0,SplitPrimes,NonSplitPrimes,S,D);        // computes maximal upper bound on U0, M0, M0_, absn
+    U0, M0, M0_, absn:= SmallestLatticeBoundXYZ2(II_,FA,S);         // generates reduced bounds U0, M0, M0_, absn
+    for A in A0 do
+        a:= A[3];
+        U01:= U0;
+        M01:= M0;
+        M0_1:= M0_;
+        absn1:= absn;
+        if (#M0 + #M0_) gt 2 then
+            U01, M01, M0_1, absn1, eqns:= FPParametersXYZ2(FA,U01,M01,M0_1,absn1,b0,A,S);   // reduces U0, M0, M0_, absn via Fincke-Pohst, when more than 1 prime splits in K
+            allSols:=allSols join eqns; // appends solutions that may have come from the Fincke-Pohst reduction
         end if;
+        alSols:=allSols join FinalSearchXYZ2(U01,M01,M0_1,absn1,A,S,D);
+	// computes all [x,y,z] where x + y = z^2 below the reduced bounds U0, M0, M0_, absn
     end for;
-
-    return FinalSolns;
+    return squareFreeSol(allSols);
 end function;
-
-extractForm:=function(set)
-    /*
-      Extracts Nlist,alist,a,primelist,[i,j] from the string set.
-
-      Parameters
-          set: MonStgElt
-              A string in the format "Nlist,alist,a,primelist,[i,j]".
-      Returns
-          Nlist: SeqEnum
-              A list of conductors.
-          alist: SeqEnum
-              A list of coefficients a_0, a_1,...,a_3.
-          a: RngIntElt
-          primelist: SeqEnum
-              A list of rational primes p_1, p_2,...,p_v.
-          ij: SeqEnum
-              The index (i,j) of the corresponding S-unit equation.
-   */
-    bracketSplit:=Split(set,"[]");
-    assert (#bracketSplit eq 3);
-    Nlist:=[StringToInteger(N) : N in Split(bracketSplit[1],",")];
-    primelist:=[StringToInteger(p) : p in Split(bracketSplit[3],",")];
-    return Nlist,primelist;
-end function;
-
-
-Nlist,primelist:=extractForm(set);
-time sols:=SUnitXYZ2(primelist);
-out:="../../Data/Test/" cat seqEnumToString(primelist) cat ".txt";
-fprintf out, "%o\n",sols;
-exit;
