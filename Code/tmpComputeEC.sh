@@ -288,6 +288,11 @@ sortCurvesByN() {
 
 
 main() {
+
+
+    getNList "$@"
+    generateDirectories
+
 printf "Generating all required prime lists for conductors in ${name}..."
 seq $N1 $N2 | factor > ${XYZ2Dir}/XYZ2Forms.csv
 printf "Done.\n"
