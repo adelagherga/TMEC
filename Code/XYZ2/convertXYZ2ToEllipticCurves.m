@@ -30,12 +30,6 @@ convertXYZ2ToEllipticCurves:=function(N,sols)
 	      determined by the solution [X,Y,Z] of the equation X+Y=Z^2 where
 	      X, Y, and N are composed of rational primes {p_1,...,p_s}.
    */
-    assert &and[IsPrime(p) : p in primelist];
-    assert 2 in primelist;
-    Sort(~primelist);
-    s:=#primelist;
-    assert s ge 2;
-
     divs6N:=[D : D in Divisors(6*N) | IsSquarefree(D)];
     assert 1 in divs6N;
     ECs:=[];
