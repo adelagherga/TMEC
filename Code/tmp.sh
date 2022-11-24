@@ -289,8 +289,8 @@ verifyNonEmpty() {
 	msg="Finished computing all elliptic curves of conductor ${name}"
 	msg="${msg} corresponding to the $2 solver.\n"
 	printf "${msg}"
-	sortCurvesByN
-	exit 0
+#	sortCurvesByN
+#	exit 0
     fi
 }
 
@@ -503,3 +503,14 @@ sortCurves() {
 
     # Remove redundant Thue--Mahler equations.
     gatherRedundantForms "TM"
+
+        # Generate optimal Thue--Mahler forms and all S-unit equations in parallel.
+    # That is, run
+    # magma -b set:=<line> dir:=${TMDir} Code/TM/optimalForm.m 2>&1
+    # in parallel, for each <line> of ${TMForms}, storing GNU parallel's
+    # progress in the file ${Dir}/optimalLog.
+    TMForms=$(cat ${TMDir}/TMForms.csv)
+    program="magma -b set:={} dir:='${TMDir}' Code/TM/optimalForm.m 2>&1"
+    printf "Generating optimal GL2(Z)-equivalent cubic forms..."
+    runParallel "${TMForms}" optimalLog "${program}"
+    printf "Done.\n"
