@@ -477,19 +477,8 @@ sortCurves() {
 }
 
 TM() (
-    getNList "$@"
-    generateDirectories
-
-    # Generate all elliptic curves of j-invariant 0 in conductors list, in
-    # parallel. That is, run
-    # Code/CurvesNj0 N > ${Dir}/EllipticCurves/N.csv
-    # in parallel, with N an entry of ${conductors}, storing GNU parallel's
-    # progress in the file ${Dir}/j0Log.
-    conductors=$(printf '%s\n' "${list[@]}")
-    program="Code/CurvesNj0 {} > '${ECDir}'/{}.csv"
-    printf "Generating all j-invariant 0 curves for conductors in ${name}..."
-    runParallel "${conductors}" j0Log "${program}"
-    printf "Done.\n"
+    printf "${name} inside"
+    printf "inside the TM subshell I hope"
 
     # Generate all required Thue--Mahler forms in parallel, applying all
     # necessary local tests in the process. That is, run
@@ -517,6 +506,21 @@ TM() (
     printf "Done.\n"
     )
 
-TM "$@"
+
+getNList "$@"
+generateDirectories
+
+# Generate all elliptic curves of j-invariant 0 in conductors list, in
+# parallel. That is, run
+# Code/CurvesNj0 N > ${Dir}/EllipticCurves/N.csv
+# in parallel, with N an entry of ${conductors}, storing GNU parallel's
+# progress in the file ${Dir}/j0Log.
+conductors=$(printf '%s\n' "${list[@]}")
+program="Code/CurvesNj0 {} > '${ECDir}'/{}.csv"
+printf "Generating all j-invariant 0 curves for conductors in ${name}..."
+runParallel "${conductors}" j0Log "${program}"
+printf "Done.\n"
+
+TM
 printf "Are we still here?"
-printf "$name"
+printf "$name outside"
