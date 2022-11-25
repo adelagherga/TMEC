@@ -268,9 +268,10 @@ runParallel() {
 }
 
 verifyNonEmpty() {
-# FIX THIS!!! AND VERIFY!
-    # Verifies whether the file TM/TMForms.csv is empty. When true, this function
-    # populates and sorts all elliptic curve files before terminating the
+# NEED TO FIGURE OUT HOW TO DEAL WITH THIS SO THAT WE DONT TERMINATE THE XYZ2 CODE
+# PROBABLY RETURN INSTEAD?
+    # Verifies whether the <inFile> coresponding to <fileType> is empty. When
+    # true, this function populates and sorts all elliptic curve files before terminating the
     # program. This function also generates a single file containing all
     # resulting curves, to be used for final comparisons.
     #
@@ -289,7 +290,7 @@ verifyNonEmpty() {
 	msg="Finished computing all elliptic curves of conductor ${name}"
 	msg="${msg} corresponding to the $2 solver.\n"
 	printf "${msg}"
-	sortCurvesByN
+	sortCurvesByN #maybe don't run this here though
 	exit 0
     fi
 }
@@ -332,7 +333,6 @@ gatherRedundantForms() {
     verifyNonEmpty "${forms}" "$1"
 
     printf "Removing redundant cases..."
-    #FIX THIS FUNCTION AS WELL - ADD COMMENTS AND CHECK determineOF FUNC
     python Code/gatherRedundancy.py "${forms}" "$1"
     printf "Done.\n"
 }
@@ -476,6 +476,38 @@ sortCurves() {
     sortCurvesByN
 }
 
+runTM() (
+    # in a subshell so that we can run veriyNonEmpty without terminating the whole program
+    # LEFT OFF HERE
+
+    # Generate all required Thue--Mahler forms in parallel, applying all
+    # necessary local tests in the process. That is, run
+    # Code/N2TME N '${TMDir}' > /dev/null
+    # in parallel, with N an entry of ${conductors}, storing GNU parallel's
+    # progress in the file ${Dir}/formLog.
+    program="Code/N2TME {} '${TMDir}' > /dev/null"
+    printf "Generating all required cubic forms for conductors in ${name}..."
+    runParallel "${conductors}" formLog "${program}"
+    printf "Done.\n"
+
+    # Remove redundant Thue--Mahler equations.
+    gatherRedundantForms "TM"
+
+    # Generate optimal Thue--Mahler forms and all S-unit equations in parallel.
+    # That is, run
+    # magma -b set:=<line> dir:=${TMDir} Code/TM/optimalForm.m 2>&1
+    # in parallel, for each <line> of ${TMForms}, storing GNU parallel's
+    # progress in the file ${Dir}/optimalLog.
+    TMForms=$(cat ${TMDir}/TMForms.csv)
+    program="magma -b set:={} dir:='${TMDir}' Code/TM/optimalForm.m 2>&1"
+    printf "Generating optimal GL2(Z)-equivalent cubic forms..."
+    runParallel "${TMForms}" optimalLog "${program}"
+    printf "Done.\n"
+
+    )
+
+
+
 main() {
 
     # Generates all elliptic curves of given conductor(s), taking as input a
@@ -509,6 +541,10 @@ main() {
     printf "Generating all j-invariant 0 curves for conductors in ${name}..."
     runParallel "${conductors}" j0Log "${program}"
     printf "Done.\n"
+
+    # EDIT FROM HERE ON
+    # should also make sure that the printf statements go to a seperate file than the XYZ2stuff
+    runTM
 
     # Generate all required Thue--Mahler forms in parallel, applying all
     # necessary local tests in the process. That is, run

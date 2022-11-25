@@ -477,8 +477,11 @@ sortCurves() {
 }
 
 TM() (
-    printf "${name} inside"
-    printf "inside the TM subshell I hope"
+    log="${TMDir}/TMStatus"
+
+
+    printf "${name} inside" >> log
+    printf "inside the TM subshell I hope" >> log
 
     # Generate all required Thue--Mahler forms in parallel, applying all
     # necessary local tests in the process. That is, run
@@ -486,7 +489,7 @@ TM() (
     # in parallel, with N an entry of ${conductors}, storing GNU parallel's
     # progress in the file ${Dir}/formLog.
     program="Code/N2TME {} '${TMDir}' > /dev/null"
-    printf "Generating all required cubic forms for conductors in ${name}..."
+    printf "Generating all required cubic forms for conductors in ${name}..." >> log
     runParallel "${conductors}" formLog "${program}"
     printf "Done.\n"
 
