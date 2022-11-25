@@ -35,10 +35,9 @@ usage() {
 
 getNRange() {
 
-    # Parses terminal input to determine all elliptic curves of conductors
-    # N1,...,N2, or if N2 is omitted, of conductor N1. This function determines
-    # the list of conductors to be resolved, along with an appropriate directory
-    # name.
+    # Parse terminal input to determine all elliptic curves of conductors
+    # N1,...,N2, or if N2 is omitted, of conductor N1. Determine the list of
+    # conductors to be resolved, along with an appropriate directory name.
     #
     # Parameters
     #     N1 [N2]
@@ -82,10 +81,10 @@ getNRange() {
     fi
 }
 
-validate () {
+validate() {
 
-    # Verifies terminal input is a positive integer, otherwise prints usage
-    # statement and terminates the program.
+    # Verify terminal input is a positive integer, otherwise print usage
+    # statement and terminate the program.
     #
     # Parameters
     #     N
@@ -100,10 +99,10 @@ validate () {
 
 getNList() {
 
-    # Parses terminal input and generates the list of conductors to be resolved,
-    # along with an appropriate directory name. This function handles a single
-    # conductor N, a range of conductors [N1,...,N2], or, with the flag -l, an
-    # arbitrary finite list of conductors.
+    # Parse terminal input and generate the list of conductors to be resolved,
+    # along with an appropriate directory name. Input can be a single conductor
+    # N, a range of conductors [N1,...,N2], or, with the flag -l, an arbitrary
+    # finite list of conductors.
     #
     # Parameters
     #     N1 [N2]
@@ -156,10 +155,10 @@ getNList() {
 
 generateDirectories() {
 
-    # Generates a directory Data/${name} for all output, as well as all
-    # necessary subdirectories and files. If such a directory
-    # already exists in Data/, generates a directory Data/${name}i, where
-    # Data/${name}j exists for all j < i.
+    # Generate a directory Data/${name} for all output, as well as all necessary
+    # subdirectories and files. If such a directory already exists in Data/,
+    # generate a directory Data/${name}i, where Data/${name}j exists for all
+    # j < i.
     #
     # Parameters
     #     list
@@ -249,7 +248,7 @@ generateDirectories() {
 
 runParallel() {
 
-    # Runs GNU parallel across 20 cores. That is, runs
+    # Run GNU parallel across 20 cores. That is, run
     # echo <inFile> | parallel -j20 --joblog <logFile> <program>
     # taking, as input for <program>, each line of <inFile>, and storing GNU
     # parallel's progress in <logFile>.
@@ -264,7 +263,6 @@ runParallel() {
     #         stderr.
 
     echo "$1" | parallel -j20 --joblog ${Dir}/"$2" "$3"
-
 }
 
 verifyNonEmpty() {
@@ -290,25 +288,28 @@ verifyNonEmpty() {
 	msg="Finished computing all elliptic curves of conductor ${name}"
 	msg="${msg} corresponding to the $2 solver.\n"
 	printf "${msg}"
-	sortCurvesByN #maybe don't run this here though
+#	sortCurvesByN #maybe don't run this here though
 	exit 0
     fi
 }
 
 gatherRedundantForms() {
-# FIX DESCRIOTION AND TEST
-    # Amalgamates all Thue--Mahler form files into a single file, TM/TMForms.csv,
-    # and removes redundant forms.
+# N AND TEST
+    # Remove redundant equations across conductors for the Thue--Mahler solver
+    # and the XYZ2 solver. In the Thue--Mahler case, amalgamate all Thue--Mahler
+    # form files into a single file, TM/TMForms.csv, before removing redundant
+    # forms.
     #
     # Parameters
-    #     Dir/TM/${N}Forms.csv
-    #         The file containing, in each line, the Thue--Mahler form to be
-    #         solved, pertaining to conductor N. One such file exists for every N
-    #         in ${list}.
+    #     fileType
+    #         The string denoting the input file, either "TM" or "XYZ2",
+    #         corresponding to the Thue--Mahler or XYZ2 solver, respectively.
     # Returns
-    #     Dir/TM/TMForms.csv
-    #         The file Data/${name}/TM/TMForms.csv containing, in each line, the
-    #         Thue--Mahler form to be solved.
+    #     outFile
+    #         The output file containing, in each line, the equation to be
+    #         resolved. In the Thue--Mahler case, this file is
+    #         Data/${name}/TM/TMForms.csv, and in the XYZ2 case, this file is
+    #         Data/${name}/XYZ2/XYZ2Forms.csv
 
     local forms
     local N
@@ -325,9 +326,6 @@ gatherRedundantForms() {
 	done
     elif [[ "$1" == "XYZ2" ]]; then
 	forms="${XYZ2Dir}/XYZ2Forms.csv"
-    else
-	echo "Invalid input: file type must be either TM or XYZ2." >&2
-	exit 1
     fi
 
     verifyNonEmpty "${forms}" "$1"
@@ -480,15 +478,19 @@ runTM() (
     # in a subshell so that we can run veriyNonEmpty without terminating the whole program
     # LEFT OFF HERE
 
+    TMLog="${Dir}/TMStatus"
+    touch "${TMLog}"
+
     # Generate all required Thue--Mahler forms in parallel, applying all
     # necessary local tests in the process. That is, run
     # Code/N2TME N '${TMDir}' > /dev/null
     # in parallel, with N an entry of ${conductors}, storing GNU parallel's
-    # progress in the file ${Dir}/formLog.
+    # progress in the file ${Dir}/formJoblog.
     program="Code/N2TME {} '${TMDir}' > /dev/null"
-    printf "Generating all required cubic forms for conductors in ${name}..."
-    runParallel "${conductors}" formLog "${program}"
-    printf "Done.\n"
+    printf "Generating all required cubic forms for conductors in ${name}..." \
+	   >> "${TMLog}"
+    runParallel "${conductors}" formJoblog "${program}"
+    printf "Done.\n" >> "${TMLog}"
 
     # Remove redundant Thue--Mahler equations.
     gatherRedundantForms "TM"
@@ -497,16 +499,29 @@ runTM() (
     # That is, run
     # magma -b set:=<line> dir:=${TMDir} Code/TM/optimalForm.m 2>&1
     # in parallel, for each <line> of ${TMForms}, storing GNU parallel's
-    # progress in the file ${Dir}/optimalLog.
+    # progress in the file ${Dir}/optimalJoblog.
     TMForms=$(cat ${TMDir}/TMForms.csv)
     program="magma -b set:={} dir:='${TMDir}' Code/TM/optimalForm.m 2>&1"
     printf "Generating optimal GL2(Z)-equivalent cubic forms..."
-    runParallel "${TMForms}" optimalLog "${program}"
+    runParallel "${TMForms}" optimalJoblog "${program}"
     printf "Done.\n"
 
     )
 
+runXYZ2() (
 
+    XYZ2Log="${Dir}/XYZ2Status"
+    touch "${XYZ2Log}"
+
+    printf "Generating all required prime lists for conductors in ${name}..." \
+	   >> "${XYZ2Dir}"
+    echo "${conductors}" | factor > ${XYZ2Dir}/XYZ2Forms.csv
+    printf "Done.\n" >> "${XYZ2Dir}"
+
+    # Remove redundant prime lists.
+    gatherRedundantForms "XYZ2"
+
+    )
 
 main() {
 

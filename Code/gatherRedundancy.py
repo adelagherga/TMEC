@@ -31,6 +31,25 @@ import sys
 import os
 from collections import OrderedDict
 
+def determineOF(IF):
+    """
+      Given an input file, determine the string denoting the associated empty,
+      temporary output file.
+
+      Parameters
+          IF: <class 'str'>
+              The string denoting the input file, wherein each line is in the
+              format "N,alist,a,primelist" in the Thue--Mahler case and
+              "N: primelist" in the XYZ2 case.
+      Returns
+          OF: <class 'str'>
+              A string denoting an empty output file.
+    """
+    ind=[pos for pos,char in enumerate(IF) if char == "/"][-1]
+    assert IF[ind]=="/"
+    OF=IF[:ind+1]+"tmp"+IF[ind+1:]
+    return OF
+
 def parseXYZ2Form(line):
     """
       Extract N, primelist from the string line.
@@ -116,29 +135,11 @@ def prime_divisors(n):
             break
     return sorted(factors)
 
-def determineOF(IF):
-    """
-      Given an input file, determine the string denoting the associated empty,
-      temporary output file.
-
-      Parameters
-          IF: <class 'str'>
-              The string denoting the input file, wherein each line is in the
-              format "N: primelist".
-      Returns
-          OF: <class 'str'>
-              A string denoting an empty output file.
-    """
-    ind=[pos for pos,char in enumerate(IF) if char == "/"][-1]
-    assert IF[ind]=="/"
-    OF=IF[:ind+1]+"tmp"+IF[ind+1:]
-    return OF
-
 def gatherXYZ2Redundancy(IF):
     """
-      Removes redundant conductor factorizations and appends 2 to each list.
+      Remove redundant conductor factorizations and append 2 to each list.
       That is, for any 2 lines of the file IF, "N_1,primelist_1" and
-      "N_2,primelist_2", if primelist_1 is a subset of primelist_2, writes
+      "N_2,primelist_2", if primelist_1 is a subset of primelist_2, write
       "primelist_2,[N_1,N_2]" in the file OF.
 
       Parameters
@@ -148,7 +149,7 @@ def gatherXYZ2Redundancy(IF):
       Returns
           OF: <class 'str'>
               The string denoting the output file, wherein each line is in the
-              format "primelist,Nlist", with Nlist now a list of
+              format "Nlist,primelist", with Nlist now a list of
               conductors.
     """
     OF=determineOF(IF)
@@ -186,10 +187,10 @@ def gatherXYZ2Redundancy(IF):
 
 def gatherTMFormRedundancy(IF):
     """
-      Removes redundant Thue--Mahler equations across conductors. That is, for
+      Remove redundant Thue--Mahler equations across conductors. That is, for
       any 2 lines of the file IF, "N_1,alist_1,a_1,primelist_1" and
       "N_2,alist_2,a_2,primelist_2", where alist_1 = alist_2, a_1 = a_2,
-      and primelist_1 is a subset of primelist_2, writes
+      and primelist_1 is a subset of primelist_2, write
       "[N_1,N_2],alist_1,a_1,primelist_2" in the file OF.
 
       Parameters

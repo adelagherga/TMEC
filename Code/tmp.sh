@@ -35,10 +35,9 @@ usage() {
 
 getNRange() {
 
-    # Parses terminal input to determine all elliptic curves of conductors
-    # N1,...,N2, or if N2 is omitted, of conductor N1. This function determines
-    # the list of conductors to be resolved, along with an appropriate directory
-    # name.
+    # Parse terminal input to determine all elliptic curves of conductors
+    # N1,...,N2, or if N2 is omitted, of conductor N1. Determine the list of
+    # conductors to be resolved, along with an appropriate directory name.
     #
     # Parameters
     #     N1 [N2]
@@ -82,10 +81,10 @@ getNRange() {
     fi
 }
 
-validate () {
+validate() {
 
-    # Verifies terminal input is a positive integer, otherwise prints usage
-    # statement and terminates the program.
+    # Verify terminal input is a positive integer, otherwise print usage
+    # statement and terminate the program.
     #
     # Parameters
     #     N
@@ -100,10 +99,10 @@ validate () {
 
 getNList() {
 
-    # Parses terminal input and generates the list of conductors to be resolved,
-    # along with an appropriate directory name. This function handles a single
-    # conductor N, a range of conductors [N1,...,N2], or, with the flag -l, an
-    # arbitrary finite list of conductors.
+    # Parse terminal input and generate the list of conductors to be resolved,
+    # along with an appropriate directory name. Input can be a single conductor
+    # N, a range of conductors [N1,...,N2], or, with the flag -l, an arbitrary
+    # finite list of conductors.
     #
     # Parameters
     #     N1 [N2]
@@ -156,10 +155,10 @@ getNList() {
 
 generateDirectories() {
 
-    # Generates a directory Data/${name} for all output, as well as all
-    # necessary subdirectories and files. If such a directory
-    # already exists in Data/, generates a directory Data/${name}i, where
-    # Data/${name}j exists for all j < i.
+    # Generate a directory Data/${name} for all output, as well as all necessary
+    # subdirectories and files. If such a directory already exists in Data/,
+    # generate a directory Data/${name}i, where Data/${name}j exists for all
+    # j < i.
     #
     # Parameters
     #     list
@@ -249,7 +248,7 @@ generateDirectories() {
 
 runParallel() {
 
-    # Runs GNU parallel across 20 cores. That is, runs
+    # Run GNU parallel across 20 cores. That is, run
     # echo <inFile> | parallel -j20 --joblog <logFile> <program>
     # taking, as input for <program>, each line of <inFile>, and storing GNU
     # parallel's progress in <logFile>.
@@ -264,15 +263,12 @@ runParallel() {
     #         stderr.
 
     echo "$1" | parallel -j20 --joblog ${Dir}/"$2" "$3"
-
 }
 
 verifyNonEmpty() {
-# FIX THIS!!! AND VERIFY!
-    # Verifies whether the file TM/TMForms.csv is empty. When true, this function
-    # populates and sorts all elliptic curve files before terminating the
-    # program. This function also generates a single file containing all
-    # resulting curves, to be used for final comparisons.
+
+    # Verify whether the file Data/coresponding to <fileType> is empty. When
+    # true, terminate the current program.
     #
     # Parameters
     #     Dir/TM/TMForms.csv
@@ -283,246 +279,162 @@ verifyNonEmpty() {
     #         The file containing all elliptic curves generated in the program,
     #         sorted and free of duplicates, in the format N [a1,a2,a3,a4,a6].
 
+    local formFile
+    local logFile
     local msg
 
-    if [ ! -s "$1" ]; then
+    # how can we print this message in the respective log?
+    formFile="${Dir}/$1/$1Forms.csv"
+    logFile="${Dir}/$1Status.txt"
+
+    if [ ! -s "${formFile}" ]; then
 	msg="Finished computing all elliptic curves of conductor ${name}"
-	msg="${msg} corresponding to the $2 solver.\n"
-	printf "${msg}"
-	sortCurvesByN
+	msg="${msg} corresponding to the $1 solver.\n"
+	printf "${msg}" >> "${logFile}"
 	exit 0
     fi
 }
 
 gatherRedundantForms() {
-# FIX DESCRIOTION AND TEST
-    # Amalgamates all Thue--Mahler form files into a single file, TM/TMForms.csv,
-    # and removes redundant forms.
+
+    # Remove redundant equations across conductors for the Thue--Mahler solver
+    # and the XYZ2 solver. In the Thue--Mahler case, amalgamate all Thue--Mahler
+    # form files into a single file, TM/TMForms.csv, before removing redundant
+    # forms.
     #
     # Parameters
-    #     Dir/TM/${N}Forms.csv
-    #         The file containing, in each line, the Thue--Mahler form to be
-    #         solved, pertaining to conductor N. One such file exists for every N
-    #         in ${list}.
+    #     fileType
+    #         The string denoting the input file, either "TM" or "XYZ2",
+    #         corresponding to the Thue--Mahler or XYZ2 solver, respectively.
     # Returns
-    #     Dir/TM/TMForms.csv
-    #         The file Data/${name}/TM/TMForms.csv containing, in each line, the
-    #         Thue--Mahler form to be solved.
+    #     outFile
+    #         The output file containing, in each line, the equation to be
+    #         resolved. In the Thue--Mahler case, this file is
+    #         Data/${name}/TM/TMForms.csv, and in the XYZ2 case, this file is
+    #         Data/${name}/XYZ2/XYZ2Forms.csv
 
-    local forms
+    local formFile
+    local logFile
     local N
     local F
 
+    formFile="${Dir}/$1/$1Forms.csv"
+    logFile="${Dir}/$1Status.txt"
+    printf "This is the form and log file. \n"
+    echo ${formFile}
+    echo ${logFile}
+
     if [[ "$1" == "TM" ]]; then
-	forms="${TMDir}/TMForms.csv"
+	printf "We've got TM forms! \n"
+	printf "time to sort TM stuff! \n"
 	for N in "${list[@]}"; do
-	    F="${TMDir}/${N}Forms.csv"
+	    F="${Dir}/TM/${N}Forms.csv"
 	    if [ -f "${F}" ]; then
-		cat "${F}" >> "${forms}"
+		cat "${F}" >> "${formFile}"
 		rm "${F}"
 	    fi
 	done
     elif [[ "$1" == "XYZ2" ]]; then
-	forms="${XYZ2Dir}/XYZ2Forms.csv"
-    else
-	echo "Invalid input: file type must be either TM or XYZ2." >&2
-	exit 1
+	printf "We've got XYZ2 forms! \n"
+	printf "Do nothing here \n!"
     fi
 
-    verifyNonEmpty "${forms}" "$1"
+    printf "Verifying nonempty ..." >> ${logFile}
+    verifyNonEmpty "$1"
+    printf "Done verifying nonempty.\n" >> ${logFile}
 
     printf "Removing redundant cases..."
-    #FIX THIS FUNCTION AS WELL - ADD COMMENTS AND CHECK determineOF FUNC
     python Code/gatherRedundancy.py "${forms}" "$1"
     printf "Done.\n"
 }
 
-amalgamateFormFiles() {
+runTM() (
 
-    # Amalgamates all S-unit equations corresponding to Thue--Mahler forms into
-    # a single document, TM/TMForms.csv, cleaning up any additional temporary
-    # files in the process and forwarding any magma errors to the file
-    # Errors.txt.
-    #
-    # Parameters
-    #     Dir/TM/${line}.csv
-    #         The output file from Code/TM/optimalForm.m containing, for each
-    #         line, the optimal Thue--Mahler S-unit equations to be solved.
-    #     Dir/TM/${line}tmp.txt
-    #         The magma logfile from Code/TM/optimalForm.m tracking any magma
-    #         errors.
-    # Returns
-    #     Dir/TM/TMForms.csv
-    #         The file Data/${name}/TM/TMForms.csv containing, in each line, the
-    #         optimal Thue--Mahler S-unit equations to be solved.
+    # in a subshell so that we can run veriyNonEmpty without terminating the whole program
+    # LEFT OFF HERE
 
-    local line
-    local F1
-    local F2
-    local rerun
+    local TMLog
+    local program
 
-    while IFS= read -r line; do
-	F1="${TMDir}/${line}.csv"
-	F2="${TMDir}/${line}tmp.txt"
-	if [ -f "${F1}" ]; then
-	    cat "${F1}" >> "${TMDir}/tmpTMForms.csv"
-	    rm "${F1}"
-	fi
-	if grep -q "error" "${F2}"; then
-	    rerun="magma -b set:=${line} dir:='${TMDir}' "
-	    rerun="${rerun} Code/TM/optimalForm.m 2>&1"
-	    echo "${rerun}" >> "${Dir}/Errors.txt"
-	fi
-	rm "${F2}"
-    done < "${TMDir}/TMForms.csv"
-    mv "${TMDir}/tmpTMForms.csv" "${TMDir}/TMForms.csv"
-
-    verifyNonEmpty "${TMDir}/TMForms.csv"
-}
-
-moveTMCurves() {
-
-    # For each line of inFile, extracts the conductor N and copies the line to
-    # the file ${ECDir}/${N}.csv.
-    #
-    # Parameters
-    #     inFile
-    #         The output file from Code/TM/runTMEC.m containing, for each line,
-    #         the elliptic curve obtained by solving the Thue--Mahler S-unit
-    #         equation in the filename.
-
-    local line
-    local N
-
-    while IFS= read -r line; do
-	N=$(echo "${line}" | cut -d' ' -f -1)
-	echo "${line}" >> "${ECDir}/${N}.csv"
-    done < "$1"
-}
-
-sortCurvesByN() {
-
-    # Sorts all elliptic curve files and generates a single file containing all
-    # curves.
-    #
-    # Returns
-    #     Dir/EllipticCurves/AllCurves.csv
-    #         The file containing all elliptic curves generated in the program,
-    #         sorted and free of duplicates, in the format N [a1,a2,a3,a4,a6].
-
-    local N
-    local F
-
-    for N in "${list[@]}"; do
-	F="${ECDir}/${N}.csv"
-	sort -t, -k2,2n -k3,3n -k4,4n -k5,5n -k6,6n "$F" > "${ECDir}/tmp${N}.csv"
-	mv "${ECDir}/tmp${N}.csv" "${ECDir}/${N}.csv"
-	# Remove duplicate elliptic curves.
-	awk -i inplace '!seen[$0]++' "${ECDir}/${N}.csv"
-	cat "${ECDir}/${N}.csv" >> "${ECDir}/AllCurves.csv"
-    done
-}
-
-sortCurves() {
-
-    # Amalgamates all logfiles pertaining to the same Thue--Mahler equation,
-    # forwards any magma errors to the file Errors.txt, and populates and sorts
-    # all elliptic curve files. This function also generates a single file
-    # containing all resulting curves, to be used for final comparisons.
-    #
-    # Parameters
-    #     Dir/TM/${line}Out.csv
-    #         The output file from Code/TM/runTMEC.m containing, for each line,
-    #         the elliptic curve obtained by solving the Thue--Mahler S-unit
-    #         equation in ${line}.
-    #     Dir/TM/${line}Log.txt
-    #         The magma logfile from Code/TM/runTMEC.m tracking the code's
-    #         progress, solutions, and any magma errors that arise.
-    # Returns
-    #     Dir/TM/${form}Log.txt
-    #         The file containing the amalgamated logfiles Dir/TM/${line}Log.txt
-    #         pertaining to the same Thue--Mahler form.
-    #     Dir/EllipticCurves/AllCurves.csv
-    #         The file containing all elliptic curves generated in the program,
-    #         sorted and free of duplicates, in the format N [a1,a2,a3,a4,a6].
-
-    local line
-    local form
-    local Out
-    local Log
-    local allLog
-    local rerun
-
-    while IFS= read -r line; do
-	form="$(echo ${line} | cut -d']' -f -3)""]"
-	if [ "${line}" != "${form}" ]; then
-	    Out="${TMOutDir}/${line}Out.csv"
-	    Log="${TMLogDir}/${line}Log.txt"
-	    allLog="${TMLogDir}/${form}Log.txt"
-	    if grep -q "error" "${Log}"; then
-		rerun="magma -b set:='${line}' dir:='${TMDir}'"
-		rerun="${rerun} Code/TM/runTMEC.m 2>&1"
-		echo "${rerun}" >> "${Dir}/Errors.txt"
-	    fi
-	    if [ -f "${Out}" ]; then
-		moveTMCurves "${Out}"
-	    fi
-	    cat "${Log}" >> "${allLog}"
-	    rm "${Log}"
-	fi
-    done < "${TMDir}/TMForms.csv"
-    rm -r "${TMOutDir}"
-
-    sortCurvesByN
-}
-
-TM() (
-    log="${TMDir}/TMStatus"
-
-    printf "${name} inside" >> $log
-    printf "inside the TM subshell I hope" >> $log
+    printf "Inside TM. \n"
+    TMLog="${Dir}/TMStatus.txt"
+    touch "${TMLog}"
 
     # Generate all required Thue--Mahler forms in parallel, applying all
     # necessary local tests in the process. That is, run
     # Code/N2TME N '${TMDir}' > /dev/null
     # in parallel, with N an entry of ${conductors}, storing GNU parallel's
-    # progress in the file ${Dir}/formLog.
+    # progress in the file ${Dir}/formJoblog.
     program="Code/N2TME {} '${TMDir}' > /dev/null"
-    printf "Generating all required cubic forms for conductors in ${name}..." >> $log
-    runParallel "${conductors}" formLog "${program}"
-    printf "Done.\n"
+    printf "Generating all required cubic forms for conductors in ${name}..." \
+	   >> "${TMLog}"
+    runParallel "${conductors}" formJoblog "${program}"
+    printf "Done.\n" >> "${TMLog}"
 
     # Remove redundant Thue--Mahler equations.
     gatherRedundantForms "TM"
-    printf "Made it here.\n"
 
-        # Generate optimal Thue--Mahler forms and all S-unit equations in parallel.
-    # That is, run
-    # magma -b set:=<line> dir:=${TMDir} Code/TM/optimalForm.m 2>&1
-    # in parallel, for each <line> of ${TMForms}, storing GNU parallel's
-    # progress in the file ${Dir}/optimalLog.
-    TMForms=$(cat ${TMDir}/TMForms.csv)
-    program="magma -b set:={} dir:='${TMDir}' Code/TM/optimalForm.m 2>&1"
-    printf "Generating optimal GL2(Z)-equivalent cubic forms..."
-    runParallel "${TMForms}" optimalLog "${program}"
+    printf "Done TM.\n"
+)
+
+runXYZ2() (
+
+    local XYZ2Log
+
+    printf "Inside XYZ2. \n"
+    XYZ2Log="${Dir}/XYZ2Status.txt"
+    touch "${XYZ2Log}"
+
+    printf "Generating all required prime lists for conductors in ${name}..." \
+	   >> "${XYZ2Dir}"
+    echo "${conductors}" | factor > ${XYZ2Dir}/XYZ2Forms.csv
+    printf "Done.\n" >> "${XYZ2Dir}"
+
+    # Remove redundant prime lists.
+    gatherRedundantForms "XYZ2"
+
+    printf "Done XYZ2.\n"
+)
+
+main() {
+
+    # Generates all elliptic curves of given conductor(s), taking as input a
+    # single conductor N, a range of conductors [N1,...,N2], or, with the
+    # flag -l, an arbitrary finite list of conductors.
+    #
+    # Parameters
+    #     N1 [N2]
+    #         A single conductor, N1, or the range [N1,...,N2].
+    #     [-l N1] [N2...]: [OPTIONAL]
+    #         A finite, arbitrary list of conductors to generate [N1,N2,...].
+    # Returns
+    #     Dir
+    #         A subdirectory or Data storing all output, logs, errors, and
+    #         elliptic curves.
+
+    local conductors
+    local program
+    local TMForms
+
+    printf "We're in main, not yet in subroutines...\n"
+
+    getNList "$@"
+    generateDirectories
+
+    # Generate all elliptic curves of j-invariant 0 in conductors list, in
+    # parallel. That is, run
+    # Code/CurvesNj0 N > ${Dir}/EllipticCurves/N.csv
+    # in parallel, with N an entry of ${conductors}, storing GNU parallel's
+    # progress in the file ${Dir}/j0Log.
+    conductors=$(printf '%s\n' "${list[@]}")
+    program="Code/CurvesNj0 {} > '${ECDir}'/{}.csv"
+    printf "Generating all j-invariant 0 curves for conductors in ${name}..."
+    runParallel "${conductors}" j0Log "${program}"
     printf "Done.\n"
-    )
 
-
-getNList "$@"
-generateDirectories
-
-# Generate all elliptic curves of j-invariant 0 in conductors list, in
-# parallel. That is, run
-# Code/CurvesNj0 N > ${Dir}/EllipticCurves/N.csv
-# in parallel, with N an entry of ${conductors}, storing GNU parallel's
-# progress in the file ${Dir}/j0Log.
-conductors=$(printf '%s\n' "${list[@]}")
-program="Code/CurvesNj0 {} > '${ECDir}'/{}.csv"
-printf "Generating all j-invariant 0 curves for conductors in ${name}..."
-runParallel "${conductors}" j0Log "${program}"
-printf "Done.\n"
-
-TM
-printf "Are we still here?"
-printf "$name outside"
+    printf "Entering TM .\n"
+    runTM
+    printf "Now out of TM and entering XYZ2 .\n"
+    runXYZ2
+    printf "Out and back and done!\n"
+}
