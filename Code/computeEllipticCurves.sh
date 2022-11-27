@@ -633,11 +633,10 @@ main() {
     runParallel "${conductors}" j0Joblog "${program}"
     printf "Done.\n"
 
-    # EDIT THIS prinft
-    printf "Solving all TM-forms..\n"
+    printf "Generating all Thue--Mahler curves for conductors in ${name}..."
     runTM &
     printf "Done.\n"
-    printf "Solving all XYZ2 eqiations...\n"
+    printf "Generating all XYZ2 curves for conductors in ${name}..."
     runXYZ2 &
     printf "Done.\n"
     wait
@@ -650,7 +649,6 @@ main() {
     if [ -s "${Dir}/XYZ2/XYZ2Forms.csv" ]; then
 	sortCurves "XYZ2"
     fi
-
 
     # Clean up directory and amalgamate all Thue--Mahler logfiles and elliptic
     # curves.
