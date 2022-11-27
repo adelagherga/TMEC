@@ -297,7 +297,7 @@ gatherRedundantCases() {
     verifyNonEmpty "$1"
 
     printf "Removing redundant cases..." >> "${logFile}"
-    python Code/gatherRedundancy.py "${formFile}" "$1"
+    python3 Code/gatherRedundancy.py "${formFile}" "$1"
     printf "Done.\n" >> "${logFile}"
 }
 
@@ -630,6 +630,13 @@ main() {
     sortCurves
     printf "Done.\n"
     printf "Finished computing all elliptic curves of conductor ${name}.\n"
+
+    # If there are no errors in the Thue--Mahler and XYZ2 computation, run a
+    # comparison with the LMFDB, where possible, and print any missing curves in
+    # ${ECDir}/MissingCurves.csv
+    if [ ! -s "${Dir}/TM/Errors.txt" ] && [ ! -s "${Dir}/TM/Errors.txt" ]; then
+	python3 Code/compareLMFDB.py "${Dir}"
+    fi
 }
 
 main "$@"
