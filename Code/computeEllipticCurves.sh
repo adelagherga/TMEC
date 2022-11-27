@@ -175,6 +175,7 @@ generateDirectories() {
     #     ECDir/${N}.csv
     #         A file storing all elliptic curves of conductor N, generated for
     #         each N in list, in the format N [a1,a2,a3,a4,a6].
+    # ADD JOBLOGS
 
     local iter
     local tmpname
@@ -200,8 +201,10 @@ generateDirectories() {
 
     # Generate necessary subdirectories and files.
     ECDir="${Dir}/EllipticCurves"
+    JLDir="${Dir}/Joblogs"
     mkdir "${Dir}"
     mkdir "${ECDir}"
+    mkdir "${JLDir}"
 
     # Generate files for each conductor.
     for N in "${list[@]}"; do
@@ -225,7 +228,7 @@ runParallel() {
     #         The program to be run in parallel, including any redirected stdout,
     #         stderr.
 
-    echo "$1" | parallel -j20 --joblog ${Dir}/"$2" "$3"
+    echo "$1" | parallel -j20 --joblog ${JLDir}/"$2" "$3"
 }
 
 verifyNonEmpty() {
@@ -448,7 +451,7 @@ runTM() (
     local program
     local TMForms
 
-    logFile="${Dir}/TMStatus"
+    logFile="${Dir}/TMStatus.txt"
     mkdir "${Dir}/TM"
     mkdir "${Dir}/TM/Outfiles"
     mkdir "${Dir}/TM/Logfiles"
@@ -627,7 +630,7 @@ main() {
     conductors=$(printf '%s\n' "${list[@]}")
     program="Code/CurvesNj0 {} > '${ECDir}'/{}.csv"
     printf "Generating all j-invariant 0 curves for conductors in ${name}..."
-    runParallel "${conductors}" j0Log "${program}"
+    runParallel "${conductors}" j0Joblog "${program}"
     printf "Done.\n"
 
     # EDIT THIS prinft
