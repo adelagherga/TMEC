@@ -635,11 +635,12 @@ main() {
 
     # EDIT THIS prinft
     printf "Solving all TM-forms..\n"
-    runTM
+    runTM &
     printf "Done.\n"
     printf "Solving all XYZ2 eqiations...\n"
-    runXYZ2
+    runXYZ2 &
     printf "Done.\n"
+    wait
 
     # If there are forms
     if [ -s "${Dir}/TM/TMForms.csv" ]; then
