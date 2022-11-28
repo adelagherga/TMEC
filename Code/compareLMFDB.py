@@ -37,7 +37,7 @@ def extractAInv(strX):
               A tuple of integers (x_1,...,x_n).
     """
     strX=strX.lstrip("[").rstrip("]")
-    tupX=tuple([int(char) for char in strX.split(",")]):
+    tupX=tuple([int(char) for char in strX.split(",")])
     return tupX
 
 def determineNlist(ID):
