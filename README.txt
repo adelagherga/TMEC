@@ -14,7 +14,7 @@ Data/${name}, created as the program proceeds. If such a directory alread exists
 in Data/, these functions generate a directory Data/${name}i, where
 Data/${name}j exists for all j < i.
 
-To run this program using GNU parallel, running at most 20 jobs in parallel, run
+To run this program using GNU parallel, running at most 40 jobs in parallel, run
 
 $ cd TMEC
 $ nohup Code/computeEllipticCurves.sh N1 [N2] &
