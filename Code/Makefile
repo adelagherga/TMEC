@@ -38,14 +38,16 @@ all: tests
 sources: ccs headers
 	chmod a+r *.h *.cc
 
-ccs: cubic_utils.cc TME.cc N2TME.cc TME_compare.cc egros.cc CurvesNj0.cc CurvesNj1728.cc # S2TME.cc
+ccs1: cubic_utils.cc TME.cc N2TME.cc TME_compare.cc egros.cc CurvesNj0.cc CurvesNj1728.cc
+ccs2: curve_utils.cc arith_utils.cc twotorsioncurves.cc
+ccs: ccs1 ccs2
 
-headers: cubic_utils.h TME.h egros.h
+headers: cubic_utils.h TME.h egros.h curve_utils.h arith_utils.h
 
 %.o:   %.cc
 	$(CC) $(CFLAGS) $<
 
-TESTS = N2TME TME_compare CurvesNj CurvesNj0 CurvesNj1728 # S2TME
+TESTS = N2TME TME_compare CurvesNj CurvesNj0 CurvesNj1728  twotorsioncurves # S2TME
 tests: $(TESTS)
 
 clean:
@@ -80,3 +82,12 @@ TME_compare.o: TME_compare.cc cubic_utils.h TME.h
 cubic_utils.o: cubic_utils.h cubic_utils.cc
 TME.o: cubic_utils.h TME.h TME.cc
 
+arith_utils.o: arith_utils.h arith_utils.cc
+curve_utils.o: curve_utils.h curve_utils.cc
+twotorsioncurves.o: curve_utils.h arith_utils.h twotorsioncurves.cc
+twotorsioncurves: twotorsioncurves.o curve_utils.o arith_utils.o
+	$(CC) -o twotorsioncurves twotorsioncurves.o curve_utils.o arith_utils.o $(LFLAGS)
+
+divtest.o: divtest.cc arith_utils.h
+divtest: divtest.o arith_utils.o
+	$(CC) -o divtest divtest.o arith_utils.o $(LFLAGS)
