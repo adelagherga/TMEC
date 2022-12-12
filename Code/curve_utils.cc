@@ -7,10 +7,11 @@
 #include "curve_utils.h"
 #include <set>
 
-bigint SzpiroBound(const bigint& N)
+bigint SzpiroBound(const bigint& N, int exact)
 {
   vector<bigint> S = pdivs(N);
-  double logNmax = log(MaxN(S));
+  bigint Nmax = (exact? 256*N/gcd(N,256): MaxN(S));
+  double logNmax = (exact? log(N): log(Nmax));
   double logSFN=log(sqf(N));
   bigint M(1);
   for (auto pi=S.begin(); pi!=S.end(); ++pi)
@@ -190,6 +191,7 @@ bigint maxD2(const bigint& b, const vector<bigint>& PP, const bigint& Dmax)
 // if support==1, supp(N') = supp(N)
 // if support==2, supp(N') contained in N
 
+#define DEBUG1
 //#define DEBUG2
 
 vector<CurveRed> CurvesWith2Torsion(const bigint& N, int support)
@@ -198,7 +200,7 @@ vector<CurveRed> CurvesWith2Torsion(const bigint& N, int support)
   bigint N2 = N;
   int oddN = !div(2,N);
   if (oddN) N2 *=2;
-  bigint Dmax = SzpiroBound(N2);
+  bigint Dmax = SzpiroBound(N2);//, (support==0));
   vector<bigint> PP = pdivs(Dmax);
   vector<long> EE, EE2;
   for (auto pi=PP.begin(); pi!=PP.end(); ++pi)
@@ -207,26 +209,43 @@ vector<CurveRed> CurvesWith2Torsion(const bigint& N, int support)
       EE.push_back(e);
       EE2.push_back(e/2);
     }
-#ifdef DEBUG2
-  cout<<"primes: "<<PP<<endl;
-  cout<<"exponents: "<<EE<<endl;
-  cout<<"exponents/2: "<<EE2<<endl;
+#ifdef DEBUG1
+  cerr<<"Dmax = "<<Dmax<<endl;
+  cerr<<"primes: "<<PP<<endl;
+  cerr<<"exponents: "<<EE<<endl;
+  cerr<<"exponents/2: "<<EE2<<endl;
+  int nb=1;
+  for(auto e=EE2.begin(); e!=EE2.end(); ++e)
+    nb *= (1+*e);
+  cerr<<"Number of b values: "<<nb<<endl;
 #endif
   vector<vector<bigint>> ab_pairs;
   bigint a, asq, b, d1, d2, d1d2;
-  divisor_iterator b_iter(PP,EE2); // iterates through b s.t. b^2 | Dmax
-  for (; b_iter.is_ok(); b_iter.increment())
+  // iterates through b s.t. b^2 | Dmax
+  for (divisor_iterator b_iter(PP,EE2); b_iter.is_ok(); b_iter.increment())
     {
       b = b_iter.value();
-      divisor_iterator d1_iter(maxD1(b, PP)); // iterates through d1 | maxD1
-      for (; d1_iter.is_ok(); d1_iter.increment())
+      bigint mD1 = maxD1(b, PP);
+      bigint mD2 = maxD2(b, PP, Dmax);
+#ifdef DEBUG1
+      cout<<"b = "<<b<<endl;
+      cout<<"maxD1 = "<<mD1<<endl;
+      cout<<"maxD2 = "<<mD2<<endl;
+#endif
+      // iterate through d1 | maxD1
+      for (divisor_iterator d1_iter(mD1); d1_iter.is_ok(); d1_iter.increment())
         {
           d1 = d1_iter.value();
+          //cout<<" d1 = "<<d1<<endl;
+          assert (!(d1==0));
           if (val(2,d1)==2)
             continue;
-          divisor_iterator d2_iter(maxD2(b, PP, Dmax)); // iterates through d2 | maxD2
-          for (; d2_iter.is_ok(); d2_iter.increment())
+          // iterate through d2 | maxD2
+          for (divisor_iterator d2_iter(mD2); d2_iter.is_ok(); d2_iter.increment())
             {
+              d2 = d2_iter.value();
+              //cout<<"  d2 = "<<d2<<endl;
+              assert (!(d2==0));
               d1d2 = d1*d2_iter.value();
               if (isqrt(d1d2+4*b,a))
                 ab_pairs.push_back({a,b});
@@ -249,16 +268,18 @@ vector<CurveRed> CurvesWith2Torsion(const bigint& N, int support)
     curves.push_back(Eab((*ab)[0],(*ab)[1]));
 
 #ifdef DEBUG2
-  // for(auto Ci=curves.begin(); Ci!=curves.end(); ++Ci)
-  //   cout<<getconductor(*Ci)<<" : "<<(Curve)(*Ci)<<endl;
+  for(auto Ci=curves.begin(); Ci!=curves.end(); ++Ci)
+  cout<<getconductor(*Ci)<<" : "<<(Curve)(*Ci)<<endl;
 #endif
 
   // include all twists:
   curves = TwistsPP(curves, PP);
-#ifdef DEBUG2
+#ifdef DEBUG1
   cout<<"With all twists: "<<curves.size()<<" curves"<<endl;
-  // for(auto Ci=curves.begin(); Ci!=curves.end(); ++Ci)
-  //   cout<<getconductor(*Ci)<<" : "<<(Curve)(*Ci)<<endl;
+#ifdef DEBUG2
+  for(auto Ci=curves.begin(); Ci!=curves.end(); ++Ci)
+  cout<<getconductor(*Ci)<<" : "<<(Curve)(*Ci)<<endl;
+#endif
 #endif
 
   // If N is odd, discard curves with even conductor. Then:
@@ -291,7 +312,7 @@ vector<CurveRed> CurvesWith2Torsion(const bigint& N, int support)
         curves1.push_back(*Ci);
     }
   curves = curves1;
-#ifdef DEBUG2
+#ifdef DEBUG1
   cout<<"With support constraints: "<<curves.size()<<" curves"<<endl;
 #endif
 
@@ -303,7 +324,7 @@ vector<CurveRed> CurvesWith2Torsion(const bigint& N, int support)
       curves2.insert(C2C.begin(), C2C.end());
     }
   curves.assign(curves2.begin(), curves2.end());
-#ifdef DEBUG2
+#ifdef DEBUG1
   cout<<"With 2-power-isogenous curves: "<<curves.size()<<" curves"<<endl;
 #endif
   std::sort(curves.begin(), curves.end());

@@ -1,4 +1,10 @@
-bigint SzpiroBound(const bigint& N);
+// *conjectural* bound on the discriminant (up to quadratic twist) of
+// curves with 2-torsion and good reduction outside the primes
+// dividing N, based on the maximum possible condictor such a curve
+// can have, together with an explaicit form of Szpiro's conjecture.
+// If exact=1, use N itself instead of the maximum conductor (for
+// finding curves with conductor N only).
+bigint SzpiroBound(const bigint& N, int exact=0);
 
 // Minimal model of y^2 = x^3+a*x^2+b*x+c
 CurveRed Eab(const bigint& a, const bigint& b, const bigint& c=BIGINT(0));

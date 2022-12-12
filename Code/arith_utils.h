@@ -1,42 +1,38 @@
 // class to iterate through divisors of a factored positive integer
 
 class divisor_iterator {
-public:
+protected:
   int ok;            // flags that iteration not finished
   int np;            // number of primes
+  int nd;            // number of divisors
   vector<bigint> PP; // list of np primes
   vector<long> EE;   // list of np maximum exponents
   vector<long> ee;   // list of np current exponents
   vector<bigint> NN; // list of np+1 partial products
+
+public:
   // constructors
-  divisor_iterator(const vector<bigint>& P, const vector<long>& E)
-    :ok(1), PP(P), EE(E)
-  {
-    np = PP.size();
-    ee.resize(np, 0);
-    NN.resize(np+1, BIGINT(1));
-  }
-  divisor_iterator(const bigint& N)
-    :ok(1)
-  {
-    PP = pdivs(N);
-    for (auto pi=PP.begin(); pi!=PP.end(); ++pi)
-      EE.push_back(val(*pi,N));
-    np = PP.size();
-    ee.resize(np, 0);
-    NN.resize(np+1, BIGINT(1));
-  }
-  divisor_iterator()
-    :ok(1), np(0)
-  {
-    NN.resize(1, BIGINT(1));
-  }
+  divisor_iterator(const vector<bigint>& P, const vector<long>& E);
+  divisor_iterator(const bigint& N);
+  divisor_iterator();
+
   // increment if possible
   void increment();
   // check for end
   int is_ok() {return ok;}
+  // reset
+  void rewind()
+    {
+      ee.resize(np, 0);
+      NN.resize(np+1, BIGINT(1));
+      ok=1;
+    }
   // deliver current value
   bigint value() {return NN[0];}
+  // total number of divisors
+  long ndivs() {return nd;}
+  // report on current status
+  void report();
 };
 
 // test function for divisor_itersor

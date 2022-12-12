@@ -2,6 +2,37 @@
 #include <assert.h>
 #include "arith_utils.h"
 
+// constructors
+divisor_iterator::divisor_iterator(const vector<bigint>& P, const vector<long>& E)
+  :PP(P), EE(E)
+{
+  np = PP.size();
+  rewind();
+  nd = 1;
+  for(auto e=EE.begin(); e!=EE.end(); ++e)
+    nd *= (1+*e);
+}
+
+divisor_iterator::divisor_iterator(const bigint& N)
+{
+  PP = pdivs(N);
+  np = PP.size();
+  nd = 1;
+  for (auto pi=PP.begin(); pi!=PP.end(); ++pi)
+    {
+      int e = val(*pi,N);
+      EE.push_back(e);
+      nd *= (e+1);
+    }
+  rewind();
+}
+
+divisor_iterator::divisor_iterator()
+  :ok(1), np(0), nd(1)
+{
+  NN.resize(1, BIGINT(1));
+}
+
 void divisor_iterator::increment()
 {
   if (!ok) return;
@@ -25,6 +56,15 @@ void divisor_iterator::increment()
   ok = 0;
 }
 
+// report on current status
+void divisor_iterator::report()
+{
+  cout<<"Divisor iterator status:"<<endl;
+  cout<<"Primes:    "<<PP<<endl;
+  cout<<"Exponents: "<<EE<<endl;
+  cout<<"Number of divisors: "<<nd<<endl;
+  cout<<"current exponents:  "<<ee<<endl;
+}
 
 // test function for divisor_itersor
 int test_divisor_iterator(const bigint& N)
