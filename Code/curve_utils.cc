@@ -7,12 +7,17 @@
 #include "curve_utils.h"
 #include <set>
 
-bigint SzpiroBound(const bigint& N, int exact)
+bigint SzpiroBound(const bigint& N)
 {
   vector<bigint> S = pdivs(N);
-  bigint Nmax = (exact? 256*N/gcd(N,256): MaxN(S));
-  double logNmax = (exact? log(N): log(Nmax));
+  bigint Nmax = MaxN(S);
+  double logNmax = log(Nmax);
   double logSFN=log(sqf(N));
+  // cout<<"Szpiro bound:"<<endl;
+  // cout<<"N = "<<N<<endl;
+  // cout<<"Nmax = "<<Nmax<<endl;
+  // cout<<"log(Nmax) = "<<logNmax<<endl;
+  // cout<<"logSFN = "<<logSFN<<endl;
   bigint M(1);
   for (auto pi=S.begin(); pi!=S.end(); ++pi)
     {
@@ -20,10 +25,11 @@ bigint SzpiroBound(const bigint& N, int exact)
       double logp = log(p);
       double factor(p==2? 6.1: 3);
       int e = floor(factor*(logNmax-logSFN+logp)/logp);
+      // cout<<"(p,e) = ("<<p<<","<<e<<")\n";
       M *= pow(p,e);
     }
-  if (div(2,N))
-    M *= 8;
+  if (ndiv(2,N))
+    M *= 256;
   return M;
 }
 
@@ -191,7 +197,7 @@ bigint maxD2(const bigint& b, const vector<bigint>& PP, const bigint& Dmax)
 // if support==1, supp(N') = supp(N)
 // if support==2, supp(N') contained in N
 
-#define DEBUG1
+//#define DEBUG1
 //#define DEBUG2
 
 vector<CurveRed> CurvesWith2Torsion(const bigint& N, int support)
@@ -200,7 +206,7 @@ vector<CurveRed> CurvesWith2Torsion(const bigint& N, int support)
   bigint N2 = N;
   int oddN = !div(2,N);
   if (oddN) N2 *=2;
-  bigint Dmax = SzpiroBound(N2);//, (support==0));
+  bigint Dmax = SzpiroBound(N);
   vector<bigint> PP = pdivs(Dmax);
   vector<long> EE, EE2;
   for (auto pi=PP.begin(); pi!=PP.end(); ++pi)
@@ -227,7 +233,7 @@ vector<CurveRed> CurvesWith2Torsion(const bigint& N, int support)
       b = b_iter.value();
       bigint mD1 = maxD1(b, PP);
       bigint mD2 = maxD2(b, PP, Dmax);
-#ifdef DEBUG1
+#ifdef DEBUG2
       cout<<"b = "<<b<<endl;
       cout<<"maxD1 = "<<mD1<<endl;
       cout<<"maxD2 = "<<mD2<<endl;
