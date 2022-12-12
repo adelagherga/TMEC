@@ -45,6 +45,13 @@ int main (int argc, char *argv[])
     supp = strtol(argv[2], &t, 10); // 10 is the base
 
   initprimes("PRIMES");
+  if (supp==0 && !is_valid_conductor(n))
+    {
+#if VERBOSE > 0
+      cout << "No elliptic curves have conductor " << n << endl;
+#endif
+      exit(0);
+    }
   bigint N(n);
   vector<bigint> PP = pdivs(N);
 
