@@ -110,7 +110,7 @@ initialBound:=function(tau,deltaList,S,maxhXY)
     c13:=(u+v+2*#S)/d;
     c14:=2*htau + c13*Max(c8,c10);
     c15:=c13*Max(c9,c12);
-    c16:=c14 + (3/2)*Log(2) + 2*htheta + htau;
+    c16:=c14 + 2*Log(2) + 2*htheta + htau;
 
     c17list:=[];
     for i in [1..#S + #embeds] do
@@ -145,7 +145,7 @@ initialBound:=function(tau,deltaList,S,maxhXY)
     c19:=2*d*c17*c15;
     c20MY:=2*c18 + Max(4*e^2,2*c19*Log(c19));
     // The height bound derived using Matveev and Yu.
-    c20vKM:=2*d*c17*(maxhXY+htheta-htau);
+    c20vKM:=2*d*c17*(maxhXY+htheta+htau);
     // The height bound derived using von Kanel and Matshke.
     c20:=Min(c20MY,c20vKM);
     return c17,c20;
@@ -1004,7 +1004,8 @@ reducedBound:=function(tau,deltaList,maxhXY : verb:=false)
 	    expSbds[i,1]:=expSbds[i,1]+Valuation(tau,S[i]);
 	    expSbds[i,2]:=expSbds[i,2]+Valuation(tau,S[i]);
 	end for;
-	return [Integers()!b : b in vecB],S,expSbds;
+	vecs:=[Eltseq(ZZn!vv) : vv in vecs];
+	return vecs,[Integers()!b : b in vecB],S,expSbds;
     end if;
     vprintf User1: "We're carrying out the reduction process for each real ";
     vprintf User1: "embedding separately.\n";
