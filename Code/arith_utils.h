@@ -24,7 +24,7 @@ public:
   void rewind()
     {
       ee.resize(np, 0);
-      NN.resize(np+1, BIGINT(1));
+      NN.resize(np+1, bigint(1));
       ok=1;
     }
   // deliver current value

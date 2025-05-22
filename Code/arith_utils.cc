@@ -30,7 +30,7 @@ divisor_iterator::divisor_iterator(const bigint& N)
 divisor_iterator::divisor_iterator()
   :ok(1), np(0), nd(1)
 {
-  NN.resize(1, BIGINT(1));
+  NN.resize(1, bigint(1));
 }
 
 void divisor_iterator::increment()

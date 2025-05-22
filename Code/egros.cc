@@ -98,7 +98,7 @@ int is_j_possible(const bigrational& j, const vector<bigint>& S)
   if (is_zero(m)) // j=1728
     return 1;
   if (is_zero(n)) // j=0
-    return std::find(S.begin(), S.end(), BIGINT(3)) != S.end();
+    return std::find(S.begin(), S.end(), bigint(3)) != S.end();
   if (!is_S_integral(j, S))
     return 0;
   return
@@ -221,7 +221,7 @@ vector<CurveRed> egros_from_j(const bigrational& j, const vector<bigint>& S)
   // cout << "extra_primes = "<<a4a6primes<<endl;
   // cout << "a4a6primes =   "<<a4a6primes<<endl;
   bigint zero(0);
-  int no2 = std::find(S.begin(), S.end(), BIGINT(2)) == S.end();
+  int no2 = std::find(S.begin(), S.end(), bigint(2)) == S.end();
 
   for (auto wi=wlist.begin(); wi!=wlist.end(); ++wi)
     {

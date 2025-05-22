@@ -47,7 +47,7 @@ CurveRed TwistD(const CurveRed& E, const bigint& D)
 {
   bigint c4, c6;
   E.getci(c4, c6);
-  CurveRed ED = Eab(BIGINT(0),-27*D*D*c4,-54*D*D*D*c6);
+  CurveRed ED = Eab(bigint(0),-27*D*D*c4,-54*D*D*D*c6);
   // cout<<"Twisting E="<<(Curve)E<<", N_E="<<getconductor(E)<<" by "<<D<<": "<<(Curve)ED<<" N_ED="<<getconductor(ED)<<endl;
   return ED;
 }
@@ -77,9 +77,9 @@ vector<CurveRed> TwistsP(const vector<CurveRed>& EE, const bigint& p)
   if (p4==3)
     return TwistsD(EE,-p);
   vector<CurveRed>
-    ans1 = TwistsD(EE,BIGINT(-4)),
-    ans2 = TwistsD(EE,BIGINT(-8)),
-    ans3 = TwistsD(EE,BIGINT(8));
+    ans1 = TwistsD(EE,bigint(-4)),
+    ans2 = TwistsD(EE,bigint(-8)),
+    ans3 = TwistsD(EE,bigint(8));
   ans1.insert(ans1.end(), ans2.begin(), ans2.end());
   ans1.insert(ans1.end(), ans3.begin(), ans3.end());
   return ans1;
@@ -112,7 +112,7 @@ vector<bigint> sort_key(const CurveRed& C)
         continue;
       long ap = ellap(posmod(ainvs[0],p), posmod(ainvs[1],p), posmod(ainvs[2],p),
                       posmod(ainvs[3],p), posmod(ainvs[4],p), p);
-      key.push_back(BIGINT(ap));
+      key.push_back(bigint(ap));
     }
   key.insert(key.end(), ainvs.begin(), ainvs.end());
   return key;
@@ -187,7 +187,7 @@ bigint maxD2(const bigint& b, const vector<bigint>& PP, const bigint& Dmax)
   for(auto pi = PP.begin(); pi!=PP.end(); ++pi)
     {
       bigint p = *pi;
-      EE.push_back((div(p,b)?1:val(p,Dmax)));
+      EE.push_back((div(p,b)?0:val(p,Dmax)));
     }
   return factorback(PP,EE);
 }
@@ -197,8 +197,7 @@ bigint maxD2(const bigint& b, const vector<bigint>& PP, const bigint& Dmax)
 // if support==1, supp(N') = supp(N)
 // if support==2, supp(N') contained in N
 
-//#define DEBUG1
-//#define DEBUG2
+#define DEBUG 2
 
 vector<CurveRed> CurvesWith2Torsion(const bigint& N, int support)
 {
@@ -215,7 +214,7 @@ vector<CurveRed> CurvesWith2Torsion(const bigint& N, int support)
       EE.push_back(e);
       EE2.push_back(e/2);
     }
-#ifdef DEBUG1
+#if DEBUG > 0
   cerr<<"Dmax = "<<Dmax<<endl;
   cerr<<"primes: "<<PP<<endl;
   cerr<<"exponents: "<<EE<<endl;
@@ -223,7 +222,7 @@ vector<CurveRed> CurvesWith2Torsion(const bigint& N, int support)
   int nb=1;
   for(auto e=EE2.begin(); e!=EE2.end(); ++e)
     nb *= (1+*e);
-  cerr<<"Number of b values: "<<nb<<endl;
+  cerr<<nb<<" b values"<<endl;
 #endif
   vector<vector<bigint>> ab_pairs;
   bigint a, asq, b, d1, d2, d1d2;
@@ -233,24 +232,36 @@ vector<CurveRed> CurvesWith2Torsion(const bigint& N, int support)
       b = b_iter.value();
       bigint mD1 = maxD1(b, PP);
       bigint mD2 = maxD2(b, PP, Dmax);
-#ifdef DEBUG2
+#if DEBUG > 1
       cout<<"b = "<<b<<endl;
       cout<<"maxD1 = "<<mD1<<endl;
       cout<<"maxD2 = "<<mD2<<endl;
 #endif
       // iterate through d1 | maxD1
+#if DEBUG > 1
+      divisor_iterator d1_iter(mD1);
+      cout<<d1_iter.ndivs()<< " d1 values"<<endl;
+#endif
       for (divisor_iterator d1_iter(mD1); d1_iter.is_ok(); d1_iter.increment())
         {
           d1 = d1_iter.value();
-          //cout<<" d1 = "<<d1<<endl;
+#if DEBUG > 2
+          cout<<" d1 = "<<d1<<endl;
+#endif
           assert (!(d1==0));
           if (val(2,d1)==2)
             continue;
+#if DEBUG > 2
+          divisor_iterator d2_iter(mD2);
+          cout<<d2_iter.ndivs()<< " d2 values"<<endl;
+#endif
           // iterate through d2 | maxD2
           for (divisor_iterator d2_iter(mD2); d2_iter.is_ok(); d2_iter.increment())
             {
               d2 = d2_iter.value();
-              //cout<<"  d2 = "<<d2<<endl;
+#if DEBUG > 3
+              cout<<"  d2 = "<<d2<<endl;
+#endif
               assert (!(d2==0));
               d1d2 = d1*d2_iter.value();
               if (isqrt(d1d2+4*b,a))
@@ -260,6 +271,9 @@ vector<CurveRed> CurvesWith2Torsion(const bigint& N, int support)
               if (isqrt(d1d2-4*b,a))
                 ab_pairs.push_back({a,-b});
             }
+#if DEBUG > 2
+          cout<<"  last d2 = " << d2<<" #(a,b) pairs now "<<ab_pairs.size()<<endl;
+#endif
         }
     }
   std::set<vector<bigint>> sab;
@@ -273,16 +287,16 @@ vector<CurveRed> CurvesWith2Torsion(const bigint& N, int support)
   for(auto ab=ab_pairs.begin(); ab!=ab_pairs.end(); ++ab)
     curves.push_back(Eab((*ab)[0],(*ab)[1]));
 
-#ifdef DEBUG2
+#if DEBUG > 1
   for(auto Ci=curves.begin(); Ci!=curves.end(); ++Ci)
   cout<<getconductor(*Ci)<<" : "<<(Curve)(*Ci)<<endl;
 #endif
 
   // include all twists:
   curves = TwistsPP(curves, PP);
-#ifdef DEBUG1
+#if DEBUG > 0
   cout<<"With all twists: "<<curves.size()<<" curves"<<endl;
-#ifdef DEBUG2
+#if DEBUG > 1
   for(auto Ci=curves.begin(); Ci!=curves.end(); ++Ci)
   cout<<getconductor(*Ci)<<" : "<<(Curve)(*Ci)<<endl;
 #endif
@@ -318,7 +332,7 @@ vector<CurveRed> CurvesWith2Torsion(const bigint& N, int support)
         curves1.push_back(*Ci);
     }
   curves = curves1;
-#ifdef DEBUG1
+#if DEBUG > 0
   cout<<"With support constraints: "<<curves.size()<<" curves"<<endl;
 #endif
 
@@ -330,7 +344,7 @@ vector<CurveRed> CurvesWith2Torsion(const bigint& N, int support)
       curves2.insert(C2C.begin(), C2C.end());
     }
   curves.assign(curves2.begin(), curves2.end());
-#ifdef DEBUG1
+#if DEBUG > 0
   cout<<"With 2-power-isogenous curves: "<<curves.size()<<" curves"<<endl;
 #endif
   std::sort(curves.begin(), curves.end());

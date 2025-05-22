@@ -5,7 +5,7 @@
 bigint SzpiroBound(const bigint& N);
 
 // Minimal model of y^2 = x^3+a*x^2+b*x+c
-CurveRed Eab(const bigint& a, const bigint& b, const bigint& c=BIGINT(0));
+CurveRed Eab(const bigint& a, const bigint& b, const bigint& c=bigint(0));
 
 // Quadratic twist of an elliptic curve
 CurveRed TwistD(const CurveRed& E, const bigint& D);

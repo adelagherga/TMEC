@@ -59,13 +59,13 @@ vector<bigint> image_mod_cubes(const cubic& F, const bigint& q)
 
   //  vector<bigint> coeffs = {F.a(), F.b(), F.c(), F.d()};
   if (F.has_roots_mod(q))
-    images.push_back(BIGINT(0));
+    images.push_back(bigint(0));
 
   // if q=2 (mod 3) or q=3, then all nozero values occur and all are cubes:
 
   if (div(3,q+1) || q==3)
     {
-      images.push_back(BIGINT(1));
+      images.push_back(bigint(1));
       return images;
     }
 
