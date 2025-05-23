@@ -15,10 +15,10 @@
 
 // Usage:
 // ./twotorsioncurves <N> 0 (or just <N>) # for exact conductor N, default output directory
-// ./twotorsioncurves <N1> 1  # for conductors N' with supp(N')=supp(N), default output directory
-// ./twotorsioncurves <N1> 2  # for conductors N' from with supp(N')\subseteq supp(N), default output directory
+// ./twotorsioncurves <N> 1  # for conductors N' with supp(N')=supp(N), default output directory
+// ./twotorsioncurves <N> 2  # for conductors N' from with supp(N')\subseteq supp(N), default output directory
 
-#define VERBOSE 0
+#define VERBOSE 2
 
 // The default directory to hold output files:
 const string default_output_directory = "../Data/Curves";

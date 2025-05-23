@@ -85,10 +85,6 @@ vector<CurveRed> TwistsP(const vector<CurveRed>& EE, const bigint& p)
   return ans1;
 }
 
-// Given a vector of elliptic curves, and a vector of primes, return a
-// list of all twists of the curves by discriminants supported on
-// those primes (including the original curves)
-
 vector<bigint> a_invariants(const CurveRed& C)
 {
   vector<bigint> ai(5);
@@ -127,6 +123,10 @@ int operator<(const CurveRed& C1, const CurveRed& C2)
 {
   return sort_key(C1) < sort_key(C2);
 }
+
+// Given a vector of elliptic curves, and a vector of primes, return a
+// list of all twists of the curves by discriminants supported on
+// those primes (including the original curves)
 
 vector<CurveRed> TwistsPP(const vector<CurveRed>& EE, const vector<bigint>& PP)
 {
@@ -232,13 +232,13 @@ vector<CurveRed> CurvesWith2Torsion(const bigint& N, int support)
       b = b_iter.value();
       bigint mD1 = maxD1(b, PP);
       bigint mD2 = maxD2(b, PP, Dmax);
-#if DEBUG > 1
+#if DEBUG > 2
       cout<<"b = "<<b<<endl;
       cout<<"maxD1 = "<<mD1<<endl;
       cout<<"maxD2 = "<<mD2<<endl;
 #endif
       // iterate through d1 | maxD1
-#if DEBUG > 1
+#if DEBUG > 2
       divisor_iterator d1_iter(mD1);
       cout<<d1_iter.ndivs()<< " d1 values"<<endl;
 #endif
@@ -279,7 +279,7 @@ vector<CurveRed> CurvesWith2Torsion(const bigint& N, int support)
   std::set<vector<bigint>> sab;
   sab.insert(ab_pairs.begin(), ab_pairs.end());
   ab_pairs.assign(sab.begin(), sab.end());
-#ifdef DEBUG2
+#if DEBUG > 1
   cout<<"Found "<<ab_pairs.size()<<" (a,b) pairs"<<endl;
 #endif
   // convert (a,b) to curves y^2=x(x^2+ax+b):
@@ -294,7 +294,7 @@ vector<CurveRed> CurvesWith2Torsion(const bigint& N, int support)
 
   // include all twists:
   curves = TwistsPP(curves, PP);
-#if DEBUG > 0
+#if DEBUG > 1
   cout<<"With all twists: "<<curves.size()<<" curves"<<endl;
 #if DEBUG > 1
   for(auto Ci=curves.begin(); Ci!=curves.end(); ++Ci)
