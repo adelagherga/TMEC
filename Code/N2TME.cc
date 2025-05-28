@@ -175,12 +175,12 @@ int main (int argc, char *argv[])
 #endif
       ofstream fout;
       fout.open(ofname.c_str());
-      for (auto T = TM_eqns.begin(); T!=TM_eqns.end(); ++T)
+      for (auto T: TM_eqns)
         {
           // output to screen includes N and D:
-          cout << T->as_string(3) << endl;
+          cout << T.as_string(3) << endl;
           // output to file includes N but not D:
-          fout << T->as_string(1) << endl;
+          fout << T.as_string(1) << endl;
         }
       fout.close();
 #if VERBOSE

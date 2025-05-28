@@ -21,7 +21,8 @@
 // 128 [0,1,0,-9,7]
 // 128 [0,-1,0,-2,2]
 
-#include "egros.h"
+#include <eclib/egros.h>
+#include "egros_cache.h"
 
 #define VERBOSE 0
 
@@ -73,13 +74,11 @@ int main (int argc, char *argv[])
   for (long n=n1; n<=n2; n++)
     {
       if (!is_valid_conductor(n))
-        {
-          continue;
-        }
+        continue;
       bigint N(n);
       vector<CurveRed> Elist = egros_from_j(j, pdivs(N));
-      for (auto Ei = Elist.begin(); Ei!=Elist.end(); ++Ei)
-        if (getconductor(*Ei) == N)
-          cout << N << " " << (Curve)(*Ei) <<endl;
+      for (auto E: Elist)
+        if (E.conductor() == N)
+          cout << N << " " << (Curve)E <<endl;
     }
 }

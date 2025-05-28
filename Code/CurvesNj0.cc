@@ -16,7 +16,8 @@
 // 36 [0,0,0,0,1]
 // 36 [0,0,0,0,-27]
 
-#include "egros.h"
+#include <eclib/egros.h>
+#include "egros_cache.h"
 
 int main (int argc, char *argv[])
 {
@@ -54,12 +55,12 @@ int main (int argc, char *argv[])
     {
       bigint N(n);
       vector<bigint> suppN = pdivs(N);
-      if (test_conductor_j_0(N, suppN))
+      if (is_N_possible_j_0(N, suppN))
         {
           vector<CurveRed> Elist = get_egros_from_j_0(suppN);
-          for (auto Ei = Elist.begin(); Ei!=Elist.end(); ++Ei)
-            if (getconductor(*Ei) == N)
-              cout << N << " " << (Curve)(*Ei) <<endl;
+          for (auto E: Elist)
+            if (E.conductor() == N)
+              cout << N << " " << (Curve)E <<endl;
         }
     }
 }

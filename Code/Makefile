@@ -16,7 +16,7 @@ CC = $(GCC)
 # USE_BOOST=1 below so that the correct compiler and linker stuff is
 # appended below.  Otherwise set USE_BOOST=0 (or do not set it).
 
-USE_BOOST=1
+USE_BOOST=0
 ifeq ($(USE_BOOST), 1)
  BOOST_ASIO_LIB = -lboost_system-mt
  BOOST_CPPFLAGS =   -DECLIB_MULTITHREAD -DHAVE_STDCXX_0X=/\*\*/ -DHAVE_TR1_UNORDERED_MAP=/\*\*/ -DHAVE_STDCXX_0X=/\*\*/ -DHAVE_UNORDERED_MAP=/\*\*/# -pthread -I/usr/include
@@ -38,56 +38,48 @@ all: tests
 sources: ccs headers
 	chmod a+r *.h *.cc
 
-ccs1: cubic_utils.cc TME.cc N2TME.cc TME_compare.cc egros.cc CurvesNj0.cc CurvesNj1728.cc
-ccs2: curve_utils.cc arith_utils.cc twotorsioncurves.cc
+ccs1: TME.cc N2TME.cc TME_compare.cc CurvesNj0.cc CurvesNj1728.cc
+ccs2: egros_cache.cc twotorsioncurves.cc
 ccs: ccs1 ccs2
 
-headers: cubic_utils.h TME.h egros.h curve_utils.h arith_utils.h
+headers: TME.h egros_cache.h
 
 %.o:   %.cc
 	$(CC) $(CFLAGS) $<
 
-TESTS = N2TME TME_compare CurvesNj CurvesNj0 CurvesNj1728  twotorsioncurves # S2TME
+TESTS = N2TME TME_compare CurvesNj CurvesNj0 CurvesNj1728 twotorsioncurves # S2TME
 tests: $(TESTS)
 
 clean:
 	rm -f $(TESTS)
 	rm -f *.o *~
 
-N2TME: N2TME.o cubic_utils.o TME.o
-	$(CC) -o N2TME N2TME.o cubic_utils.o TME.o $(LFLAGS)
+N2TME: N2TME.o TME.o
+	$(CC) -o N2TME N2TME.o TME.o $(LFLAGS)
 
-S2TME: S2TME.o cubic_utils.o
-	$(CC) -o S2TME S2TME.o cubic_utils.o $(LFLAGS)
+#S2TME: S2TME.o
+#	$(CC) -o S2TME S2TME.o $(LFLAGS)
 
-TME_compare: TME_compare.o cubic_utils.o TME.o
-	$(CC) -o TME_compare TME_compare.o cubic_utils.o TME.o $(LFLAGS)
+TME_compare: TME_compare.o TME.o
+	$(CC) -o TME_compare TME_compare.o TME.o $(LFLAGS)
 
-CurvesNj: CurvesNj.o egros.o
-	$(CC) -o CurvesNj CurvesNj.o egros.o $(LFLAGS)
+CurvesNj: CurvesNj.o egros_cache.o
+	$(CC) -o CurvesNj CurvesNj.o egros_cache.o $(LFLAGS)
 
-CurvesNj0: CurvesNj0.o egros.o
-	$(CC) -o CurvesNj0 CurvesNj0.o egros.o $(LFLAGS)
+CurvesNj0: CurvesNj0.o egros_cache.o
+	$(CC) -o CurvesNj0 CurvesNj0.o egros_cache.o $(LFLAGS)
 
-CurvesNj1728: CurvesNj1728.o egros.o
-	$(CC) -o CurvesNj1728 CurvesNj1728.o egros.o $(LFLAGS)
+CurvesNj1728: CurvesNj1728.o egros_cache.o
+	$(CC) -o CurvesNj1728 CurvesNj1728.o egros_cache.o $(LFLAGS)
 
+CurvesNj1728.o: CurvesNj1728.cc egros_cache.h
+CurvesNj0.o: CurvesNj0.cc egros_cache.h
+CurvesNj.o: CurvesNj.cc egros_cache.h
+N2TME.o: N2TME.cc TME.h
+#S2TME.o: S2TME.cc
+TME_compare.o: TME_compare.cc TME.h
+TME.o: TME.h TME.cc
 
-CurvesNj1728.o: CurvesNj1728.cc egros.h
-CurvesNj0.o: CurvesNj0.cc egros.h
-CurvesNj.o: CurvesNj.cc egros.h
-N2TME.o: N2TME.cc cubic_utils.h TME.h
-S2TME.o: S2TME.cc cubic_utils.h
-TME_compare.o: TME_compare.cc cubic_utils.h TME.h
-cubic_utils.o: cubic_utils.h cubic_utils.cc
-TME.o: cubic_utils.h TME.h TME.cc
-
-arith_utils.o: arith_utils.h arith_utils.cc
-curve_utils.o: curve_utils.h curve_utils.cc
-twotorsioncurves.o: curve_utils.h arith_utils.h twotorsioncurves.cc
-twotorsioncurves: twotorsioncurves.o curve_utils.o arith_utils.o
-	$(CC) -o twotorsioncurves twotorsioncurves.o curve_utils.o arith_utils.o $(LFLAGS)
-
-divtest.o: divtest.cc arith_utils.h
-divtest: divtest.o arith_utils.o
-	$(CC) -o divtest divtest.o arith_utils.o $(LFLAGS)
+twotorsioncurves.o: twotorsioncurves.cc
+twotorsioncurves: twotorsioncurves.o
+	$(CC) -o twotorsioncurves twotorsioncurves.o $(LFLAGS)
