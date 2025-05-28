@@ -1,10 +1,25 @@
 // Program to list curves of given conductor and j-invariant
 
 // Usage:
-// ./CurvesNj0 <N>  # for one conductor N
-// ./CurvesNj0 <N1> <N2>  # for all conductors from N1 to N2 inclusive
+// ./CurvesNj <j> <N>  # for one conductor N
+// ./CurvesNj <j> <N1> <N2>  # for all conductors from N1 to N2 inclusive
 
-// NB the number of parameters on the command line is 1 or 2
+// NB the number of parameters on the command line is 2 or 3.  The
+// j-invariant should entered as a single integer or num/den with no
+// spaces.
+
+// Output: one curve per line, conductor N then a-invariants [a1,a2,a3,a4,a6]
+
+// Example:
+//
+// $ ./CurvesNj -4096/11 1 100
+// 11 [0,-1,1,0,0]
+// 99 [0,0,1,-3,-5]
+// $ ./CurvesNj 10976 1 200
+// 128 [0,-1,0,-9,-7]
+// 128 [0,1,0,-2,-2]
+// 128 [0,1,0,-9,7]
+// 128 [0,-1,0,-2,2]
 
 #include "egros.h"
 

@@ -1,7 +1,7 @@
 // *conjectural* bound on the discriminant (up to quadratic twist) of
 // curves with 2-torsion and good reduction outside the primes
-// dividing N, based on the maximum possible condictor such a curve
-// can have, together with an explaicit form of Szpiro's conjecture.
+// dividing N, based on the maximum possible conductor such a curve
+// can have, together with an explicit form of Szpiro's conjecture.
 bigint SzpiroBound(const bigint& N);
 
 // Minimal model of y^2 = x^3+a*x^2+b*x+c

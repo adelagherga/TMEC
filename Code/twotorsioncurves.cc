@@ -56,9 +56,25 @@ int main (int argc, char *argv[])
   vector<bigint> PP = pdivs(N);
 
 #if VERBOSE > 1
+  cerr << "\nN = "<<N<<endl;
   cout << "N = " << N <<endl;
   cout << "primes " << PP <<endl;
   cout << "support flag = " << supp << endl;
+#endif
+
+#if(0) // uncomment this to skip N with too many prime factors
+  if (PP.size()>5)
+    {
+      cout << "# prime factors = "<< PP.size()<<" is > 5 ("<<PP<<"), skipping"<<endl;
+      exit(0);
+    }
+#endif
+#if(0) // uncomment this to only run N with a specific number of prime factors
+  if (PP.size()!=6)
+    {
+      cout << "# prime factors = "<< PP.size()<<" is not 6 ("<<PP<<"), skipping"<<endl;
+      exit(0);
+    }
 #endif
 #if VERBOSE > 0
   if (supp==0)
@@ -72,6 +88,12 @@ int main (int argc, char *argv[])
 
   vector<CurveRed> curves = CurvesWith2Torsion(N, supp);
 
+#if VERBOSE > 0
+  cout << "---------------------------------------------------"<<endl;
+  cerr << curves.size() << " curves found" <<endl;
+  cout << curves.size() << " curves found" <<endl;
+  cout << "---------------------------------------------------"<<endl;
+#endif
   for (auto Ci = curves.begin(); Ci!=curves.end(); ++Ci)
     {
       bigint Ni = getconductor(*Ci);
@@ -80,7 +102,7 @@ int main (int argc, char *argv[])
       cout << (Curve)(*Ci) <<endl;
     }
 #if VERBOSE > 0
-  cout << curves.size() << " curve(s)" <<endl;
+  cout << curves.size() << " curves found" <<endl;
 #endif
 }
 

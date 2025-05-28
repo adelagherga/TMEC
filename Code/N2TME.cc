@@ -6,9 +6,10 @@
 // ./N2TME <N1> <N2>  # for all conductors from N1 to N2 inclusive, default output directory
 // ./N2TME <N> <dir> # for one conductor N, output directory dir
 // ./N2TME <N1> <N2> <dir> # for all conductors from N1 to N2 inclusive, output directory dir
+// ./N2TME <dir> <N> # for one conductor N, output directory dir
+// ./N2TME <dir> <N1> <N2> # for all conductors from N1 to N2 inclusive, output directory dir
 
-// NB the number of parameters on the command line is 1, 2 or 3, and
-// if 2 we need to check whether the 2nd is an integer or not
+// NB the number of parameters on the command line is 1, 2 or 3
 
 #include <eclib/marith.h>
 #include <eclib/unimod.h>
@@ -18,6 +19,7 @@
 #include "TME.h"
 
 #define VERBOSE 0
+//#define DEBUG
 
 // The default directory to hold output files:
 const string default_output_directory = "../Data/Forms";
@@ -33,24 +35,36 @@ string output_filename(long n, const string& dir)
 // return 0 for an integer (put into n), 1 for a string (put into s)
 int parse_int_or_string(const char* arg, long& n, string& s)
 {
-  // cout<<"parsing "<<arg<<" ..."<<flush;
+#ifdef DEBUG
+   cout<<"parsing "<<arg<<" ..."<<flush;
+#endif
   char* t;
   n = strtol(arg, &t, 10); // 10 is the base
   if (!*t)
     {
-      // cout<<"long int n = "<<n<<", returning 0" <<  endl;
+#ifdef DEBUG
+      cout<<"long int n = "<<n<<", returning 0" <<  endl;
+#endif
       return 0;
     }
   s = string(arg);
-  // cout<<"string s = "<<s<<", returning 1" <<  endl;
+#ifdef DEBUG
+  cout<<"string s = "<<s<<", returning 1" <<  endl;
+#endif
   return 1;
 }
 
 int main (int argc, char *argv[])
 {
+#ifdef DEBUG
+  cout << "argc = " << argc <<endl;
+#endif
   if ( (argc < 2) || (argc > 4) )
     {
-      cerr << "Usage: N2TME N or N2TME N1 N2 or N2TME N dir or N2TME N1 N2 dir" <<endl;
+      cerr << "Usage: N2TME N or N2TME N1 N2" <<endl;
+      cerr << "  or   N2TME dir N or N2TME dir N1 N2" <<endl;
+      cerr << "  or   N2TME N dir or N2TME N1 N2 dir" <<endl;
+      cerr << "with default directory " << default_output_directory << endl;
       return 0;
     }
   long n1, n2, n;
@@ -58,37 +72,61 @@ int main (int argc, char *argv[])
   int t = parse_int_or_string(argv[1], n1, dir);
   if (t) // string dir is set, now parse one or two ints
     {
+#ifdef DEBUG
+      cout << "first parameter is a string: "<<dir<<endl;
+      cout << "expecting one or two integer parameters..."<<endl;
+#endif
       t = parse_int_or_string(argv[2], n1, dummy);
       assert(t==0);
+#ifdef DEBUG
+      cout << "second parameter is an integer: "<<n1<<endl;
+#endif
       if (argc == 4) // parse another int
         {
           t = parse_int_or_string(argv[3], n2, dummy);
           assert(t==0);
+#ifdef DEBUG
+          cout << "third parameter is an integer: "<<n2<<endl;
+#endif
         }
       else
         n2 = n1;
     }
   else // int n1 is set
     {
-      t = parse_int_or_string(argv[2], n2, dir);
-      if (t) // string dir is set
+#ifdef DEBUG
+      cout << "first parameter is an integer: "<<n1<<endl;
+#endif
+      if (argc==2)
         {
-          if (argc == 4) // parse another int
-            {
-              t = parse_int_or_string(argv[3], n2, dummy);
-              assert(t==0);
-            }
-          else
-            n2 = n1;
+          n2 = n1;
+          dir = default_output_directory;
         }
-      else // we now have n1, n2
+      else
         {
-          if (argc == 4) // parse a string
+          t = parse_int_or_string(argv[2], n2, dir);
+          if (t) // string dir is set
             {
-              t = parse_int_or_string(argv[3], n, dir);
+#ifdef DEBUG
+              cout << "second parameter is a string: "<<dir<<endl;
+#endif
+              n2 = n1;
             }
-          else
-            dir = default_output_directory;
+          else // we now have n1, n2
+            {
+#ifdef DEBUG
+              cout << "second parameter is an integer: "<<n2<<endl;
+#endif
+              if (argc == 4) // parse a string
+                {
+                  t = parse_int_or_string(argv[3], n, dir);
+#ifdef DEBUG
+                  cout << "third parameter is a string: "<<dir<<endl;
+#endif
+                }
+              else
+                dir = default_output_directory;
+            }
         }
     }
 

@@ -6,6 +6,16 @@
 
 // NB the number of parameters on the command line is 1 or 2
 
+// Output: one curve per line, conductor N then a-invariants [a1,a2,a3,a4,a6]
+
+// Example:
+//
+// $ ./CurvesNj0 1 100
+// 27 [0,0,1,0,0]
+// 27 [0,0,1,0,-7]
+// 36 [0,0,0,0,1]
+// 36 [0,0,0,0,-27]
+
 #include "egros.h"
 
 int main (int argc, char *argv[])

@@ -66,7 +66,7 @@ void divisor_iterator::report()
   cout<<"current exponents:  "<<ee<<endl;
 }
 
-// test function for divisor_itersor
+// test function for divisor_iterator
 int test_divisor_iterator(const bigint& N)
 {
   if (is_zero(N)) return 1;
@@ -112,8 +112,8 @@ bigint MaxN(const vector<bigint>&PP)
   return factorback(PP,EE);
 }
 
-// Squarefree part of N
-bigint sqf(const bigint& N)
+// Radical of N
+bigint radical(const bigint& N)
 {
   vector<bigint> PP = pdivs(N);
   vector<int> EE(PP.size(), 1);

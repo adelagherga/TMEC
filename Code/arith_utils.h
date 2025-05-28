@@ -42,8 +42,8 @@ int test_divisor_iterator(const bigint& N);
 // (name taken from gp)
 bigint factorback(const vector<bigint>&PP, const vector<int>& EE);
 
-// Squarefree part of N
-bigint sqf(const bigint& N);
+// Radical of N
+bigint radical(const bigint& N);
 
 // Maximum conductor for a given list of primes
 bigint MaxN(const vector<bigint>&S);

@@ -9,19 +9,18 @@
 
 bigint SzpiroBound(const bigint& N)
 {
-  vector<bigint> S = pdivs(N);
-  bigint Nmax = MaxN(S);
-  double logNmax = log(Nmax);
-  double logSFN=log(sqf(N));
+  vector<bigint> S = pdivs(N);  // support of N
+  bigint Nmax = MaxN(S);        // largest possible conductor with this support
+  double logNmax = log(Nmax);   // log of this
+  double logSFN=log(radical(N));    // log of radical of N
   // cout<<"Szpiro bound:"<<endl;
   // cout<<"N = "<<N<<endl;
   // cout<<"Nmax = "<<Nmax<<endl;
   // cout<<"log(Nmax) = "<<logNmax<<endl;
   // cout<<"logSFN = "<<logSFN<<endl;
   bigint M(1);
-  for (auto pi=S.begin(); pi!=S.end(); ++pi)
+  for (auto p: S)
     {
-      bigint p=*pi;
       double logp = log(p);
       double factor(p==2? 6.1: 3);
       int e = floor(factor*(logNmax-logSFN+logp)/logp);
@@ -131,9 +130,9 @@ int operator<(const CurveRed& C1, const CurveRed& C2)
 vector<CurveRed> TwistsPP(const vector<CurveRed>& EE, const vector<bigint>& PP)
 {
   vector<CurveRed> ans = EE;
-  for (auto pi=PP.begin(); pi!=PP.end(); ++pi)
+  for (auto p: PP)
     {
-      vector<CurveRed> p_twists = TwistsP(ans, *pi);
+      vector<CurveRed> p_twists = TwistsP(ans, p);
       ans.insert(ans.end(), p_twists.begin(), p_twists.end());
     }
   // now remove any duplicates
@@ -154,10 +153,10 @@ vector<CurveRed> twopowerisog(const CurveRed& C)
     {
       auto nc = curves.size();
       std::set<CurveRed> newcurves;
-      for (auto Ci=curves.begin(); Ci!=curves.end(); ++Ci)
+      for (auto Ci: curves)
         {
-          newcurves.insert(*Ci);
-          vector<CurveRed> curves2 = twoisog(*Ci,0);
+          newcurves.insert(Ci);
+          vector<CurveRed> curves2 = twoisog(Ci,0);
           newcurves.insert(curves2.begin(), curves2.end());
         }
       curves.assign(newcurves.begin(), newcurves.end());
@@ -172,9 +171,8 @@ vector<CurveRed> twopowerisog(const CurveRed& C)
 bigint maxD1(const bigint& b, const vector<bigint>& PP)
 {
   vector<int> EE;
-  for(auto pi = PP.begin(); pi!=PP.end(); ++pi)
+  for(auto p: PP)
     {
-      bigint p = *pi;
       EE.push_back((val(p,b)==1?(p==2?3:1):0));
     }
   return factorback(PP,EE);
@@ -184,9 +182,8 @@ bigint maxD1(const bigint& b, const vector<bigint>& PP)
 bigint maxD2(const bigint& b, const vector<bigint>& PP, const bigint& Dmax)
 {
   vector<int> EE;
-  for(auto pi = PP.begin(); pi!=PP.end(); ++pi)
+  for(auto p: PP)
     {
-      bigint p = *pi;
       EE.push_back((div(p,b)?0:val(p,Dmax)));
     }
   return factorback(PP,EE);
@@ -201,27 +198,30 @@ bigint maxD2(const bigint& b, const vector<bigint>& PP, const bigint& Dmax)
 
 vector<CurveRed> CurvesWith2Torsion(const bigint& N, int support)
 {
-  bigint M = sqf(N);
+  bigint M = radical(N);
   bigint N2 = N;
   int oddN = !div(2,N);
   if (oddN) N2 *=2;
   bigint Dmax = SzpiroBound(N);
   vector<bigint> PP = pdivs(Dmax);
   vector<long> EE, EE2;
-  for (auto pi=PP.begin(); pi!=PP.end(); ++pi)
+  for (auto p: PP)
     {
-      long e = val(*pi,Dmax);
+      long e = val(p,Dmax);
       EE.push_back(e);
       EE2.push_back(e/2);
     }
-#if DEBUG > 0
-  cerr<<"Dmax = "<<Dmax<<endl;
-  cerr<<"primes: "<<PP<<endl;
-  cerr<<"exponents: "<<EE<<endl;
-  cerr<<"exponents/2: "<<EE2<<endl;
+#if DEBUG > 1
+  cerr<<"N: "<<N<<endl;
+  //cerr<<"Dmax = "<<Dmax<<endl;
+  cerr<<"Dmax primes: "<<PP<<endl;
+#if DEBUG > 2
+  cerr<<"Dmax exponents: "<<EE<<endl;
+  cerr<<"Dmax exponents/2: "<<EE2<<endl;
+#endif
   int nb=1;
-  for(auto e=EE2.begin(); e!=EE2.end(); ++e)
-    nb *= (1+*e);
+  for(auto e: EE2)
+    nb *= (1+e);
   cerr<<nb<<" b values"<<endl;
 #endif
   vector<vector<bigint>> ab_pairs;
@@ -320,7 +320,7 @@ vector<CurveRed> CurvesWith2Torsion(const bigint& N, int support)
           }
         case 1:
           {
-            keep = (sqf(NC)==M);
+            keep = (radical(NC)==M);
             break;
           }
         default:
