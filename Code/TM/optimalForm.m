@@ -39,28 +39,15 @@ findGL2Zactions:=function(a,c)
           c: RngIntElt
       Returns
           actions: SetEnum
-              A list of elements [a,b,c,d] such that the 2x2 matrix with entries
+              A set of 0 or 1 lists of elements [a,b,c,d] such that the 2x2 matrix with entries
               [a b c d] defines an element of GL2(Z).
    */
-    actions:={};
-    if ((a eq 0) and (Abs(c) eq 1)) then
-	b:=-1/c;
-	d:=0;
-	assert (a*d-b*c eq 1);
-	actions:=actions join {[a,b,c,d]};
-    elif ((c eq 0) and (Abs(a) eq 1)) then
-	d:=1/a;
-	b:=0;
-	assert (a*d-b*c eq 1);
-	actions:=actions join {[a,b,c,d]};
-    elif ((a ne 0) and (c ne 0) and (GCD(a,c) eq 1)) then
-	g,d,b:=XGCD(a,c);
-	b:=-b;
-	assert g eq 1;
-	assert (a*d-b*c eq 1);
-	actions:=actions join {[a,b,c,d]};
+    g,d,b:=XGCD(a,c);
+    if g eq 1 then
+       return {[a,-b,c,d]};
+    else
+       return {};
     end if;
-    return actions;
 end function;
 
 equivForm:=function(alist)
@@ -90,9 +77,10 @@ equivForm:=function(alist)
     Sort(~testset);
     for i in testset do
 	// Determine GL2(Z) action yielding a0 in testset using the Thue solver.
-	if IsEmpty(Solutions(ThueF,i)) eq false then
-	    a:=Solutions(ThueF,i)[1][1];
-	    c:=Solutions(ThueF,i)[1][2];
+        sols := Solutions(ThueF,i);
+        if not IsEmpty(sols) then
+	    a:=sols[1][1];
+	    c:=sols[1][2];
 	    GL2Zactions:=GL2Zactions join findGL2Zactions(a,c);
 	end if;
     end for;
@@ -100,9 +88,11 @@ equivForm:=function(alist)
     for a,c in [-absMax..absMax] do
 	// Determine GL2(Z) actions under which a0 is small, avoinding the
 	// Thue solver.
-	if GCD(a,c) eq 1 then
-	    GL2Zactions:=GL2Zactions join findGL2Zactions(a,c);
-	end if;
+       g,d,b:=XGCD(a,c);
+       assert a*d+b*c eq g;
+       if g eq 1 then
+          GL2Zactions:=GL2Zactions join {[a,-b,c,d]};
+       end if;
     end for;
     for action in GL2Zactions do
 	a,b,c,d:=Explode(action);
@@ -161,7 +151,7 @@ optimalForm:=function(alist,a,primelist)
 	      equation associated to alist_i, and j denotes the number of S-unit
 	      equations corresponding to that monic equation.
    */
-    GL2Zalists:=equivForm(alist);
+  GL2Zalists:=[alist]; // equivForm(alist);
     caseNo:=[];
     for i in [1..#GL2Zalists] do
 	alist:=GL2Zalists[i];

@@ -1,3 +1,7 @@
+// TME.cc: implementations of utility functions
+
+//////////////////////////////////////////////////////////////////////
+
 #include <eclib/marith.h>
 #include <eclib/unimod.h>
 #include <eclib/polys.h>
@@ -12,6 +16,161 @@ const vector<vector<int>> beta0list = {{0}, {0,1}, {0,1,3}, {3}, {4}, {5}};
 const vector<int> powersof2 = {1,2,4,8,16,32,64,128,256};
 const vector<int> powersof3 = {1,3,9,27,81,243};
 const bigint one(1), two(2), three(3), six(6);
+
+// test whether a is a cube modulo q (where q is prime)
+int is_cube(const bigint& a, const bigint& q)
+{
+  if (div(q,a) || div(q,a-1) || div(3,q+1))
+    return 1;
+  bigint b;
+  power_mod(b, a, (q-1)/3, q); // b = a^(q-1)/3 mod q
+  return div(q,b-1);
+}
+
+// for q prime, returns a list of representatives of the values of
+// F(u,v) mod q modulo cubes
+vector<bigint> image_mod_cubes(const cubic& F, const bigint& q)
+{
+  vector<bigint> images;
+
+  // first see if 0 is a value:
+
+  if (F.has_roots_mod(q))
+    images.push_back(bigint(0));
+
+  // if q=2 (mod 3) or q=3, then all nonzero values occur and all are cubes:
+
+  if (div(3,q+1) || q==3)
+    {
+      images.push_back(bigint(1));
+      return images;
+    }
+
+  // Now q=1 (mod 3) and we must see which of the three nonzero cosets mod cubes are hit:
+
+  // We also keep track of the inverses of the images found to simplify the coset check
+  vector<bigint> inverses;
+
+  // check F(1,0):
+  bigint v = F.a();
+  if (v!=0)
+    {
+      images.push_back(v);
+      inverses.push_back(invmod(v, q));
+    }
+
+  // check F(0,x) for all x mod q:
+  for (bigint x(0); x<q; x++)
+    {
+      v = F.eval(x);
+      if (v==0)
+        continue;
+      int repeat=0;
+      for (auto w = inverses.begin(); !repeat && w!=inverses.end(); ++w)
+        repeat = is_cube((*w) * v, q);
+      if (!repeat) // we have a new coset
+        {
+          images.push_back(v);
+          inverses.push_back(invmod(v, q));
+        }
+      if (inverses.size()==3)
+        break;
+    }
+  return images;
+}
+
+// function modpCheck as in AG's magma code
+
+// Return 1 iff there exist (u,v) not (0,0) mod q and exponents e such
+// that F(u,v)=a*prod(p^e) mod q.
+int modpCheck(const cubic& F, const bigint& a, const vector<bigint>& primes, const bigint& q)
+{
+  // So we don't have to construct copies of primes with q removed:
+  if (std::find(primes.begin(), primes.end(), q)!=primes.end())
+    return 1;
+
+  if (div(2,q+1)) // then F takes one and hence all nonzero values since all are cubes
+    return 1;
+
+  for (auto p: primes)
+    if (!is_cube(p,q)) // then powers of p cover all cosets mod cubes
+      return 1;
+
+  // Now all p are cubes mod q so can be ignored, we just check if F
+  // takes the value a (mod cubes)
+  vector<bigint> images = image_mod_cubes(F, q);
+  bigint b = invmod(a,q);
+  for (auto c: images)
+    {
+      if (is_zero(c)) // if 0 is a value, ignore it
+        continue;
+      if (is_cube(b*c,q)) // i.e. a=c mod cubes
+        return 1;
+    }
+  return 0;
+}
+
+// function modaCheck similar to AG's magma code
+
+// Return 1 iff there exists primitive (u,v) such that F(u,v)=0 (mod a).
+int modaCheck(const cubic& F, const bigint& a)
+{
+  if (a==1)
+    return 1;
+
+  bigint g = F.content();
+  if (!div(g,a))
+    return 0;
+
+  vector<bigint> plist = pdivs(a);
+
+  if (plist.size()>1) // use CRT
+    {
+      for (auto p: plist)
+        {
+          bigint q = pow(p, val(p, a));
+          if (!modaCheck(F, q))
+            return 0;
+        }
+      return 1;
+    }
+
+  // Now a is a prime power p^e
+  bigint p = plist[0];
+  if (!F.has_roots_mod(p))
+    return 0;
+  if (val(p,a)==1) // a=p, nothing more to do
+    return 1;
+
+  // Now we must see if any projective root mod p lifts to p^e. Note
+  // that in our application we expect p to divide the discriminant of
+  // F, so roots mod p will not be simple, otherwise Hensel would make
+  // this redundant.
+
+  bigint b = a/p; // = p^{e-1}
+  bigint one(1);
+  // Test for roots above (1:0) mod p:
+  if (div(p,F.a()))
+    {
+      // Test (u,v) = (1, p*w) for w mod p^{e-1}
+      for (bigint w(0); w<b; w++)
+        if (div(a,F.eval(one, p*w)))
+          return 1;
+    }
+  // find affine roots r mod p:
+  vector<bigint> roots = F.roots_mod(p);
+  for (auto r: roots)
+    {
+      // Test (u,v) = (r+p*w, 1) for w mod p^{e-1}
+      for (bigint w(0); w<b; w++)
+        if (div(a,F.eval(p*w + r, one)))
+          return 1;
+    }
+  // None of the roots did lift, so we fail
+  return 0;
+}
+
+// Implementation of methods in the class Ndata
 
 void Ndata::init()
 {
@@ -32,6 +191,8 @@ void Ndata::init()
     }
 }
 
+// Implementation of methods in the class Ddata
+
 Ddata::Ddata(const Ndata& Ndat, const bigint& D23, int al, int be, int sg)
   :NN(Ndat), D0(D23), alpha(al), beta(be), s(sg)
 {
@@ -45,6 +206,7 @@ Ddata::Ddata(const Ndata& Ndat, const bigint& d)
   beta  = divide_out(D0, 3);
 }
 
+// Return a list of discriminants for one conductor
 vector<Ddata> get_discriminants(const Ndata& NN)
 {
   vector<int> alpha0s = alpha0list[NN.alpha];
@@ -52,11 +214,11 @@ vector<Ddata> get_discriminants(const Ndata& NN)
   vector<bigint> N1s = posdivs(NN.N0);
 
   vector<Ddata> Dlist;
-  for (auto N1i  = N1s.begin(); N1i!=N1s.end(); ++N1i)
-    for (auto alpha0  = alpha0s.begin(); alpha0!=alpha0s.end(); ++alpha0)
-      for (auto beta0  = beta0s.begin(); beta0!=beta0s.end(); ++beta0)
-        for (auto s = signs.begin(); s!=signs.end(); s++)
-          Dlist.push_back(Ddata(NN, *N1i, *alpha0, *beta0, *s));
+  for (auto N1: N1s)
+    for (auto alpha0: alpha0s)
+      for (auto beta0: beta0s)
+        for (auto s: signs)
+          Dlist.push_back(Ddata(NN, N1, alpha0, beta0, s));
   return Dlist;
 }
 
@@ -81,6 +243,7 @@ map<pair<int,int>, vector<int>> beta_map = { {{0,0}, {0}},
                                              {{4,4}, {0,1}},
                                              {{5,5}, {0,1}}};
 
+// Return a list of RHS's (a, primes) for one discriminant
 vector<TM_RHS> get_RHS(const Ddata& D)
 {
   vector<bigint> alist;
@@ -133,13 +296,12 @@ vector<TM_RHS> get_RHS(const Ddata& D)
   }
 
   // p>3, multiplicative
-  for (auto pi=D.NN.Mprimes.begin(); pi!=D.NN.Mprimes.end(); ++pi)
-    plist.push_back(*pi);
+  for (auto p: D.NN.Mprimes)
+    plist.push_back(p);
 
   // p>3, additive
-  for (auto pi=D.NN.Aprimes.begin(); pi!=D.NN.Aprimes.end(); ++pi)
+  for (auto p: D.NN.Aprimes)
     {
-      bigint p = *pi;
       if (val(p,D.D)==2)
         alist = multiply_list_by_powers(p, {0,1}, alist);
       else
@@ -148,8 +310,8 @@ vector<TM_RHS> get_RHS(const Ddata& D)
 
   std::sort(plist.begin(), plist.end());
   vector<TM_RHS> RHSs;
-  for (auto ai=alist.begin(); ai!=alist.end(); ++ai)
-    RHSs.push_back(TM_RHS(*ai, plist));
+  for (auto a: alist)
+    RHSs.push_back(TM_RHS(a, plist));
   return RHSs;
 }
 
@@ -157,11 +319,11 @@ TM_RHS::operator string() const
 {
   ostringstream s;
   s << a << ",[";
-  for (auto pi=plist.begin(); pi!=plist.end(); ++pi)
+  for (auto p: plist)
     {
-      if (pi!=plist.begin())
+      if (p!=plist[0])
         s << ",";
-      s << *pi;
+      s << p;
     }
   s << "]";
   return s.str();
@@ -169,6 +331,7 @@ TM_RHS::operator string() const
 
 //#define DEBUG12
 
+// Return a list of irreducible cubic forms (up to GL(2,Z)-equivalence) for one discriminant
 vector<cubic> get_cubics(const Ddata& DD)
 {
   // (12) says that if val(3,disc(F))>=3 then restrict to b=c=0 (mod 3):
@@ -181,9 +344,8 @@ vector<cubic> get_cubics(const Ddata& DD)
   cout<<"D="<<DD.D<<": "<<Flist.size()<<" cubics before applying (12): "<<Flist<<endl;
 #endif
   vector<cubic> Flist2;
-  for(auto Fi = Flist.begin(); Fi!=Flist.end(); ++Fi)
+  for(auto F: Flist)
     {
-      cubic F = *Fi;
       if (eqn12 || (div(three,F.b()) && div(three,F.c())))
         {
           Flist2.push_back(F);
@@ -203,6 +365,8 @@ vector<cubic> get_cubics(const Ddata& DD)
 
 //#define DEBUG_LOCAL_TEST
 
+// for p||N and p not dividing D=disc(F) we require that F(u,v)=0 (mod
+// p) has a nontrivial solution:
 int TM_eqn::local_test()
 {
 #ifdef DEBUG_LOCAL_TEST
@@ -218,9 +382,8 @@ int TM_eqn::local_test()
 
   vector<bigint> newprimes;
 
-  for (auto pi=RHS.plist.begin(); pi!=RHS.plist.end(); ++pi)
+  for (auto p: RHS.plist)
     {
-      bigint p = *pi;
       if (F.has_roots_mod(p)) // then F mod p roots, so we keep p as an RHS prime
         {
 #ifdef DEBUG_LOCAL_TEST
@@ -278,6 +441,7 @@ string TM_eqn::as_string(int ND) const
 
 //#define DEBUG_IMPRIMITIVE
 
+// Return all TM equations for one discriminant
 vector<TM_eqn> get_TMeqnsD(const Ddata& DD)
 {
   vector<TM_eqn> TMeqns;
@@ -288,9 +452,8 @@ vector<TM_eqn> get_TMeqnsD(const Ddata& DD)
   cout<<"  "<<Flist.size()<<" cubics: "<<Flist<<endl;
   cout<<"  "<<RHSlist.size()<<" RHSs"<<endl;
 #endif
-  for (auto Fi=Flist.begin(); Fi!=Flist.end(); ++Fi)
+  for (auto F: Flist)
     {
-      cubic F = *Fi;
       bigint g = F.content();
       assert (div(g,six));
       int imprimitive = (g!=one);
@@ -308,9 +471,8 @@ vector<TM_eqn> get_TMeqnsD(const Ddata& DD)
           cout << " - primitive F="<<F<<", with discriminant "<<DD1.D<<endl;
 #endif
         }
-      for (auto RHSi=RHSlist.begin(); RHSi!=RHSlist.end(); ++RHSi)
+      for (auto RHS: RHSlist)
         {
-          TM_RHS RHS = *RHSi;
           if (imprimitive && !div(g, RHS.a))
             {
 #ifdef DEBUG_IMPRIMITIVE
@@ -333,13 +495,14 @@ vector<TM_eqn> get_TMeqnsD(const Ddata& DD)
   return TMeqns;
 }
 
+// Return all TM equations for one conductor
 vector<TM_eqn> get_TMeqnsN(const Ndata& NN)
 {
   vector<TM_eqn> TMeqns;
   vector<Ddata> Dlist = get_discriminants(NN);
-  for (auto Di=Dlist.begin(); Di!=Dlist.end(); ++Di)
+  for (auto D: Dlist)
     {
-      vector<TM_eqn> TMeqnsD = get_TMeqnsD(*Di);
+      vector<TM_eqn> TMeqnsD = get_TMeqnsD(D);
       TMeqns.insert(TMeqns.end(), TMeqnsD.begin(), TMeqnsD.end());
     }
   return TMeqns;
@@ -435,14 +598,14 @@ void write_TMeqns(vector<TM_eqn> TMEs, const string& filename)
   if (filename.compare("stdout"))
     {
       ofstream out(filename.c_str());
-      for (auto Ti = TMEs.begin(); Ti!=TMEs.end(); ++Ti)
-        out << (string)(*Ti) << endl;
+      for (auto T: TMEs)
+        out << (string)T << endl;
       out.close();
     }
   else
     {
-      for (auto Ti = TMEs.begin(); Ti!=TMEs.end(); ++Ti)
-        cout << (string)(*Ti) << endl;
+      for (auto T: TMEs)
+        cout << (string)T << endl;
     }
 }
 
@@ -460,18 +623,18 @@ int compare_TM_eqn_lists(const vector<TM_eqn>& list1, const vector<TM_eqn>& list
   int nmatches=0;
   vector<int> check1(n1,0), check2(n2,0);
   vector<int>::iterator c1=check1.begin();
-  for (auto T1i=list1.begin(); T1i!=list1.end(); ++T1i)
+  for (auto T1: list1)
     {
-      TM_eqn T1 = *T1i;
       int found = 0;
       vector<int>::iterator c2=check2.begin();
-      for (auto T2i=list2.begin(); T2i!=list2.end() && (!found); ++T2i)
+      for (auto T2: list2)
         {
+          if (found) break;
           if (*c2==0)
             {
               if(verbose>1)
-                cout<<"comparing "<<(string)T1<<" and "<<(string)(*T2i)<<"..."<<flush;
-              found = T1.is_gl2_equivalent(*T2i);
+                cout<<"comparing "<<(string)T1<<" and "<<(string)T2<<"..."<<flush;
+              found = T1.is_gl2_equivalent(T2);
               if(found)
                 {
                   *c1=1;
@@ -511,9 +674,12 @@ int compare_TM_eqn_lists(const vector<TM_eqn>& list1, const vector<TM_eqn>& list
         {
           cout<<(n2-nmatches)<<" equations in list 2 not in list 1:"<<endl;
           vector<int>::iterator c2=check2.begin();
-          for (auto T2i=list2.begin(); T2i!=list2.end(); ++T2i, ++c2)
-            if (*c2==0)
-              cout<<(string)(*T2i)<<endl;
+          for (auto T2: list2)
+            {
+              if (*c2==0)
+                cout<<(string)T2<<endl;
+              ++c2;
+            }
         }
     }
   return ok;

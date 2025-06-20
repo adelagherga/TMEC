@@ -1,6 +1,25 @@
-// class for holding a conductor and associated factorization data:
+// TME.h: declarations of utility functions
 
-#include "cubic_utils.h"
+//////////////////////////////////////////////////////////////////////
+
+// Some cubic utilities (the class 'cubic' is in eclib)
+
+// for q prime > 3, returns a list of representatives of the values of
+// F(u,v) mod q modulo cubes
+vector<bigint> image_mod_cubes(const cubic& F, const bigint& q);
+
+// Similar to AG's magma function of the same name. Return 1 iff there
+// exist (u,v) not (0,0) mod q and exponents e such that
+// F(u,v)=a*prod(p^e) mod q.
+int modpCheck(const cubic& F, const bigint& a, const vector<bigint>& primes, const bigint& q);
+
+// similar to AG's modpcheckDivRHS. Return 1 iff there exists
+// primitive (u,v) such that F(u,v)=0 (mod a).
+int modaCheck(const cubic& F, const bigint& a);
+
+//////////////////////////////////////////////////////////////////////
+
+// class for holding a conductor and associated factorization data:
 
 class Ndata {
 public:
@@ -116,7 +135,7 @@ vector<Ddata> get_discriminants(const Ndata& NN);
 // Return a list of RHSs (a, primes) for one discriminant
 vector<TM_RHS> get_RHS(const Ddata& D);
 
-// Return a list of irreducible cubic forms up to GL(2,Z)-equivalence) for one discriminant
+// Return a list of irreducible cubic forms (up to GL(2,Z)-equivalence) for one discriminant
 vector<cubic> get_cubics(const Ddata& DD);
 
 // for p||N and p not dividing D=disc(F) we require that F(u,v)=0 (mod

@@ -20,6 +20,14 @@
 # Created
 #    24 August 2022
 
+# Use the value of the environment variable TMEC_NCORES (or 20 if that is not set) for parallel runs.
+
+NCORES="${TMEC_NCORES:-20}"
+
+# Divide by 2 so that runTM and runXYZ2 use half each:
+
+NCORES=$((NCORES / 2))
+
 usage() {
     echo "usage: "
     echo "  $0 N1 [N2]"
@@ -216,8 +224,8 @@ generateDirectories() {
 
 runParallel() {
 
-    # Run GNU parallel across 20 cores. That is, run
-    # echo <inFile> | parallel -j20 --joblog <logFile> <program>
+    # Run GNU parallel across NCORES cores. That is, run
+    # echo <inFile> | parallel -j${NCORES} --joblog <logFile> <program>
     # taking, as input for <program>, each line of <inFile>, and storing GNU
     # parallel's progress in <logFile>.
     #
@@ -230,7 +238,7 @@ runParallel() {
     #         The program to be run in parallel, including any redirected stdout,
     #         stderr.
 
-    echo "$1" | parallel -j20 --joblog ${JLDir}/"$2" "$3"
+    echo "$1" | parallel -j${NCORES} --joblog ${JLDir}/"$2" "$3"
 }
 
 verifyNonEmpty() {
@@ -591,6 +599,8 @@ main() {
     local program
     local TMForms
     local missing
+
+    printf "Using parallel with ${NCORES} parallel jobs\n"
 
     getNList "$@"
     generateDirectories
