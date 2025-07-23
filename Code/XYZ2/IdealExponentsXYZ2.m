@@ -241,14 +241,6 @@ function IdealExponentsXYZ2(Iset,type)
             Append(~D,&*{Iset[j][4]^c[j] : j in [1..n]});
         end for;
 
-    if #q eq 0 then
-        Prod1:= [1];    // I == [], hence Prod[I]:= prod_{i in I} (pi_i)^{m_i}: = 1
-        Prod3:= [1];    // I == [], hence Prod_[I]:= prod_{i in I} ((pi_)_i)^{m_i}:= 1
-    else
-        I:= q[2];
-        Prod1:= IdealExponentsXYZ2(I,<"FinalSearch", M0>);      // computes every possible Prod[I]:= prod_{i in I} (pi_i)^{m_i} value; m_i bounded by M0[i]
-        Prod3:= IdealExponentsXYZ2(I,<"FinalSearch_", M0>);     // computes every possible Prod_[I]:= prod_{i in I} ((pi_)_i)^{m_i} values; m_i bounded by M0[i]
-    end if;
     elif type[1] eq "FinalSearch" then
         Hs:= [[0..type[2][i][1]]: i in [1..n]];         // compiles the ranges [0..M[i]] only, representing the potential m_i values
         ExponentCombos:= CartesianProduct(Hs);  // computes every possible combination of the potential m_i values
