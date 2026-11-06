@@ -1,0 +1,198 @@
+Log of new runs on ranges of conductors not already covered by modular
+symbols runs (but not excluding any individual conductors which had
+already been run).  Starting at 501400, these are full runs (both TM
+and XYZ2) so the curve lists should be complete, but I did check the
+even curves against the output of two_torsion_curves and found some
+were missing -- meaning that *we cannot yet trust the XYZ2 branch* to
+be complete.
+
+501400-501500: laptop, done
+501500-502000: lehner, started 30/5/25, finished 06/06/25, 2882 curves
+502000-503000: atkin,  started 31/5/25, finished 10/06/25, 5621 curves
+                       [XYZ2 got stuck]
+503000-504000: lehner, started 03/6/25, finished 09/06/25, 5222 curves
+504000-505000: galois, started 31/5/25, TM finished, XYZ2 running
+                       4 left: 504035*4 (were killed after running running ~500h)
+                       real    31737m4.132s
+                       user    184486m43.822s
+                       sys     86m12.115s
+
+The 10 curves which XYZ2 failed to find (501400-504999):
+
+501474 [1,1,0,-305657320,2120397987136]
+501474 [1,1,0,-308278760,2083225443648]
+502482 [1,0,1,-4552,180374]
+502482 [1,0,1,-5192,143510]
+503218 [1,1,0,-3876,213200]
+503218 [1,1,0,-5156,140240]
+504726 [1,1,0,-1496,-20160]
+504726 [1,1,0,2344,-102336]
+504834 [1,0,0,10236994,-230431116732]
+504834 [1,0,0,-31706046,-66727431612]
+
+Curves found by TMEC for these conductors:
+501474 [1,1,0,-878,-15276]
+502482 [1,0,0,-6782,204612]
+502482 [1,0,0,-744,-8064]
+502482 [1,0,1,1422,949240]
+503218 none
+504726 none
+504834 [1,0,0,-130667,24839985]
+504834 [1,0,1,-1112,-7450]
+504834 [1,0,1,3728,-53914]
+504834 [1,0,1,44526808,-57525406090]
+504834 [1,1,0,-248321,47565045]
+504834 [1,1,0,1588,137040]
+
+----------------------------------------------------------------------
+Running TM+XYZ2 on 500000-501399 on galois:
+TM finished, XYZ2 1 left (6606 minutes but run separately finished
+instantly with 0 solutions)
+
+magma -b set:=[500397],[2,3,166799],[6,1] dir:=Data/[500000..501399]/XYZ2 Code/XYZ2/runXYZ2EC.m
+
+In range 500000-501399 only finds 7833 of 7835 curves, misses a 2-isogenous pair:
+500080 [0,1,0,29635704,-44627158796]
+500080 [0,1,0,-9276296,-6197667596]
+
+
+----------------------------------------------------------------------
+Running N2TME on all N from 500k to 1000k:  takes 888m (on laptop, 1 core).
+Output in Data/Forms/N2TMS.500k-1m.out (3789194 lines)
+and in separate files Data/Forms/<N>Forms.csv
+
+----------------------------------------------------------------------
+Timed rerun of runTM only (no runXYZ2) 500000-505000 on galois@20...
+238190 TMforms, 23675 curves
+
+time for whole run:
+real    2533m6.052s
+user    49537m18.262s
+sys     188m12.946s
+
+----------------------------------------------------------------------
+Timed run of runTM only (no runXYZ2) 505000-510000 on ec@64...
+292609 lines in TMforms
+magma -b set:=[507159],[6,15,54,-29],8,[37,1523],[1,8] dir:=Data/[505000..509999]/TM Code/TM/runTMEC.m
+magma -b set:=[505836],[8,-12,57,6],1,[14051],[1,2] dir:=Data/[505000..509999]/TM Code/TM/runTMEC.m
+These ran quickly when run separately, and found no curves, so the two
+processes were killed, allowing the whole run to finish
+mv t 16562 odd curves in curves.1.505000-509999
+
+real    1030m45.196s
+user    54193m14.405s = 903h = 37.6d
+sys     353m40.493s
+
+----------------------------------------------------------------------
+Timed run of runTM only (no runXYZ2) 510000-514999 on galois@20...
+298603 TMForms
+12006 Outfiles, 298603 Logfiles
+magma -b set:=[510510],[6,-23,-24,15],1,[2,3,5,7,11,13,17],[1,288] dir:=Data/[510000..514999]/TM Code/TM/runTMEC.m
+510510 running, 7 primes
+magma -b set:=[512955],[6,-6,-21,-74],8,[5,11399],[1,2] dir:=Data/[510000..514999]/TM Code/TM/runTMEC.m
+512955 not really running, ran ok elsewhere, no curves, killed
+
+----------------------------------------------------------------------
+Timed run of runTM only (no runXYZ2) 515000-519999 on galois@20...done
+real    2709m0.048s
+user    48222m25.464s
+sys     213m44.481s
+
+298603 TMForms
+23842 curves (inc multiples), 16567 unique odd curves
+
+Stuck jobs, killed and rerun OK with no sols:
+magma -b set:=[517518],[14,-12,39,-21],1,[2,28751],[1,1] dir:=Data/[515000..519999]/TM Code/TM/runTMEC.m
+magma -b set:=[518506],[17,-11,10,-18],1,[2,31,8363],[1,15] dir:=Data/[515000..519999]/TM Code/TM/runTMEC.m
+----------------------------------------------------------------------
+N=1062347
+744 minutes total
+
+232 TMForms done, 5 curves found (all with trivial torsion and no isogenies):
+1062347 [0,-1,1,-16302,925438]
+1062347 [0,-1,1,3459297,-4565048615]
+1062347 [1,0,0,5293,348298]
+1062347 [1,1,0,-1718632,866491245]
+1062347 [1,1,1,-358,36292]
+
+208 XYZ2Forms, done, no more curves found
+
+twotorsioncurves finds 0
+
+---------------------
+twotorsioncurves runs
+---------------------
+
+NB N with 7 primes are 510510, 570570, 690690, 746130, 870870, 881790,
+903210, 930930 which have all been done with modular symbols
+
+1. atkin*20 502000-503000: done, 2194 curves, unsorted output in t502000-503000
+2. atkin*20 501400-501999: done, 1316 curves, unsorted output in t501400-501999
+3. fermat*20 503000-504999: done, 4190 curves, unsorted output in t503000-504999
+4. atkin*20 505000-509999: done, 11792 curves, unsorted output in t505000-509999
+5. fermat*20 510000-519999: 9999/10000 done, 22960 curves, unsorted output in t515000-519999
+ (510510 killed after 287h)
+6. atkin*20 520000-529999: done, 23092 curves, unsorted output in t520000-529999 61893m59.024s
+
+Sorted output in TMEC/Data/Curves/
+  310632 curves.2.000000-099999.sorted
+  272876 curves.2.100000-199999.sorted
+  258498 curves.2.200000-299999.sorted
+  247412 curves.2.300000-399999.sorted
+  239258 curves.2.400000-499999.sorted
+ 1328676 total
+
+ 65544 curves.2.501400-529999
+163513 curves.2.530000-599999
+228966 curves.2.600000-699999
+226724 curves.2.700000-799999
+218888 curves.2.800000-899999
+215178 curves.2.900000-999999
+ 1118813 total
+ 
+7. atkin*48  530000-599999: finished [includes 183 6-primers]
+   real    15760m56.686s
+   user    430213m26.573s
+   sys     677m14.717s
+
+8. fermat*20 600000-699999: finished, 228966 curves [includes 298 6-primers]
+    real    45674m12.562s
+    user    814171m35.470s
+    sys     1364m7.241s
+
+9. atkin*48  700000-799999: finished [includes 323 6-primers]
+   226724 curves sorted into curves.2.700000-799999
+   real    21818m29.839s
+   user    750490m33.272s
+   sys     1256m31.925s
+
+10. galois*20 800000-899999: finished, 218888 curves [includes 344 6-primers]
+11. atkin*48  900000-999999: finished, 215178 curves [includes 373 6-primers]
+
+--------------
+twotorsion runs up to 500k for checking:
+
+fermat*20:      1- 99999: finished [includes 25 6-primers]
+real    8544m13.099s
+user    137005m14.226s
+sys     298m58.004s
+
+atkin*48:  100000-199999: finished [includes 92 6-primers]
+galois*20: 200000-299999: finished [includes 150 6-primers]
+atkin*64:  300000-399999: finished [includes 192 6-primers]
+fermat@20: 400000-449999: finished [includes 111 6-primers]
+real    23682m29.267s
+user    322508m52.897s
+sys     563m13.277s
+
+galois@20: 450000-499999: finished  [includes 122 6-primers]
+
+ - sort using sort -n -k 1 t200000-299999 > t200000-299999.sorted
+ - check against curves.2.000000-099999.sorted etc
+
+So far checked:      1-100000 all checked ok
+                100000-200000 all checked ok
+                200000-299999 all checked ok
+                300000-399999 all checked ok
+                400000-449999 all checked ok
+                450000-499999 all checked ok

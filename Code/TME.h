@@ -6,16 +6,16 @@
 
 // for q prime > 3, returns a list of representatives of the values of
 // F(u,v) mod q modulo cubes
-vector<bigint> image_mod_cubes(const cubic& F, const bigint& q);
+vector<ZZ> image_mod_cubes(const cubic& F, const ZZ& q);
 
 // Similar to AG's magma function of the same name. Return 1 iff there
 // exist (u,v) not (0,0) mod q and exponents e such that
 // F(u,v)=a*prod(p^e) mod q.
-int modpCheck(const cubic& F, const bigint& a, const vector<bigint>& primes, const bigint& q);
+int modpCheck(const cubic& F, const ZZ& a, const vector<ZZ>& primes, const ZZ& q);
 
 // similar to AG's modpcheckDivRHS. Return 1 iff there exists
 // primitive (u,v) such that F(u,v)=0 (mod a).
-int modaCheck(const cubic& F, const bigint& a);
+int modaCheck(const cubic& F, const ZZ& a);
 
 //////////////////////////////////////////////////////////////////////
 
@@ -23,13 +23,13 @@ int modaCheck(const cubic& F, const bigint& a);
 
 class Ndata {
 public:
-  bigint N;
-  bigint N0; // prime-to-6 part of N
+  ZZ N;
+  ZZ N0; // prime-to-6 part of N
   int alpha; // valuation of 2
   int beta;  // valuation of 3
-  vector<bigint> support; // all prime factors
-  vector<bigint> Mprimes; // prime factors > 3 with valuation 2
-  vector<bigint> Aprimes; // prime factors > 3 with valuation 1
+  vector<ZZ> support; // all prime factors
+  vector<ZZ> Mprimes; // prime factors > 3 with valuation 2
+  vector<ZZ> Aprimes; // prime factors > 3 with valuation 1
 
   // constructors
   Ndata(int conductor)
@@ -37,7 +37,7 @@ public:
   {
     init();
   }
-  Ndata(const bigint& conductor)
+  Ndata(const ZZ& conductor)
     :N(conductor)
   {
     init();
@@ -55,14 +55,14 @@ public:
 class Ddata {
 public:
   Ndata NN; // pointer to conductor data
-  bigint D;
-  bigint D0; // prime-to-6 part of |D|
+  ZZ D;
+  ZZ D0; // prime-to-6 part of |D|
   int alpha; // valuation of 2
   int beta;  // valuation of 3
   int s;     // sign
   // constructors
-  Ddata(const Ndata& Ndat, const bigint& D23, int al, int be, int sg);
-  Ddata(const Ndata& Ndat, const bigint& d);
+  Ddata(const Ndata& Ndat, const ZZ& D23, int al, int be, int sg);
+  Ddata(const Ndata& Ndat, const ZZ& d);
   Ddata() {;}
 
   // equality test:
@@ -73,10 +73,10 @@ public:
 
 class TM_RHS {
 public:
-  bigint a;
-  vector<bigint> plist;
+  ZZ a;
+  vector<ZZ> plist;
   // constructor
-  TM_RHS(const bigint& aa, const vector<bigint>& pl)
+  TM_RHS(const ZZ& aa, const vector<ZZ>& pl)
     :a(aa), plist(pl)
   {;}
   TM_RHS()
@@ -140,7 +140,7 @@ vector<cubic> get_cubics(const Ddata& DD);
 
 // for p||N and p not dividing D=disc(F) we require that F(u,v)=0 (mod
 // p) has a nontrivial solution:
-int local_test(const cubic& F, const Ddata& DD, const bigint& p);
+int local_test(const cubic& F, const Ddata& DD, const ZZ& p);
 
 // Return all TM equations for one discriminant
 vector<TM_eqn> get_TMeqnsD(const Ddata& DD);

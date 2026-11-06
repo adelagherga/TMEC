@@ -28,10 +28,10 @@ const string default_output_directory = "../Data/Curves";
 // curves with 2-torsion and good reduction outside the primes
 // dividing N, based on the maximum possible conductor such a curve
 // can have, together with an explicit form of Szpiro's conjecture.
-bigint SzpiroBound(const bigint& N)
+ZZ SzpiroBound(const ZZ& N)
 {
-  vector<bigint> S = pdivs(N);  // support of N
-  bigint Nmax = MaxN(S);        // largest possible conductor with this support
+  vector<ZZ> S = pdivs(N);  // support of N
+  ZZ Nmax = MaxN(S);        // largest possible conductor with this support
   double logNmax = log(Nmax);   // log of this
   double logSFN=log(radical(N));    // log of radical of N
   // cout<<"Szpiro bound:"<<endl;
@@ -39,7 +39,7 @@ bigint SzpiroBound(const bigint& N)
   // cout<<"Nmax = "<<Nmax<<endl;
   // cout<<"log(Nmax) = "<<logNmax<<endl;
   // cout<<"logSFN = "<<logSFN<<endl;
-  bigint M(1);
+  ZZ M(1);
   for (auto p: S)
     {
       double logp = log(p);
@@ -54,9 +54,9 @@ bigint SzpiroBound(const bigint& N)
 }
 
 // Minimal model of y^2 = x^3+a*x^2+b*x
-CurveRed Eab(const vector<bigint>& ab) // ab=[a,b]
+CurveRed Eab(const vector<ZZ>& ab) // ab=[a,b]
 {
-  bigint zero(0);
+  ZZ zero(0);
   Curvedata C(zero, ab[0], zero, ab[1], zero, 1); // 1 means make model minimal
   return CurveRed(C);
 }
@@ -90,7 +90,7 @@ vector<CurveRed> twopowerisog(const CurveRed& C)
 
 // utility function: d1 will run over all divisors of D1=maxD1(b,PP)
 // omitting those whose 2-valuation is 2
-bigint maxD1(const bigint& b, const vector<bigint>& PP)
+ZZ maxD1(const ZZ& b, const vector<ZZ>& PP)
 {
   vector<int> EE;
   for(auto p: PP)
@@ -101,7 +101,7 @@ bigint maxD1(const bigint& b, const vector<bigint>& PP)
 }
 
 // utility function: d2 will run over all divisors of D2=maxD2(b,PP, Dmax)
-bigint maxD2(const bigint& b, const vector<bigint>& PP, const bigint& Dmax)
+ZZ maxD2(const ZZ& b, const vector<ZZ>& PP, const ZZ& Dmax)
 {
   vector<int> EE;
   for(auto p: PP)
@@ -118,14 +118,14 @@ bigint maxD2(const bigint& b, const vector<bigint>& PP, const bigint& Dmax)
 
 #define DEBUG 0
 
-vector<CurveRed> CurvesWith2Torsion(const bigint& N, int support)
+vector<CurveRed> CurvesWith2Torsion(const ZZ& N, int support)
 {
-  bigint M = radical(N);
-  bigint N2 = N;
+  ZZ M = radical(N);
+  ZZ N2 = N;
   int oddN = !div(2,N);
   if (oddN) N2 *=2;
-  bigint Dmax = SzpiroBound(N);
-  vector<bigint> PP = pdivs(Dmax);
+  ZZ Dmax = SzpiroBound(N);
+  vector<ZZ> PP = pdivs(Dmax);
   vector<long> EE, EE2;
   for (auto p: PP)
     {
@@ -146,14 +146,14 @@ vector<CurveRed> CurvesWith2Torsion(const bigint& N, int support)
     nb *= (1+e);
   cerr<<nb<<" b values"<<endl;
 #endif
-  vector<vector<bigint>> ab_pairs;
-  bigint a, asq, b, d1, d2, d1d2;
+  vector<vector<ZZ>> ab_pairs;
+  ZZ a, asq, b, d1, d2, d1d2;
   // iterates through b s.t. b^2 | Dmax
   for (divisor_iterator b_iter(PP,EE2); b_iter.is_ok(); b_iter.increment())
     {
       b = b_iter.value();
-      bigint mD1 = maxD1(b, PP);
-      bigint mD2 = maxD2(b, PP, Dmax);
+      ZZ mD1 = maxD1(b, PP);
+      ZZ mD2 = maxD2(b, PP, Dmax);
 #if DEBUG > 2
       cout<<"b = "<<b<<endl;
       cout<<"maxD1 = "<<mD1<<endl;
@@ -198,7 +198,7 @@ vector<CurveRed> CurvesWith2Torsion(const bigint& N, int support)
 #endif
         }
     }
-  std::set<vector<bigint>> sab;
+  std::set<vector<ZZ>> sab;
   sab.insert(ab_pairs.begin(), ab_pairs.end());
   ab_pairs.assign(sab.begin(), sab.end());
 #if DEBUG > 1
@@ -231,7 +231,7 @@ vector<CurveRed> CurvesWith2Torsion(const bigint& N, int support)
   vector<CurveRed> curves1;
   for (auto C: curves)
     {
-      bigint NC = C.conductor();
+      ZZ NC = C.conductor();
       int keep;
       switch (support)
         {
@@ -303,8 +303,8 @@ int main (int argc, char *argv[])
 #endif
       exit(0);
     }
-  bigint N(n);
-  vector<bigint> PP = pdivs(N);
+  ZZ N(n);
+  vector<ZZ> PP = pdivs(N);
 
 #if VERBOSE > 1
   cerr << "\nN = "<<N<<endl;
@@ -347,7 +347,7 @@ int main (int argc, char *argv[])
 #endif
   for (auto Ci = curves.begin(); Ci!=curves.end(); ++Ci)
     {
-      bigint Ni = getconductor(*Ci);
+      ZZ Ni = getconductor(*Ci);
       cout << Ni << " ";
       // cout << ": " << pdivs(Ni)<< " : ";
       cout << (Curve)(*Ci) <<endl;

@@ -15,44 +15,44 @@ const vector<vector<int>> alpha0list = {{2}, {2,3}, {2,4}, {2,3,4}, {2,3,4}, {2,
 const vector<vector<int>> beta0list = {{0}, {0,1}, {0,1,3}, {3}, {4}, {5}};
 const vector<int> powersof2 = {1,2,4,8,16,32,64,128,256};
 const vector<int> powersof3 = {1,3,9,27,81,243};
-const bigint one(1), two(2), three(3), six(6);
+const ZZ one(1), two(2), three(3), six(6);
 
 // test whether a is a cube modulo q (where q is prime)
-int is_cube(const bigint& a, const bigint& q)
+int is_cube(const ZZ& a, const ZZ& q)
 {
   if (div(q,a) || div(q,a-1) || div(3,q+1))
     return 1;
-  bigint b;
+  ZZ b;
   power_mod(b, a, (q-1)/3, q); // b = a^(q-1)/3 mod q
   return div(q,b-1);
 }
 
 // for q prime, returns a list of representatives of the values of
 // F(u,v) mod q modulo cubes
-vector<bigint> image_mod_cubes(const cubic& F, const bigint& q)
+vector<ZZ> image_mod_cubes(const cubic& F, const ZZ& q)
 {
-  vector<bigint> images;
+  vector<ZZ> images;
 
   // first see if 0 is a value:
 
   if (F.has_roots_mod(q))
-    images.push_back(bigint(0));
+    images.push_back(ZZ(0));
 
   // if q=2 (mod 3) or q=3, then all nonzero values occur and all are cubes:
 
   if (div(3,q+1) || q==3)
     {
-      images.push_back(bigint(1));
+      images.push_back(ZZ(1));
       return images;
     }
 
   // Now q=1 (mod 3) and we must see which of the three nonzero cosets mod cubes are hit:
 
   // We also keep track of the inverses of the images found to simplify the coset check
-  vector<bigint> inverses;
+  vector<ZZ> inverses;
 
   // check F(1,0):
-  bigint v = F.a();
+  ZZ v = F.a();
   if (v!=0)
     {
       images.push_back(v);
@@ -60,7 +60,7 @@ vector<bigint> image_mod_cubes(const cubic& F, const bigint& q)
     }
 
   // check F(0,x) for all x mod q:
-  for (bigint x(0); x<q; x++)
+  for (ZZ x(0); x<q; x++)
     {
       v = F.eval(x);
       if (v==0)
@@ -83,7 +83,7 @@ vector<bigint> image_mod_cubes(const cubic& F, const bigint& q)
 
 // Return 1 iff there exist (u,v) not (0,0) mod q and exponents e such
 // that F(u,v)=a*prod(p^e) mod q.
-int modpCheck(const cubic& F, const bigint& a, const vector<bigint>& primes, const bigint& q)
+int modpCheck(const cubic& F, const ZZ& a, const vector<ZZ>& primes, const ZZ& q)
 {
   // So we don't have to construct copies of primes with q removed:
   if (std::find(primes.begin(), primes.end(), q)!=primes.end())
@@ -98,8 +98,8 @@ int modpCheck(const cubic& F, const bigint& a, const vector<bigint>& primes, con
 
   // Now all p are cubes mod q so can be ignored, we just check if F
   // takes the value a (mod cubes)
-  vector<bigint> images = image_mod_cubes(F, q);
-  bigint b = invmod(a,q);
+  vector<ZZ> images = image_mod_cubes(F, q);
+  ZZ b = invmod(a,q);
   for (auto c: images)
     {
       if (is_zero(c)) // if 0 is a value, ignore it
@@ -113,22 +113,22 @@ int modpCheck(const cubic& F, const bigint& a, const vector<bigint>& primes, con
 // function modaCheck similar to AG's magma code
 
 // Return 1 iff there exists primitive (u,v) such that F(u,v)=0 (mod a).
-int modaCheck(const cubic& F, const bigint& a)
+int modaCheck(const cubic& F, const ZZ& a)
 {
   if (a==1)
     return 1;
 
-  bigint g = F.content();
+  ZZ g = F.content();
   if (!div(g,a))
     return 0;
 
-  vector<bigint> plist = pdivs(a);
+  vector<ZZ> plist = pdivs(a);
 
   if (plist.size()>1) // use CRT
     {
       for (auto p: plist)
         {
-          bigint q = pow(p, val(p, a));
+          ZZ q = pow(p, val(p, a));
           if (!modaCheck(F, q))
             return 0;
         }
@@ -136,7 +136,7 @@ int modaCheck(const cubic& F, const bigint& a)
     }
 
   // Now a is a prime power p^e
-  bigint p = plist[0];
+  ZZ p = plist[0];
   if (!F.has_roots_mod(p))
     return 0;
   if (val(p,a)==1) // a=p, nothing more to do
@@ -147,22 +147,22 @@ int modaCheck(const cubic& F, const bigint& a)
   // F, so roots mod p will not be simple, otherwise Hensel would make
   // this redundant.
 
-  bigint b = a/p; // = p^{e-1}
-  bigint one(1);
+  ZZ b = a/p; // = p^{e-1}
+  ZZ one(1);
   // Test for roots above (1:0) mod p:
   if (div(p,F.a()))
     {
       // Test (u,v) = (1, p*w) for w mod p^{e-1}
-      for (bigint w(0); w<b; w++)
+      for (ZZ w(0); w<b; w++)
         if (div(a,F.eval(one, p*w)))
           return 1;
     }
   // find affine roots r mod p:
-  vector<bigint> roots = F.roots_mod(p);
+  vector<ZZ> roots = F.roots_mod(p);
   for (auto r: roots)
     {
       // Test (u,v) = (r+p*w, 1) for w mod p^{e-1}
-      for (bigint w(0); w<b; w++)
+      for (ZZ w(0); w<b; w++)
         if (div(a,F.eval(p*w + r, one)))
           return 1;
     }
@@ -180,7 +180,7 @@ void Ndata::init()
   beta  = divide_out(N0, three);
   for (auto pi = support.begin(); pi!=support.end(); ++pi)
     {
-      bigint p = *pi;
+      ZZ p = *pi;
       if (p>3)
         {
           if (val(p,N)==1)
@@ -193,13 +193,13 @@ void Ndata::init()
 
 // Implementation of methods in the class Ddata
 
-Ddata::Ddata(const Ndata& Ndat, const bigint& D23, int al, int be, int sg)
+Ddata::Ddata(const Ndata& Ndat, const ZZ& D23, int al, int be, int sg)
   :NN(Ndat), D0(D23), alpha(al), beta(be), s(sg)
 {
   D = D0 * powersof2[alpha] * powersof3[beta] * s;
 }
 
-Ddata::Ddata(const Ndata& Ndat, const bigint& d)
+Ddata::Ddata(const Ndata& Ndat, const ZZ& d)
   :NN(Ndat), D(d), D0(d), s(sign(d))
 {
   alpha = divide_out(D0, 2);
@@ -211,7 +211,7 @@ vector<Ddata> get_discriminants(const Ndata& NN)
 {
   vector<int> alpha0s = alpha0list[NN.alpha];
   vector<int> beta0s = beta0list[NN.beta];
-  vector<bigint> N1s = posdivs(NN.N0);
+  vector<ZZ> N1s = posdivs(NN.N0);
 
   vector<Ddata> Dlist;
   for (auto N1: N1s)
@@ -246,9 +246,9 @@ map<pair<int,int>, vector<int>> beta_map = { {{0,0}, {0}},
 // Return a list of RHS's (a, primes) for one discriminant
 vector<TM_RHS> get_RHS(const Ddata& D)
 {
-  vector<bigint> alist;
+  vector<ZZ> alist;
   alist.push_back(one);
-  vector<bigint> plist;
+  vector<ZZ> plist;
 
   // p=2
   int aN = D.NN.alpha, aD = D.alpha;
@@ -380,7 +380,7 @@ int TM_eqn::local_test()
         return 0;
     }
 
-  vector<bigint> newprimes;
+  vector<ZZ> newprimes;
 
   for (auto p: RHS.plist)
     {
@@ -454,7 +454,7 @@ vector<TM_eqn> get_TMeqnsD(const Ddata& DD)
 #endif
   for (auto F: Flist)
     {
-      bigint g = F.content();
+      ZZ g = F.content();
       assert (div(g,six));
       int imprimitive = (g!=one);
       Ddata DD1 = DD;
@@ -510,7 +510,7 @@ vector<TM_eqn> get_TMeqnsN(const Ndata& NN)
 
 // for p||N and p not dividing D=disc(F) we require that F(u,v)=0 (mod
 // p) has a nontrivial solution:
-int local_test(const cubic& F, const Ddata& DD, const bigint& p)
+int local_test(const cubic& F, const Ddata& DD, const ZZ& p)
 {
   return (div(p,DD.D) || F.has_roots_mod(p));
 }
@@ -549,7 +549,7 @@ TM_eqn::TM_eqn(const string& s)
 #endif
   // read the first 7 integers:
   istringstream is(ss);
-  bigint N, D, a, b, c, d, A;
+  ZZ N, D, a, b, c, d, A;
   is >> N >> D >> a >> b >> c >> d >> A >> ws;
   Ndata NN(N);
   DD = Ddata(NN, D);
@@ -558,8 +558,8 @@ TM_eqn::TM_eqn(const string& s)
   F.sl2_reduce(m);
   F.normalise(m);
   // now read the primes (there may be none)
-  vector<bigint> plist;
-  bigint p;
+  vector<ZZ> plist;
+  ZZ p;
   while (!is.eof())
     {
       is >> p;

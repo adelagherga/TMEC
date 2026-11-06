@@ -53,8 +53,8 @@ int main (int argc, char *argv[])
     n1++;
   for (long n=n1; n<=n2; n+=4)
     {
-      bigint N(n);
-      vector<bigint> suppN = pdivs(N);
+      ZZ N(n);
+      vector<ZZ> suppN = pdivs(N);
       if (is_N_possible_j_1728(N, suppN))
         {
           vector<CurveRed> Elist = get_egros_from_j_1728(pdivs(N));

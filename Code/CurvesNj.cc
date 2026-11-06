@@ -75,7 +75,7 @@ int main (int argc, char *argv[])
     {
       if (!is_valid_conductor(n))
         continue;
-      bigint N(n);
+      ZZ N(n);
       vector<CurveRed> Elist = egros_from_j(j, pdivs(N));
       for (auto E: Elist)
         if (E.conductor() == N)
